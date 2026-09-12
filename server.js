@@ -3,412 +3,281 @@ from flask import Flask, render_template_string, request, redirect, url_for, ses
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'win_wid_secret_key_2026'
+app.secret_key = "win_wid_secret_key_security"
 socketio = SocketIO(app)
 
-# Sadə yaddaş bazası (Dataclasses yerinə siyahılar)
-users = {}          # {username: {"password": pass, "balance": 100, "color": "black", "avatar": "default.png", "blocked": False}}
-messages = []       # [{"id": id, "user": user, "text": text, "color": "black"}]
-photos = []         # [{"id": id, "user": user, "url": url, "likes": [], "comments": []}]
-videos = []         # [{"id": id, "user": user, "url": url, "likes": [], "comments": []}]
-private_chats = {}  # {(u1, u2): [messages]}
+# Sadə yaddaş bazası (Məlumatların itməməsi üçün real layihədə SQL istifadə olunmalıdır)
+users = {}          # {username: {"password": pwd, "profile_pic": url, "blocked": False}}
+posts = []          # [{"user": name, "type": "image/video", "url": link, "caption": text}]
+messages = []       # [{"sender": u1, "receiver": u2, "text": msg}]
+global_chat = []    # [{"user": name, "text": msg}]
 
-BAD_WORDS = ['18+', 'porno', 'seks', 'nsfw'] # Qadağan olunmuş sözlər sistemi
+# 5. TƏHLÜKƏSİZLİK SİSTEMİ (18+ və Qadağan olunmuş sözlər/məzmunlar)
+BANNED_WORDS = ["18+", "porno", "sex", "nude", "erootik", "badword1", "badword2"]
 
-def check_content(text):
-    for word in BAD_WORDS:
-        if word in text.lower():
+def check_security(text):
+    if not text:
+        return False
+    text_lower = text.lower()
+    for word in BANNED_WORDS:
+        if word in text_lower:
             return True
     return False
 
-# --- HTML ŞABLONLARI ---
-HTML_TEMPLATE = """
+# HTML VƏ FRONTEND HİSSƏSİ (Tək faylda bütün səhifələr)
+TEMPLATE = """
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD</title>
+    <title>WİN_WİD - Sosial Şəbəkə</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
-        header { background: #2c3e50; color: white; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; }
-        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .nav-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .nav-bar a { padding: 10px 15px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; }
-        .nav-bar a:hover { background: #2980b9; }
-        input, button, select { padding: 8px; margin: 5px 0; }
-        .error { color: red; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h1, h2 { color: #38bdf8; text-align: center; }
+        .nav { display: flex; justify-content: space-around; background: #334155; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+        .nav a { color: #f8fafc; text-decoration: none; font-weight: bold; }
+        .nav a:hover { color: #38bdf8; }
+        input, button, select { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: 1px solid #475569; background: #0f172a; color: #fff; }
+        button { background: #0284c7; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0369a1; }
+        .chat-box { height: 250px; background: #0f172a; border: 1px solid #475569; border-radius: 5px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+        .post-card { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        img, video { max-width: 100%; border-radius: 5px; margin-top: 10px; }
+        .alert { background: #ef4444; color: white; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <header>WİN_WİD"Ə XOŞ GƏLMİSİZ</header>
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
+<div class="container">
+    <h1>WİN_WİD SOSİAL ŞƏBƏKƏSİ</h1>
+    
+    {% if 'user' not in session %}
+        <!-- 2. PROFİL QEYDİYYƏT VƏ GİRİŞ -->
+        <h2>Giriş və ya Qeydiyyat</h2>
+        {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+        <form method="POST" action="/auth">
+            <input type="text" name="username" placeholder="İstifadəçi Adı" required>
+            <input type="password" name="password" placeholder="Şifrə" required>
+            <input type="text" name="profile_pic" placeholder="Profil Şəkli Linki (URL)" required>
+            <button type="submit" name="action" value="register">Qeydiyyat ol</button>
+            <button type="submit" name="action" value="login">Daxil ol</button>
+        </form>
+    {% else %}
+        <!-- NAVİQASİYA -->
+        <div class="nav">
+            <a href="/">Ümumi Çat</a>
+            <a href="/feed">Paylaşımlar (Şəkil/Video)</a>
+            <a href="/dm">Şəxsi Mesajlar (DM)</a>
+            <a href="/profile">Profilim</a>
+            <a href="/logout">Çıxış</a>
+        </div>
+
+        {% if page == 'chat' %}
+            <!-- 1. ÜMUMİ ÇAT -->
+            <h2>Ümumi Çat</h2>
+            <div class="chat-box" id="chat-messages">
+                {% for m in chat_history %}
+                    <div><b>{{ m.user }}:</b> {{ m.text }}</div>
+                {% endfor %}
+            </div>
+            <input type="text" id="chat-input" placeholder="Mesaj yazın...">
+            <button onclick="sendChatMessage()">Göndər</button>
+
+            <script>
+                const socket = io();
+                const chatBox = document.getElementById('chat-messages');
+                
+                function sendChatMessage() {
+                    const text = document.getElementById('chat-input').value;
+                    if(text.trim() !== "") {
+                        socket.emit('new_chat_message', {text: text});
+                        document.getElementById('chat-input').value = '';
+                    }
+                }
+
+                socket.on('update_chat', function(data) {
+                    if (data.blocked) {
+                        alert("Təhlükəsizlik Sistemi: 18+ və ya qadağan olunmuş məzmun aşkarlandı! Hesabınız bloklandı.");
+                        window.location.href = "/logout";
+                        return;
+                    }
+                    chatBox.innerHTML += `<div><b>${data.user}:</b> ${data.text}</div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+            </script>
+
+        {% elif page == 'feed' %}
+            <!-- 3 & 4. ŞƏKİL VƏ VİDYO PAYLAŞIMI -->
+            <h2>Paylaşım Et</h2>
+            <form method="POST" action="/add_post">
+                <select name="type">
+                    <option value="image">Şəkil Paylaş</option>
+                    <option value="video">Video Paylaş</option>
+                </select>
+                <input type="text" name="url" placeholder="Şəkil və ya Video Linki (URL)" required>
+                <input type="text" name="caption" placeholder="Açıqlama (Caption)" required>
+                <button type="submit">Paylaş</button>
+            </form>
+
+            <h2>Bütün Paylaşımlar</h2>
+            {% for post in posts %}
+                <div class="post-card">
+                    <b>@{{ post.user }}</b>
+                    <p>{{ post.caption }}</p>
+                    {% if post.type == 'image' %}
+                        <img src="{{ post.url }}" alt="Şəkil">
+                    {% else %}
+                        <video controls src="{{ post.url }}"></video>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+        {% elif page == 'dm' %}
+            <!-- 6. ŞƏXSİ MESAJLAŞMA (DM) -->
+            <h2>Şəxsi Mesajlaşma (DM)</h2>
+            <form method="GET" action="/dm">
+                <select name="receiver" onchange="this.form.submit()">
+                    <option value="">Söhbət seçin...</option>
+                    {% for u in users %}
+                        {% if u != session['user'] %}
+                            <option value="{{ u }}" {% if receiver == u %}selected{% endif %}>{{ u }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </form>
+
+            {% if receiver %}
+                <h3>{{ receiver }} ilə söhbət</h3>
+                <div class="chat-box">
+                    {% for msg in dm_messages %}
+                        {% if (msg.sender == session['user'] and msg.receiver == receiver) or (msg.sender == receiver and msg.receiver == session['user']) %}
+                            <div><b>{{ msg.sender }}:</b> {{ msg.text }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <form method="POST" action="/send_dm">
+                    <input type="hidden" name="receiver" value="{{ receiver }}">
+                    <input type="text" name="text" placeholder="Şəxsi mesaj yaz..." required>
+                    <button type="submit">Göndər</button>
+                </form>
+            {% endif %}
+
+        {% elif page == 'profile' %}
+            <!-- PROFİL HİSSƏSİ -->
+            <h2>Profil Məlumatlarım</h2>
+            <div style="text-align: center;">
+                <img src="{{ current_user_data.profile_pic }}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" alt="Profil Şəkli">
+                <h3>İstifadəçi Adı: {{ session['user'] }}</h3>
+                <p style="color: #22c55e;">Status: Aktiv / Təhlükəsizlikdən Keçib</p>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
 </body>
 </html>
 """
 
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
-        nickname = request.form.get('nickname').strip()
-        password = request.form.get('password').strip()
-        
-        # Məhdudiyyətlər yoxlaması
-        if len(nickname) > 7:
-            error = "Nik name maksimum 7 hərf olmalıdır!"
-        elif len(password) > 4 or not password.isdigit():
-            error = "Kod maksimum 4 rəqəm olmalıdır!"
-        elif nickname in users:
-            if users[nickname]['blocked']:
-                error = "Bu hesab bloklanıb!"
-            else:
-                error = "Bu nik name artıq istifadə olunub!"
+@app.route('/')
+def index():
+    if 'user' not in session:
+        return render_template_string(TEMPLATE)
+    if users[session['user']]['blocked']:
+        session.clear()
+        return render_template_string(TEMPLATE, error="Hesabınız 18+ təhlükəsizlik qaydalarını pozduğuna görə bloklanıb!")
+    return render_template_string(TEMPLATE, page='chat', chat_history=global_chat)
+
+@app.route('/auth', methods=['POST'])
+def auth():
+    action = request.form.get('action')
+    username = request.form.get('username')
+    password = request.form.get('password')
+    profile_pic = request.form.get('profile_pic', '')
+
+    if action == 'register':
+        if username in users:
+            return render_template_string(TEMPLATE, error="Bu istifadəçi adı artıq mövcuddur!")
+        users[username] = {"password": password, "profile_pic": profile_pic, "blocked": False}
+        session['user'] = username
+    elif action == 'login':
+        if username in users and users[username]['password'] == password:
+            if users[username]['blocked']:
+                return render_template_string(TEMPLATE, error="Bu hesab bloklanıb!")
+            session['user'] = username
         else:
-            users[nickname] = {
-                "password": password, 
-                "balance": 100, 
-                "color": "black", 
-                "avatar": "https://i.imgur.com/6VBx3io.png",
-                "blocked": False,
-                "status": "Aktiv"
-            }
-            session['username'] = nickname
-            return redirect(url_for('dashboard'))
-            
-    return render_template_string(HTML_TEMPLATE + """
-    {% block content %}
-    <h2>Qeydiyyat və Giriş</h2>
-    {% if error %}<p class="error">{{ error }}</p>{% endif %}
-    <form method="POST">
-        <label>Nik name (Max 7 hərf):</label><br>
-        <input type="text" name="nickname" maxlength="7" required><br>
-        <label>Kod (Max 4 rəqəm):</label><br>
-        <input type="password" name="password" maxlength="4" required><br>
-        <button type="submit">Daxil Ol</button>
-    </form>
-    {% endblock %}
-    """, error=error)
+            return render_template_string(TEMPLATE, error="İstifadəçi adı və ya şifrə yanlışdır!")
+    return redirect(url_for('index'))
 
-@app.route('/dashboard')
-def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    user = session['username']
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <h3>Xoş gəldin, {user}! (Balans: {users[user]['balance']} Bal)</h3>
-    <div class="nav-bar">
-        <a href="/chat">Çat</a>
-        <a href="/photos">Şəkil</a>
-        <a href="/videos">Vidos</a>
-        <a href="/magazin">Maqazin</a>
-        <a href="/games">Oyun</a>
-        <a href="/profile">Profil</a>
-        <a href="/users_list">İstifadəçilər</a>
-    </div>
-    <p>Üst menyudan istədiyiniz bölməni seçin.</p>
-    {% endblock %}
-    """)
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
-# --- 4. ÇAT BÖLMƏSİ ---
-@app.route('/chat')
-def chat():
-    if 'username' not in session: return redirect(url_for('login'))
-    return render_template_string(HTML_TEMPLATE + """
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Ümumi Çat</h2>
-    <div id="chat-box" style="height: 300px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; margin-bottom: 10px;"></div>
-    <input type="text" id="message-input" placeholder="Mesaj yazın..." style="width: 75%;">
-    <button onclick="sendMessage()">Göndər</button>
+@app.route('/feed')
+def feed():
+    if 'user' not in session: return redirect(url_for('index'))
+    return render_template_string(TEMPLATE, page='feed', posts=posts)
 
-    <script>
-        var socket = io();
-        var currentUser = "{{ session['username'] }}";
-
-        socket.on('update_chat', function(msgs) {
-            let box = document.getElementById('chat-box');
-            box.innerHTML = '';
-            msgs.forEach(m => {
-                let editDeleteHTML = '';
-                if(m.user === currentUser) {
-                    editDeleteHTML = ` <button onclick="deleteMsg(${m.id})">Sil</button> <button onclick="editMsg(${m.id})">Redaktə</button>`;
-                }
-                box.innerHTML += `<div style="color: ${m.color}"><b>${m.user}</b>: <span id="msg-${m.id}">${m.text}</span> ${editDeleteHTML}</div>`;
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-
-        function sendMessage() {
-            let text = document.getElementById('message-input').value;
-            if(text.trim() !== '') {
-                socket.emit('send_message', {user: currentUser, text: text});
-                document.getElementById('message-input').value = '';
-            }
-        }
-
-        function deleteMsg(id) { socket.emit('delete_message', {id: id, user: currentUser}); }
-        function editMsg(id) {
-            let newText = prompt("Yeni mesajı daxil edin:");
-            if(newText) { socket.emit('edit_message', {id: id, user: currentUser, text: newText}); }
-        }
-    </script>
-    {% endblock %}
-    """)
-
-@socketio.on('send_message')
-def handle_message(data):
-    if check_content(data['text']):
-        users[data['user']]['blocked'] = True
-        return
-    msg_id = len(messages) + 1
-    user_color = users[data['user']]['color']
-    messages.append({"id": msg_id, "user": data['user'], "text": data['text'], "color": user_color})
-    emit('update_chat', messages, broadcast=True)
-
-@socketio.on('delete_message')
-def delete_message(data):
-    global messages
-    messages = [m for m in messages if not (m['id'] == data['id'] and m['user'] == data['user'])]
-    emit('update_chat', messages, broadcast=True)
-
-@socketio.on('edit_message')
-def edit_message(data):
-    if check_content(data['text']): return
-    for m in messages:
-        if m['id'] == data['id'] and m['user'] == data['user']:
-            m['text'] = data['text']
-    emit('update_chat', messages, broadcast=True)
-
-# --- 5 & 6. ŞƏKİL VƏ VİDEO BÖLMƏLƏRİ ---
-@app.route('/photos', methods=['GET', 'POST'])
-def photos_page():
-    if 'username' not in session: return redirect(url_for('login'))
-    if request.method == 'POST':
-        url = request.form.get('url')
-        if check_content(url):
-            users[session['username']]['blocked'] = True
-            return redirect(url_for('login'))
-        photos.append({"id": len(photos)+1, "user": session['username'], "url": url, "likes": 0, "comments": []})
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Şəkil Paylaşım Paneli</h2>
-    <form method="POST">
-        <input type="text" name="url" placeholder="Şəkil Linki (URL) daxil edin" style="width: 70%;" required>
-        <button type="submit">Paylaş</button>
-    </form>
-    <hr>
-    <h3>Paylaşılan Şəkillər:</h3>
-    {{% for p in photos %}}
-        <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
-            <p><b>{p.user}</b> tərəfindən</p>
-            <img src="{{p.url}}" width="250"><br>
-            <a href="/like_photo/{{p.id}}">❤️ Bəyən ({p.likes})</a>
-        </div>
-    {{% endfor %}}
-    {% endblock %}
-    """, photos=photos)
-
-@app.route('/like_photo/<int:pid>')
-def like_photo(pid):
-    for p in photos:
-        if p['id'] == pid:
-            p['likes'] += 1
-    return redirect(url_for('photos_page'))
-
-@app.route('/videos', methods=['GET', 'POST'])
-def videos_page():
-    if 'username' not in session: return redirect(url_for('login'))
-    if request.method == 'POST':
-        url = request.form.get('url')
-        videos.append({"id": len(videos)+1, "user": session['username'], "url": url, "likes": 0})
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Video Paylaşım Paneli</h2>
-    <form method="POST">
-        <input type="text" name="url" placeholder="Video Linki daxil edin" style="width: 70%;" required>
-        <button type="submit">Paylaş</button>
-    </form>
-    <hr>
-    <h3>Paylaşılan Videolar:</h3>
-    {{% for v in videos %}}
-        <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
-            <p><b>{v.user}</b></p>
-            <a href="{{v.url}}" target="_blank">Videonu İzlə (Link)</a>
-        </div>
-    {{% endfor %}}
-    {% endblock %}
-    """, videos=videos)
-
-# --- 7. MAGAZİN BÖLMƏSİ ---
-@app.route('/magazin')
-def magazin():
-    if 'username' not in session: return redirect(url_for('login'))
-    return render_template_string(HTML_TEMPLATE + """
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Maqazin (30 Bal)</h2>
-    <h3>A) Rəngli Nik (Sarı, Qırmızı, Göy, Bənövşəyi, Yaşıl) - 30 Bal</h3>
-    <a href="/buy/color/yellow"><button>Sarı Al</button></a>
-    <a href="/buy/color/red"><button>Qırmızı Al</button></a>
+@app.route('/add_post', methods=['POST'])
+def add_post():
+    if 'user' not in session: return redirect(url_for('index'))
     
-    <h3>B) Hədiyyələr (😇, 🤣, 🤩, 🚀, 💰 və s.)</h3>
-    <p>İstifadəçilərə profilindən hədiyyə göndərə bilərsiniz.</p>
-    {% endblock %}
-    """)
+    post_type = request.form.get('type')
+    url = request.form.get('url')
+    caption = request.form.get('caption')
+    
+    # 5. Təhlükəsizlik Yoxlaması (18+ məzmun aşkarlandıqda)
+    if check_security(caption) or check_security(url):
+        users[session['user']]['blocked'] = True
+        session.clear()
+        return render_template_string(TEMPLATE, error="Təhlükəsizlik Sistemi: Paylaşımda 18+ məzmun aşkarlandı. Hesabınız bloklandı!")
 
-@app.route('/buy/color/<color>')
-def buy_color(color):
-    user = session['username']
-    if users[user]['balance'] >= 30:
-        users[user]['balance'] -= 30
-        users[user]['color'] = color
-    return redirect(url_for('magazin'))
+    posts.insert(0, {"user": session['user'], "type": post_type, "url": url, "caption": caption})
+    return redirect(url_for('feed'))
 
-# --- 8. OYUN BÖLMƏSİ ---
-@app.route('/games')
-def games():
-    if 'username' not in session: return redirect(url_for('login'))
-    return render_template_string(HTML_TEMPLATE + """
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Oyunlar</h2>
-    <ul>
-        <li><a href="/game/wow">WOW Oyunu (Söz Tap və 3 Bal Qazan)</a></li>
-        <li><a href="/game/trivia">Sual-Cavab (5 Bal Qazan)</a></li>
-    </ul>
-    {% endblock %}
-    """)
+@app.route('/dm')
+def dm():
+    if 'user' not in session: return redirect(url_for('index'))
+    receiver = request.args.get('receiver')
+    return render_template_string(TEMPLATE, page='dm', users=users, receiver=receiver, dm_messages=messages)
 
-@app.route('/game/wow', methods=['GET', 'POST'])
-def game_wow():
-    msg = ""
-    if request.method == 'POST':
-        ans = request.form.get('ans').strip().lower()
-        if ans == "python": # Nümunə söz
-            users[session['username']]['balance'] += 3
-            msg = "Təbriklər! Düzgün tapdınız (+3 Bal)"
-        else:
-            msg = "Səhvdir, yenidən cəhd edin."
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/games">← Oyunlara Geri Qayıt</a>
-    <h2>WOW Söz Oyunu</h2>
-    <p>Tapmaca: P _ T H _ N (Hərf əskikliyini tamamlayın)</p>
-    <p style="color: green;">{{msg}}</p>
-    <form method="POST">
-        <input type="text" name="ans" required placeholder="Cavabınızı yazın">
-        <button type="submit">Yoxla</button>
-    </form>
-    {% endblock %}
-    """, msg=msg)
+@app.route('/send_dm', methods=['POST'])
+def send_dm():
+    if 'user' not in session: return redirect(url_for('index'))
+    receiver = request.form.get('receiver')
+    text = request.form.get('text')
 
-@app.route('/game/trivia', methods=['GET', 'POST'])
-def game_trivia():
-    msg = ""
-    if request.method == 'POST':
-        ans = request.form.get('ans').strip().lower()
-        if ans == "baki" or ans == "bakı":
-            users[session['username']]['balance'] += 5
-            msg = "Düzgündür! (+5 Bal)"
-        else:
-            msg = "Səhvdir!"
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/games">← Oyunlara Geri Qayıt</a>
-    <h2>Sual-Cavab Oyunu (İpucu: Paytaxt şəhər)</h2>
-    <p>Sual: Azərbaycanın paytaxtı haradır?</p>
-    <p style="color: green;">{{msg}}</p>
-    <form method="POST">
-        <input type="text" name="ans" required>
-        <button type="submit">Cavabla</button>
-    </form>
-    {% endblock %}
-    """, msg=msg)
+    # 5. Təhlükəsizlik Yoxlaması (DM-də 18+)
+    if check_security(text):
+        users[session['user']]['blocked'] = True
+        session.clear()
+        return render_template_string(TEMPLATE, error="Təhlükəsizlik Sistemi: Şəxsi mesajda 18+ söz aşkarlandı. Hesabınız bloklandı!")
 
-# --- 9 & 11. PROFİL VƏ İSTİFADƏÇİLƏR BÖLMƏSİ ---
-@app.route('/profile', methods=['GET', 'POST'])
+    messages.append({"sender": session['user'], "receiver": receiver, "text": text})
+    return redirect(url_for('dm', receiver=receiver))
+
+@app.route('/profile')
 def profile():
-    if 'username' not in session: return redirect(url_for('login'))
-    user = session['username']
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'delete':
-            del users[user]
-            session.pop('username', None)
-            return redirect(url_for('login'))
-        elif action == 'logout':
-            session.pop('username', None)
-            return redirect(url_for('login'))
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Profilim: {user}</h2>
-    <p>Balans: {users[user]['balance']} Bal</p>
-    <form method="POST">
-        <button name="action" value="logout">Hesabdan Çıx</button>
-        <button name="action" value="delete" style="background:red; color:white;">Profili Sil</button>
-    </form>
-    {% endblock %}
-    """)
+    if 'user' not in session: return redirect(url_for('index'))
+    return render_template_string(TEMPLATE, page='profile', current_user_data=users[session['user']])
 
-@app.route('/users_list')
-def users_list():
-    if 'username' not in session: return redirect(url_for('login'))
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/dashboard">← Geri</a>
-    <h2>Sayıtdakı İstifadəçilər</h2>
-    <ul>
-        {{% for uname, udata in users.items() %}}
-            {% if not udata.blocked %}
-                <li>
-                    <img src="{{udata.avatar}}" width="30" style="border-radius:50%"> 
-                    <a href="/private_chat/{{uname}}">{{uname}}</a> - <span style="color:green;">● Aktİv</span>
-                </li>
-            {% endif %}
-        {{% endfor %}}
-    </ul>
-    {% endblock %}
-    """)
-
-# --- 10. ŞƏXSİ SMS PANELİ ---
-@app.route('/private_chat/<target_user>', methods=['GET', 'POST'])
-def private_chat(target_user):
-    if 'username' not in session: return redirect(url_for('login'))
-    current = session['username']
-    chat_key = tuple(sorted([current, target_user]))
+# WebSocket vasitəsilə Ümumi Çat İdarəetməsi
+@socketio.on('new_chat_message')
+def handle_chat_message(data):
+    user = session.get('user')
+    if not user: return
     
-    if chat_key not in private_chats:
-        private_chats[chat_key] = []
-        
-    if request.method == 'POST':
-        text = request.form.get('text')
-        if check_content(text):
-            users[current]['blocked'] = True
-            return redirect(url_for('login'))
-        private_chats[chat_key].append(f"{current}: {text}")
-        
-    return render_template_string(HTML_TEMPLATE + f"""
-    {% block content %}
-    <a href="/users_list">← İstifadəçilərə Qayıt</a>
-    <h2>Şəxsi Söhbət: {target_user}</h2>
-    <div style="height: 250px; border:1px solid #ccc; overflow-y:scroll; padding:10px;">
-        {{% for m in chat_messages %}}
-            <p>{{m}}</p>
-        {{% endfor %}}
-    </div>
-    <form method="POST">
-        <input type="text" name="text" placeholder="Şəxsi mesaj yazın..." style="width:70%;" required>
-        <button type="submit">Göndər</button>
-    </form>
-    {% endblock %}
-    """, chat_messages=private_chats[chat_key])
+    text = data.get('text')
+    
+    # 5. Təhlükəsizlik Yoxlaması (Ümumi çatda 18+)
+    if check_security(text):
+        users[user]['blocked'] = True
+        emit('update_chat', {'blocked': True})
+        return
+
+    msg_obj = {"user": user, "text": text}
+    global_chat.append(msg_obj)
+    emit('update_chat', msg_obj, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5000)
