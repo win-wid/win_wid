@@ -1,283 +1,414 @@
-// WIN_WID - Backend Server Kodu
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const mongoose = require('mongoose');
-const multer = require('multer');
-const badWordsFilter = require('bad-words');
-const path = require('path');
+import os
+from flask import Flask, render_template_string, request, redirect, url_for, session
+from flask_socketio import SocketIO, emit
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'win_wid_secret_key_2026'
+socketio = SocketIO(app)
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+# Sadə yaddaş bazası (Dataclasses yerinə siyahılar)
+users = {}          # {username: {"password": pass, "balance": 100, "color": "black", "avatar": "default.png", "blocked": False}}
+messages = []       # [{"id": id, "user": user, "text": text, "color": "black"}]
+photos = []         # [{"id": id, "user": user, "url": url, "likes": [], "comments": []}]
+videos = []         # [{"id": id, "user": user, "url": url, "likes": [], "comments": []}]
+private_chats = {}  # {(u1, u2): [messages]}
 
-// 1. VERİLƏNLƏR BAZASI MODELLƏRİ
-const UserSchema = new mongoose.Schema({
-    username: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
-    profilePic: { type: String, default: 'default.jpg' },
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    isBanned: { type: Boolean, default: false }
-});
-const User = mongoose.model('User', UserSchema);
+BAD_WORDS = ['18+', 'porno', 'seks', 'nsfw'] # Qadağan olunmuş sözlər sistemi
 
-const PostSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    mediaUrl: String,
-    mediaType: String,
-    createdAt: { type: Date, default: Date.now }
-});
-const Post = mongoose.model('Post', PostSchema);
+def check_content(text):
+    for word in BAD_WORDS:
+        if word in text.lower():
+            return True
+    return False
 
-// 2. WIN_WID TƏHLÜKƏSİZLİK SİSTEMİ (18+ FİLTR VƏ BLOKLAMA)
-const filter = new badWordsFilter();
+# --- HTML ŞABLONLARI ---
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+        header { background: #2c3e50; color: white; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; }
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .nav-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .nav-bar a { padding: 10px 15px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; }
+        .nav-bar a:hover { background: #2980b9; }
+        input, button, select { padding: 8px; margin: 5px 0; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <header>WİN_WİD"Ə XOŞ GƏLMİSİZ</header>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+"""
 
-async function checkTextSafety(userId, text) {
-    if (filter.isProfane(text)) {
-        await User.findByIdAndUpdate(userId, { isBanned: true });
-        return false;
-    }
-    return true;
-}
-
-async function checkMediaSafety(userId, fileBuffer) {
-    let isNsfw = false; 
-    if (isNsfw) {
-        await User.findByIdAndUpdate(userId, { isBanned: true });
-        return false;
-    }
-    return true;
-}
-
-// 3. İSTİFADƏÇİ VƏ PROFİL SİSTEMİ (QEYDİYYAT VƏ GİRİŞ)
-app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        const user = new User({ username, password });
-        await user.save();
-        res.json({ success: true, message: "Hesab yaradıldı! İndi giriş edə bilərsiniz." });
-    } catch (err) {
-        res.status(400).json({ error: "İstifadəçi adı artıq mövcuddur!" });
-    }
-});
-
-app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        const user = await User.findOne({ username, password });
-        if (!user) {
-            return res.status(400).json({ error: "İstifadəçi adı və ya şifrə yanlışdır!" });
-        }
-        if (user.isBanned) {
-            return res.status(403).json({ error: "Hesabınız 18+ qayda pozuntusuna görə BLOKLANIB!" });
-        }
-        res.json({ success: true, user: { id: user._id, username: user.username } });
-    } catch (err) {
-        res.status(500).json({ error: "Giriş zamanı xəta baş verdi!" });
-    }
-});
-
-app.post('/api/follow', async (req, res) => {
-    const { currentUserId, targetUserId } = req.body;
-    await User.findByIdAndUpdate(currentUserId, { $addToSet: { following: targetUserId } });
-    await User.findByIdAndUpdate(targetUserId, { $addToSet: { followers: currentUserId } });
-    res.json({ success: true, message: "Uğurla izləyirsiniz!" });
-});
-
-// 4. ŞƏKİL VƏ VİDEO PAYLAŞIMI
-const upload = multer({ dest: 'uploads/' });
-
-app.post('/api/upload', upload.single('media'), async (req, res) => {
-    const { userId, mediaType } = req.body;
-    const user = await User.findById(userId);
-    if (user.isBanned) {
-        return res.status(403).json({ error: "Hesabınız 18+ qayda pozuntusuna görə BLOKLANIB!" });
-    }
-
-    const isSafe = await checkMediaSafety(userId, req.file);
-    if (!isSafe) {
-        return res.status(400).json({ error: "18+ Məzmun aşkar edildi! Hesabınız bloklandı." });
-    }
-
-    const newPost = new Post({ userId, mediaUrl: req.file.path, mediaType });
-    await newPost.save();
-    res.json({ success: true, post: newPost });
-});
-
-// 5. İLK AÇILIŞ SƏHİFƏSİ (MƏRKƏZLƏŞDİRİLMİŞ QEYDİYYAT İNTERFEYSİ)
-app.get('/', (req, res) => {
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="az">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Win_Wid Social Platform</title>
-        <style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { 
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-                background-color: #121212; 
-                color: #ffffff; 
-                display: flex; 
-                flex-direction: column;
-                justify-content: center; 
-                align-items: center; 
-                min-height: 100vh; 
-                padding: 20px;
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        nickname = request.form.get('nickname').strip()
+        password = request.form.get('password').strip()
+        
+        # Məhdudiyyətlər yoxlaması
+        if len(nickname) > 7:
+            error = "Nik name maksimum 7 hərf olmalıdır!"
+        elif len(password) > 4 or not password.isdigit():
+            error = "Kod maksimum 4 rəqəm olmalıdır!"
+        elif nickname in users:
+            if users[nickname]['blocked']:
+                error = "Bu hesab bloklanıb!"
+            else:
+                error = "Bu nik name artıq istifadə olunub!"
+        else:
+            users[nickname] = {
+                "password": password, 
+                "balance": 100, 
+                "color": "black", 
+                "avatar": "https://i.imgur.com/6VBx3io.png",
+                "blocked": False,
+                "status": "Aktiv"
             }
-            .header-title {
-                font-size: 24px;
-                font-weight: bold;
-                margin-bottom: 25px;
-                text-align: center;
-            }
-            .auth-card { 
-                background: #1e1e1e; 
-                padding: 24px; 
-                border-radius: 12px; 
-                width: 100%;
-                max-width: 380px; 
-                box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
-                border: 1px solid #2a2a2a;
-            }
-            .auth-card h2 { 
-                font-size: 18px;
-                font-weight: 600;
-                margin-bottom: 20px; 
-                color: #ffffff; 
-            }
-            input { 
-                width: 100%; 
-                padding: 14px 16px; 
-                margin-bottom: 12px; 
-                border-radius: 8px; 
-                border: 1px solid #333333; 
-                background: #ffffff; 
-                color: #000000; 
-                font-size: 15px;
-                outline: none;
-            }
-            input::placeholder { color: #777777; }
-            button.main-btn { 
-                width: 100%; 
-                padding: 14px; 
-                background: #0084c7; 
-                border: none; 
-                color: #ffffff; 
-                font-size: 15px;
-                font-weight: 600; 
-                border-radius: 8px; 
-                cursor: pointer; 
-                margin-top: 5px; 
-                transition: background 0.2s;
-            }
-            button.main-btn:hover { background: #0070ab; }
-            .toggle-btn { 
-                background: transparent; 
-                color: #0084c7; 
-                border: none; 
-                margin-top: 18px; 
-                font-size: 14px;
-                cursor: pointer; 
-                width: 100%;
-                text-align: center;
-            }
-            #error-msg { color: #ff5252; font-size: 14px; margin-top: 12px; text-align: center; }
-            #main-app { display: none; text-align: center; }
-        </style>
-    </head>
-    <body>
-
-        <div class="header-title">Win_Wid Social Platform</div>
-
-        <!-- YALNIZ MƏRKƏZƏ YERLƏŞDİRİLMİŞ QEYDİYYAT/GİRİŞ KART-I -->
-        <div id="auth-container" class="auth-card">
-            <h2 id="form-title">Giriş / Qeydiyyat</h2>
+            session['username'] = nickname
+            return redirect(url_for('dashboard'))
             
-            <input type="text" id="username" placeholder="İstifadəçi adı" required>
-            <input type="password" id="password" placeholder="Şifrə" required>
-            
-            <button class="main-btn" id="auth-btn" onclick="handleAuth()">Qeydiyyatdan Keç</button>
-            <div id="error-msg"></div>
-            
-            <button class="toggle-btn" onclick="toggleMode()" id="toggle-btn">Hesabınız var? Giriş edin</button>
-        </div>
+    return render_template_string(HTML_TEMPLATE + """
+    {% block content %}
+    <h2>Qeydiyyat və Giriş</h2>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <form method="POST">
+        <label>Nik name (Max 7 hərf):</label><br>
+        <input type="text" name="nickname" maxlength="7" required><br>
+        <label>Kod (Max 4 rəqəm):</label><br>
+        <input type="password" name="password" maxlength="4" required><br>
+        <button type="submit">Daxil Ol</button>
+    </form>
+    {% endblock %}
+    """, error=error)
 
-        <div id="main-app">
-            <h2 style="color: #0084c7; margin-bottom: 10px;">Win_Wid Platformasına Xoş Gəldiniz!</h2>
-            <p id="user-welcome"></p>
-        </div>
+@app.route('/dashboard')
+def dashboard():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <h3>Xoş gəldin, {user}! (Balans: {users[user]['balance']} Bal)</h3>
+    <div class="nav-bar">
+        <a href="/chat">Çat</a>
+        <a href="/photos">Şəkil</a>
+        <a href="/videos">Vidos</a>
+        <a href="/magazin">Maqazin</a>
+        <a href="/games">Oyun</a>
+        <a href="/profile">Profil</a>
+        <a href="/users_list">İstifadəçilər</a>
+    </div>
+    <p>Üst menyudan istədiyiniz bölməni seçin.</p>
+    {% endblock %}
+    """)
 
-        <script>
-            let isLoginMode = false;
+# --- 4. ÇAT BÖLMƏSİ ---
+@app.route('/chat')
+def chat():
+    if 'username' not in session: return redirect(url_for('login'))
+    return render_template_string(HTML_TEMPLATE + """
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Ümumi Çat</h2>
+    <div id="chat-box" style="height: 300px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; margin-bottom: 10px;"></div>
+    <input type="text" id="message-input" placeholder="Mesaj yazın..." style="width: 75%;">
+    <button onclick="sendMessage()">Göndər</button>
 
-            function toggleMode() {
-                isLoginMode = !isLoginMode;
-                document.getElementById('form-title').innerText = isLoginMode ? "Giriş" : "Giriş / Qeydiyyat";
-                document.getElementById('auth-btn').innerText = isLoginMode ? "Giriş Et" : "Qeydiyyatdan Keç";
-                document.getElementById('toggle-btn').innerText = isLoginMode ? "Hesabınız yoxdur? Qeydiyyatdan keçin" : "Hesabınız var? Giriş edin";
-                document.getElementById('error-msg').innerText = "";
-            }
+    <script>
+        var socket = io();
+        var currentUser = "{{ session['username'] }}";
 
-            async function handleAuth() {
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const endpoint = isLoginMode ? '/api/login' : '/api/register';
-
-                if(!username || !password) {
-                    document.getElementById('error-msg').innerText = "Zəhmət olmasa xanaları doldurun!";
-                    return;
+        socket.on('update_chat', function(msgs) {
+            let box = document.getElementById('chat-box');
+            box.innerHTML = '';
+            msgs.forEach(m => {
+                let editDeleteHTML = '';
+                if(m.user === currentUser) {
+                    editDeleteHTML = ` <button onclick="deleteMsg(${m.id})">Sil</button> <button onclick="editMsg(${m.id})">Redaktə</button>`;
                 }
+                box.innerHTML += `<div style="color: ${m.color}"><b>${m.user}</b>: <span id="msg-${m.id}">${m.text}</span> ${editDeleteHTML}</div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
 
-                try {
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
-                    const data = await res.json();
-
-                    if(res.ok) {
-                        if(isLoginMode) {
-                            document.getElementById('auth-container').style.display = 'none';
-                            document.getElementById('main-app').style.display = 'block';
-                            document.getElementById('user-welcome').innerText = "Xoş gəldin, " + data.user.username + "!";
-                        } else {
-                            alert(data.message);
-                            toggleMode();
-                        }
-                    } else {
-                        document.getElementById('error-msg').innerText = data.error;
-                    }
-                } catch(err) {
-                    document.getElementById('error-msg').innerText = "Xəta baş verdi, yenidən cəhd edin.";
-                }
+        function sendMessage() {
+            let text = document.getElementById('message-input').value;
+            if(text.trim() !== '') {
+                socket.emit('send_message', {user: currentUser, text: text});
+                document.getElementById('message-input').value = '';
             }
-        </script>
-    </body>
-    </html>
-    `);
-});
-
-// 6. SOCKET.IO SİSTEMİ
-io.on('connection', (socket) => {
-    socket.on('send_global_message', async (data) => {
-        const { userId, message } = data;
-        const isSafe = await checkTextSafety(userId, message);
-        if (!isSafe) {
-            socket.emit('error_message', '18+ kontentə görə hesabınız BLOKLANDI!');
-            return;
         }
-        io.emit('receive_global_message', { userId, message });
-    });
-});
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Win_Wid serveri ${PORT} portunda işləyir...`);
-});
+        function deleteMsg(id) { socket.emit('delete_message', {id: id, user: currentUser}); }
+        function editMsg(id) {
+            let newText = prompt("Yeni mesajı daxil edin:");
+            if(newText) { socket.emit('edit_message', {id: id, user: currentUser, text: newText}); }
+        }
+    </script>
+    {% endblock %}
+    """)
+
+@socketio.on('send_message')
+def handle_message(data):
+    if check_content(data['text']):
+        users[data['user']]['blocked'] = True
+        return
+    msg_id = len(messages) + 1
+    user_color = users[data['user']]['color']
+    messages.append({"id": msg_id, "user": data['user'], "text": data['text'], "color": user_color})
+    emit('update_chat', messages, broadcast=True)
+
+@socketio.on('delete_message')
+def delete_message(data):
+    global messages
+    messages = [m for m in messages if not (m['id'] == data['id'] and m['user'] == data['user'])]
+    emit('update_chat', messages, broadcast=True)
+
+@socketio.on('edit_message')
+def edit_message(data):
+    if check_content(data['text']): return
+    for m in messages:
+        if m['id'] == data['id'] and m['user'] == data['user']:
+            m['text'] = data['text']
+    emit('update_chat', messages, broadcast=True)
+
+# --- 5 & 6. ŞƏKİL VƏ VİDEO BÖLMƏLƏRİ ---
+@app.route('/photos', methods=['GET', 'POST'])
+def photos_page():
+    if 'username' not in session: return redirect(url_for('login'))
+    if request.method == 'POST':
+        url = request.form.get('url')
+        if check_content(url):
+            users[session['username']]['blocked'] = True
+            return redirect(url_for('login'))
+        photos.append({"id": len(photos)+1, "user": session['username'], "url": url, "likes": 0, "comments": []})
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Şəkil Paylaşım Paneli</h2>
+    <form method="POST">
+        <input type="text" name="url" placeholder="Şəkil Linki (URL) daxil edin" style="width: 70%;" required>
+        <button type="submit">Paylaş</button>
+    </form>
+    <hr>
+    <h3>Paylaşılan Şəkillər:</h3>
+    {{% for p in photos %}}
+        <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
+            <p><b>{p.user}</b> tərəfindən</p>
+            <img src="{{p.url}}" width="250"><br>
+            <a href="/like_photo/{{p.id}}">❤️ Bəyən ({p.likes})</a>
+        </div>
+    {{% endfor %}}
+    {% endblock %}
+    """, photos=photos)
+
+@app.route('/like_photo/<int:pid>')
+def like_photo(pid):
+    for p in photos:
+        if p['id'] == pid:
+            p['likes'] += 1
+    return redirect(url_for('photos_page'))
+
+@app.route('/videos', methods=['GET', 'POST'])
+def videos_page():
+    if 'username' not in session: return redirect(url_for('login'))
+    if request.method == 'POST':
+        url = request.form.get('url')
+        videos.append({"id": len(videos)+1, "user": session['username'], "url": url, "likes": 0})
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Video Paylaşım Paneli</h2>
+    <form method="POST">
+        <input type="text" name="url" placeholder="Video Linki daxil edin" style="width: 70%;" required>
+        <button type="submit">Paylaş</button>
+    </form>
+    <hr>
+    <h3>Paylaşılan Videolar:</h3>
+    {{% for v in videos %}}
+        <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
+            <p><b>{v.user}</b></p>
+            <a href="{{v.url}}" target="_blank">Videonu İzlə (Link)</a>
+        </div>
+    {{% endfor %}}
+    {% endblock %}
+    """, videos=videos)
+
+# --- 7. MAGAZİN BÖLMƏSİ ---
+@app.route('/magazin')
+def magazin():
+    if 'username' not in session: return redirect(url_for('login'))
+    return render_template_string(HTML_TEMPLATE + """
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Maqazin (30 Bal)</h2>
+    <h3>A) Rəngli Nik (Sarı, Qırmızı, Göy, Bənövşəyi, Yaşıl) - 30 Bal</h3>
+    <a href="/buy/color/yellow"><button>Sarı Al</button></a>
+    <a href="/buy/color/red"><button>Qırmızı Al</button></a>
+    
+    <h3>B) Hədiyyələr (😇, 🤣, 🤩, 🚀, 💰 və s.)</h3>
+    <p>İstifadəçilərə profilindən hədiyyə göndərə bilərsiniz.</p>
+    {% endblock %}
+    """)
+
+@app.route('/buy/color/<color>')
+def buy_color(color):
+    user = session['username']
+    if users[user]['balance'] >= 30:
+        users[user]['balance'] -= 30
+        users[user]['color'] = color
+    return redirect(url_for('magazin'))
+
+# --- 8. OYUN BÖLMƏSİ ---
+@app.route('/games')
+def games():
+    if 'username' not in session: return redirect(url_for('login'))
+    return render_template_string(HTML_TEMPLATE + """
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Oyunlar</h2>
+    <ul>
+        <li><a href="/game/wow">WOW Oyunu (Söz Tap və 3 Bal Qazan)</a></li>
+        <li><a href="/game/trivia">Sual-Cavab (5 Bal Qazan)</a></li>
+    </ul>
+    {% endblock %}
+    """)
+
+@app.route('/game/wow', methods=['GET', 'POST'])
+def game_wow():
+    msg = ""
+    if request.method == 'POST':
+        ans = request.form.get('ans').strip().lower()
+        if ans == "python": # Nümunə söz
+            users[session['username']]['balance'] += 3
+            msg = "Təbriklər! Düzgün tapdınız (+3 Bal)"
+        else:
+            msg = "Səhvdir, yenidən cəhd edin."
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/games">← Oyunlara Geri Qayıt</a>
+    <h2>WOW Söz Oyunu</h2>
+    <p>Tapmaca: P _ T H _ N (Hərf əskikliyini tamamlayın)</p>
+    <p style="color: green;">{{msg}}</p>
+    <form method="POST">
+        <input type="text" name="ans" required placeholder="Cavabınızı yazın">
+        <button type="submit">Yoxla</button>
+    </form>
+    {% endblock %}
+    """, msg=msg)
+
+@app.route('/game/trivia', methods=['GET', 'POST'])
+def game_trivia():
+    msg = ""
+    if request.method == 'POST':
+        ans = request.form.get('ans').strip().lower()
+        if ans == "baki" or ans == "bakı":
+            users[session['username']]['balance'] += 5
+            msg = "Düzgündür! (+5 Bal)"
+        else:
+            msg = "Səhvdir!"
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/games">← Oyunlara Geri Qayıt</a>
+    <h2>Sual-Cavab Oyunu (İpucu: Paytaxt şəhər)</h2>
+    <p>Sual: Azərbaycanın paytaxtı haradır?</p>
+    <p style="color: green;">{{msg}}</p>
+    <form method="POST">
+        <input type="text" name="ans" required>
+        <button type="submit">Cavabla</button>
+    </form>
+    {% endblock %}
+    """, msg=msg)
+
+# --- 9 & 11. PROFİL VƏ İSTİFADƏÇİLƏR BÖLMƏSİ ---
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'username' not in session: return redirect(url_for('login'))
+    user = session['username']
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'delete':
+            del users[user]
+            session.pop('username', None)
+            return redirect(url_for('login'))
+        elif action == 'logout':
+            session.pop('username', None)
+            return redirect(url_for('login'))
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Profilim: {user}</h2>
+    <p>Balans: {users[user]['balance']} Bal</p>
+    <form method="POST">
+        <button name="action" value="logout">Hesabdan Çıx</button>
+        <button name="action" value="delete" style="background:red; color:white;">Profili Sil</button>
+    </form>
+    {% endblock %}
+    """)
+
+@app.route('/users_list')
+def users_list():
+    if 'username' not in session: return redirect(url_for('login'))
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/dashboard">← Geri</a>
+    <h2>Sayıtdakı İstifadəçilər</h2>
+    <ul>
+        {{% for uname, udata in users.items() %}}
+            {% if not udata.blocked %}
+                <li>
+                    <img src="{{udata.avatar}}" width="30" style="border-radius:50%"> 
+                    <a href="/private_chat/{{uname}}">{{uname}}</a> - <span style="color:green;">● Aktİv</span>
+                </li>
+            {% endif %}
+        {{% endfor %}}
+    </ul>
+    {% endblock %}
+    """)
+
+# --- 10. ŞƏXSİ SMS PANELİ ---
+@app.route('/private_chat/<target_user>', methods=['GET', 'POST'])
+def private_chat(target_user):
+    if 'username' not in session: return redirect(url_for('login'))
+    current = session['username']
+    chat_key = tuple(sorted([current, target_user]))
+    
+    if chat_key not in private_chats:
+        private_chats[chat_key] = []
+        
+    if request.method == 'POST':
+        text = request.form.get('text')
+        if check_content(text):
+            users[current]['blocked'] = True
+            return redirect(url_for('login'))
+        private_chats[chat_key].append(f"{current}: {text}")
+        
+    return render_template_string(HTML_TEMPLATE + f"""
+    {% block content %}
+    <a href="/users_list">← İstifadəçilərə Qayıt</a>
+    <h2>Şəxsi Söhbət: {target_user}</h2>
+    <div style="height: 250px; border:1px solid #ccc; overflow-y:scroll; padding:10px;">
+        {{% for m in chat_messages %}}
+            <p>{{m}}</p>
+        {{% endfor %}}
+    </div>
+    <form method="POST">
+        <input type="text" name="text" placeholder="Şəxsi mesaj yazın..." style="width:70%;" required>
+        <button type="submit">Göndər</button>
+    </form>
+    {% endblock %}
+    """, chat_messages=private_chats[chat_key])
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True, port=5000)
