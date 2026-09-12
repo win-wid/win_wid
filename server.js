@@ -108,7 +108,7 @@ app.post('/api/upload', upload.single('media'), async (req, res) => {
     res.json({ success: true, post: newPost });
 });
 
-// 5. İLK AÇILIŞ SƏHİFƏSİ (QEYDİYYAT/GİRİŞ İNTERFEYSİ)
+// 5. İLK AÇILIŞ SƏHİFƏSİ (MƏRKƏZLƏŞDİRİLMİŞ QEYDİYYAT İNTERFEYSİ)
 app.get('/', (req, res) => {
     res.send(`
     <!DOCTYPE html>
@@ -116,37 +116,100 @@ app.get('/', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Win_Wid - Xoş Gəlmisiniz</title>
+        <title>Win_Wid Social Platform</title>
         <style>
-            body { font-family: Arial, sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-            .auth-card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 320px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; }
-            h2 { margin-bottom: 20px; color: #bb86fc; }
-            input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; background: #2b2b2b; color: #fff; box-sizing: border-box; }
-            button { width: 100%; padding: 12px; background: #bb86fc; border: none; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
-            button:hover { background: #9955e8; }
-            .toggle-btn { background: transparent; color: #03dac6; border: none; margin-top: 15px; text-decoration: underline; cursor: pointer; }
-            .hidden { display: none; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+                background-color: #121212; 
+                color: #ffffff; 
+                display: flex; 
+                flex-direction: column;
+                justify-content: center; 
+                align-items: center; 
+                min-height: 100vh; 
+                padding: 20px;
+            }
+            .header-title {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 25px;
+                text-align: center;
+            }
+            .auth-card { 
+                background: #1e1e1e; 
+                padding: 24px; 
+                border-radius: 12px; 
+                width: 100%;
+                max-width: 380px; 
+                box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
+                border: 1px solid #2a2a2a;
+            }
+            .auth-card h2 { 
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 20px; 
+                color: #ffffff; 
+            }
+            input { 
+                width: 100%; 
+                padding: 14px 16px; 
+                margin-bottom: 12px; 
+                border-radius: 8px; 
+                border: 1px solid #333333; 
+                background: #ffffff; 
+                color: #000000; 
+                font-size: 15px;
+                outline: none;
+            }
+            input::placeholder { color: #777777; }
+            button.main-btn { 
+                width: 100%; 
+                padding: 14px; 
+                background: #0084c7; 
+                border: none; 
+                color: #ffffff; 
+                font-size: 15px;
+                font-weight: 600; 
+                border-radius: 8px; 
+                cursor: pointer; 
+                margin-top: 5px; 
+                transition: background 0.2s;
+            }
+            button.main-btn:hover { background: #0070ab; }
+            .toggle-btn { 
+                background: transparent; 
+                color: #0084c7; 
+                border: none; 
+                margin-top: 18px; 
+                font-size: 14px;
+                cursor: pointer; 
+                width: 100%;
+                text-align: center;
+            }
+            #error-msg { color: #ff5252; font-size: 14px; margin-top: 12px; text-align: center; }
             #main-app { display: none; text-align: center; }
         </style>
     </head>
     <body>
 
-        <!-- QEYDİYYAT VƏ GİRİŞ İNTERFEYSİ -->
+        <div class="header-title">Win_Wid Social Platform</div>
+
+        <!-- YALNIZ MƏRKƏZƏ YERLƏŞDİRİLMİŞ QEYDİYYAT/GİRİŞ KART-I -->
         <div id="auth-container" class="auth-card">
-            <h2 id="form-title">Win_Wid Qeydiyyat</h2>
+            <h2 id="form-title">Giriş / Qeydiyyat</h2>
             
             <input type="text" id="username" placeholder="İstifadəçi adı" required>
             <input type="password" id="password" placeholder="Şifrə" required>
             
-            <button id="auth-btn" onclick="handleAuth()">Qeydiyyatdan Keç</button>
-            <p id="error-msg" style="color: #cf6679; font-size: 14px; margin-top: 10px;"></p>
+            <button class="main-btn" id="auth-btn" onclick="handleAuth()">Qeydiyyatdan Keç</button>
+            <div id="error-msg"></div>
             
             <button class="toggle-btn" onclick="toggleMode()" id="toggle-btn">Hesabınız var? Giriş edin</button>
         </div>
 
-        <!-- UĞURLU GİRİŞDƏN SONRA AÇILAN ƏSAS SƏHİFƏ -->
         <div id="main-app">
-            <h1 style="color: #03dac6;">Win_Wid Şəbəkəsinə Xoş Gəldiniz!</h1>
+            <h2 style="color: #0084c7; margin-bottom: 10px;">Win_Wid Platformasına Xoş Gəldiniz!</h2>
             <p id="user-welcome"></p>
         </div>
 
@@ -155,7 +218,7 @@ app.get('/', (req, res) => {
 
             function toggleMode() {
                 isLoginMode = !isLoginMode;
-                document.getElementById('form-title').innerText = isLoginMode ? "Win_Wid Giriş" : "Win_Wid Qeydiyyat";
+                document.getElementById('form-title').innerText = isLoginMode ? "Giriş" : "Giriş / Qeydiyyat";
                 document.getElementById('auth-btn').innerText = isLoginMode ? "Giriş Et" : "Qeydiyyatdan Keç";
                 document.getElementById('toggle-btn').innerText = isLoginMode ? "Hesabınız yoxdur? Qeydiyyatdan keçin" : "Hesabınız var? Giriş edin";
                 document.getElementById('error-msg').innerText = "";
@@ -201,7 +264,7 @@ app.get('/', (req, res) => {
     `);
 });
 
-// 6. REAL-VAXTLI ÇAT VƏ ŞƏXSİ MESAJLAŞMA (DM)
+// 6. SOCKET.IO SİSTEMİ
 io.on('connection', (socket) => {
     socket.on('send_global_message', async (data) => {
         const { userId, message } = data;
@@ -211,16 +274,6 @@ io.on('connection', (socket) => {
             return;
         }
         io.emit('receive_global_message', { userId, message });
-    });
-
-    socket.on('send_private_message', async (data) => {
-        const { senderId, receiverId, message } = data;
-        const isSafe = await checkTextSafety(senderId, message);
-        if (!isSafe) {
-            socket.emit('error_message', '18+ kontentə görə hesabınız BLOKLANDI!');
-            return;
-        }
-        socket.to(receiverId).emit('receive_private_message', { senderId, message });
     });
 });
 
