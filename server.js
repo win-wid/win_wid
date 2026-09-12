@@ -1,283 +1,452 @@
-import os
-from flask import Flask, render_template_string, request, redirect, url_for, session
-from flask_socketio import SocketIO, emit
-
-app = Flask(__name__)
-app.secret_key = "win_wid_secret_key_security"
-socketio = SocketIO(app)
-
-# Sadə yaddaş bazası (Məlumatların itməməsi üçün real layihədə SQL istifadə olunmalıdır)
-users = {}          # {username: {"password": pwd, "profile_pic": url, "blocked": False}}
-posts = []          # [{"user": name, "type": "image/video", "url": link, "caption": text}]
-messages = []       # [{"sender": u1, "receiver": u2, "text": msg}]
-global_chat = []    # [{"user": name, "text": msg}]
-
-# 5. TƏHLÜKƏSİZLİK SİSTEMİ (18+ və Qadağan olunmuş sözlər/məzmunlar)
-BANNED_WORDS = ["18+", "porno", "sex", "nude", "erootik", "badword1", "badword2"]
-
-def check_security(text):
-    if not text:
-        return False
-    text_lower = text.lower()
-    for word in BANNED_WORDS:
-        if word in text_lower:
-            return True
-    return False
-
-# HTML VƏ FRONTEND HİSSƏSİ (Tək faylda bütün səhifələr)
-TEMPLATE = """
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Sosial Şəbəkə</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WİN_WİD</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1, h2 { color: #38bdf8; text-align: center; }
-        .nav { display: flex; justify-content: space-around; background: #334155; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-        .nav a { color: #f8fafc; text-decoration: none; font-weight: bold; }
-        .nav a:hover { color: #38bdf8; }
-        input, button, select { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: 1px solid #475569; background: #0f172a; color: #fff; }
-        button { background: #0284c7; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0369a1; }
-        .chat-box { height: 250px; background: #0f172a; border: 1px solid #475569; border-radius: 5px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
-        .post-card { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        img, video { max-width: 100%; border-radius: 5px; margin-top: 10px; }
-        .alert { background: #ef4444; color: white; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 10px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #1e293b;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        /* AUTH SCREEN */
+        #auth-screen {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        #auth-screen h1 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #38bdf8;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #38bdf8;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .error-msg {
+            color: #f43f5e;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        /* MAIN APP */
+        #main-app {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* NAVIGATION BAR (Şəkildəki dizayn) */
+        .nav-bar {
+            background-color: #111827;
+            padding: 12px 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 12px;
+            transition: background 0.3s, color 0.3s;
+            color: #94a3b8;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .nav-item span.icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item.active {
+            background-color: #0ea5e9;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .nav-item:hover:not(.active) {
+            color: #ffffff;
+            background-color: #1f2937;
+        }
+
+        /* CONTENT PAGES */
+        .content-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #0f172a;
+        }
+
+        .page {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* CHAT PAGE STYLES */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+        }
+
+        .message-card {
+            background-color: #1e293b;
+            padding: 10px 14px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-break: break-word;
+        }
+
+        .message-card .msg-user {
+            font-size: 11px;
+            color: #38bdf8;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .message-card .msg-text {
+            font-size: 14px;
+            color: #f8fafc;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
+
+        .chat-input-area button {
+            padding: 0 20px;
+            background-color: #0ea5e9;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .placeholder-content {
+            text-align: center;
+            color: #64748b;
+            margin-top: 50px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>WİN_WİD SOSİAL ŞƏBƏKƏSİ</h1>
     
-    {% if 'user' not in session %}
-        <!-- 2. PROFİL QEYDİYYƏT VƏ GİRİŞ -->
-        <h2>Giriş və ya Qeydiyyat</h2>
-        {% if error %}<div class="alert">{{ error }}</div>{% endif %}
-        <form method="POST" action="/auth">
-            <input type="text" name="username" placeholder="İstifadəçi Adı" required>
-            <input type="password" name="password" placeholder="Şifrə" required>
-            <input type="text" name="profile_pic" placeholder="Profil Şəkli Linki (URL)" required>
-            <button type="submit" name="action" value="register">Qeydiyyat ol</button>
-            <button type="submit" name="action" value="login">Daxil ol</button>
-        </form>
-    {% else %}
-        <!-- NAVİQASİYA -->
-        <div class="nav">
-            <a href="/">Ümumi Çat</a>
-            <a href="/feed">Paylaşımlar (Şəkil/Video)</a>
-            <a href="/dm">Şəxsi Mesajlar (DM)</a>
-            <a href="/profile">Profilim</a>
-            <a href="/logout">Çıxış</a>
+    <!-- QEYDİYAT HİSSƏSİ -->
+    <div id="auth-screen">
+        <h1>WİN_WİD'Ə XOŞ GƏLMİSİZ</h1>
+        <div class="input-group">
+            <label>Nik Name (Maksimum 7 hərf)</label>
+            <input type="text" id="nickname" maxlength="7" placeholder="Nik yazın...">
+        </div>
+        <div class="input-group">
+            <label>Kod (Maksimum 4 rəqəm)</label>
+            <input type="password" id="password" maxlength="4" placeholder="Rəqəm yazın...">
+        </div>
+        <button class="btn" onclick="registerUser()">Daxil Ol</button>
+        <div class="error-msg" id="error-msg"></div>
+    </div>
+
+    <!-- ƏSAS PANEL -->
+    <div id="main-app">
+        <!-- Şəkildəki ardıcıllığa uyğun Naviqasiya Paneli -->
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="switchPage('chat', this)">
+                <span class="icon">💬</span>
+                Çat
+            </div>
+            <div class="nav-item" onclick="switchPage('photos', this)">
+                <span class="icon">📸</span>
+                Şəkillər
+            </div>
+            <div class="nav-item" onclick="switchPage('videos', this)">
+                <span class="icon">📹</span>
+                Videolar
+            </div>
+            <div class="nav-item" onclick="switchPage('games', this)">
+                <span class="icon">🎮</span>
+                Oyunlar
+            </div>
+            <div class="nav-item" onclick="switchPage('shop', this)">
+                <span class="icon">🛍️</span>
+                Mağaza
+            </div>
+            <div class="nav-item" onclick="switchPage('profile', this)">
+                <span class="icon">👤</span>
+                Profil
+            </div>
         </div>
 
-        {% if page == 'chat' %}
-            <!-- 1. ÜMUMİ ÇAT -->
-            <h2>Ümumi Çat</h2>
-            <div class="chat-box" id="chat-messages">
-                {% for m in chat_history %}
-                    <div><b>{{ m.user }}:</b> {{ m.text }}</div>
-                {% endfor %}
-            </div>
-            <input type="text" id="chat-input" placeholder="Mesaj yazın...">
-            <button onclick="sendChatMessage()">Göndər</button>
-
-            <script>
-                const socket = io();
-                const chatBox = document.getElementById('chat-messages');
-                
-                function sendChatMessage() {
-                    const text = document.getElementById('chat-input').value;
-                    if(text.trim() !== "") {
-                        socket.emit('new_chat_message', {text: text});
-                        document.getElementById('chat-input').value = '';
-                    }
-                }
-
-                socket.on('update_chat', function(data) {
-                    if (data.blocked) {
-                        alert("Təhlükəsizlik Sistemi: 18+ və ya qadağan olunmuş məzmun aşkarlandı! Hesabınız bloklandı.");
-                        window.location.href = "/logout";
-                        return;
-                    }
-                    chatBox.innerHTML += `<div><b>${data.user}:</b> ${data.text}</div>`;
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                });
-            </script>
-
-        {% elif page == 'feed' %}
-            <!-- 3 & 4. ŞƏKİL VƏ VİDYO PAYLAŞIMI -->
-            <h2>Paylaşım Et</h2>
-            <form method="POST" action="/add_post">
-                <select name="type">
-                    <option value="image">Şəkil Paylaş</option>
-                    <option value="video">Video Paylaş</option>
-                </select>
-                <input type="text" name="url" placeholder="Şəkil və ya Video Linki (URL)" required>
-                <input type="text" name="caption" placeholder="Açıqlama (Caption)" required>
-                <button type="submit">Paylaş</button>
-            </form>
-
-            <h2>Bütün Paylaşımlar</h2>
-            {% for post in posts %}
-                <div class="post-card">
-                    <b>@{{ post.user }}</b>
-                    <p>{{ post.caption }}</p>
-                    {% if post.type == 'image' %}
-                        <img src="{{ post.url }}" alt="Şəkil">
-                    {% else %}
-                        <video controls src="{{ post.url }}"></video>
-                    {% endif %}
+        <!-- Səhifələrin Məzmunu -->
+        <div class="content-container">
+            
+            <!-- ÇAT SƏHİFƏSİ -->
+            <div id="chat-page" class="page active">
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Mesajlar bura gələcək -->
                 </div>
-            {% endfor %}
-
-        {% elif page == 'dm' %}
-            <!-- 6. ŞƏXSİ MESAJLAŞMA (DM) -->
-            <h2>Şəxsi Mesajlaşma (DM)</h2>
-            <form method="GET" action="/dm">
-                <select name="receiver" onchange="this.form.submit()">
-                    <option value="">Söhbət seçin...</option>
-                    {% for u in users %}
-                        {% if u != session['user'] %}
-                            <option value="{{ u }}" {% if receiver == u %}selected{% endif %}>{{ u }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </form>
-
-            {% if receiver %}
-                <h3>{{ receiver }} ilə söhbət</h3>
-                <div class="chat-box">
-                    {% for msg in dm_messages %}
-                        {% if (msg.sender == session['user'] and msg.receiver == receiver) or (msg.sender == receiver and msg.receiver == session['user']) %}
-                            <div><b>{{ msg.sender }}:</b> {{ msg.text }}</div>
-                        {% endif %}
-                    {% endfor %}
+                <div class="chat-input-area">
+                    <input type="text" id="msg-input" placeholder="Mesaj yazın...">
+                    <button onclick="sendMessage()">Göndər</button>
                 </div>
-                <form method="POST" action="/send_dm">
-                    <input type="hidden" name="receiver" value="{{ receiver }}">
-                    <input type="text" name="text" placeholder="Şəxsi mesaj yaz..." required>
-                    <button type="submit">Göndər</button>
-                </form>
-            {% endif %}
-
-        {% elif page == 'profile' %}
-            <!-- PROFİL HİSSƏSİ -->
-            <h2>Profil Məlumatlarım</h2>
-            <div style="text-align: center;">
-                <img src="{{ current_user_data.profile_pic }}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" alt="Profil Şəkli">
-                <h3>İstifadəçi Adı: {{ session['user'] }}</h3>
-                <p style="color: #22c55e;">Status: Aktiv / Təhlükəsizlikdən Keçib</p>
             </div>
-        {% endif %}
-    {% endif %}
+
+            <!-- ŞƏKİLLƏR SƏHİFƏSİ -->
+            <div id="photos-page" class="page">
+                <div class="placeholder-content">Şəkillər bölməsi tezliklə aktivləşəcək</div>
+            </div>
+
+            <!-- VİDEOLAR SƏHİFƏSİ -->
+            <div id="videos-page" class="page">
+                <div class="placeholder-content">Videolar bölməsi tezliklə aktivləşəcək</div>
+            </div>
+
+            <!-- OYUNLAR SƏHİFƏSİ -->
+            <div id="games-page" class="page">
+                <div class="placeholder-content">Oyunlar bölməsi tezliklə aktivləşəcək</div>
+            </div>
+
+            <!-- MAĞAZA SƏHİFƏSİ -->
+            <div id="shop-page" class="page">
+                <div class="placeholder-content">Mağaza bölməsi tezliklə aktivləşəcək</div>
+            </div>
+
+            <!-- PROFİL SƏHİFƏSİ -->
+            <div id="profile-page" class="page">
+                <div style="text-align: center; margin-top: 30px;">
+                    <h3 id="profile-name" style="color: #38bdf8; font-size: 22px; margin-bottom: 10px;"></h3>
+                    <p style="color: #94a3b8;">Status: Aktiv istifadəçi</p>
+                    <button class="btn" style="margin-top: 30px; background-color: #f43f5e;" onclick="logout()">Çıxış Et</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>
+
+<script>
+    // İstifadəçi qeydiyyatı və yoxlanılması
+    function registerUser() {
+        const nickname = document.getElementById('nickname').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errorMsg = document.getElementById('error-msg');
+
+        if (!nickname || !password) {
+            errorMsg.textContent = "Zəhmət olmasa bütün xanaları doldurun!";
+            return;
+        }
+
+        if (nickname.length > 7) {
+            errorMsg.textContent = "Nik name maksimum 7 hərf ola bilər!";
+            return;
+        }
+
+        if (password.length > 4 || isNaN(password)) {
+            errorMsg.textContent = "Kod maksimum 4 rəqəm olmalıdır!";
+            return;
+        }
+
+        // Mövcud istifadəçiləri yoxlayaq (localStorage vasitəsilə)
+        let users = JSON.parse(localStorage.getItem('win_wid_users')) || [];
+        
+        let existingUser = users.find(u => u.nickname.toLowerCase() === nickname.toLowerCase());
+        
+        if (existingUser) {
+            // Əgər istifadəçi əvvəlcədən varsa, kodu yoxlayıb daxil ola bilər və ya fərqli ad seçməlidir
+            if (existingUser.password === password) {
+                loginSuccess(nickname);
+            } else {
+                errorMsg.textContent = "Bu nik artıq istifadə olunur və ya şifrə yanlışdır!";
+            }
+            return;
+        }
+
+        // Yeni istifadəçi əlavə edirik
+        users.push({ nickname, password });
+        localStorage.setItem('win_wid_users', JSON.stringify(users));
+        
+        loginSuccess(nickname);
+    }
+
+    function loginSuccess(nickname) {
+        localStorage.setItem('win_wid_current_user', nickname);
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        document.getElementById('profile-name').textContent = "@" + nickname;
+        loadMessages();
+    }
+
+    // Səhifələr arası keçid
+    function switchPage(pageId, element) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+        document.getElementById(pageId + '-page').classList.add('active');
+        element.classList.add('active');
+    }
+
+    // Çat funksionallığı
+    function sendMessage() {
+        const input = document.getElementById('msg-input');
+        const text = input.value.trim();
+        const currentUser = localStorage.getItem('win_wid_current_user');
+
+        if (!text) return;
+
+        let messages = JSON.parse(localStorage.getItem('win_wid_messages')) || [];
+        messages.push({ user: currentUser, text: text });
+        localStorage.setItem('win_wid_messages', JSON.stringify(messages));
+
+        input.value = '';
+        loadMessages();
+    }
+
+    function loadMessages() {
+        const container = document.getElementById('chat-messages');
+        let messages = JSON.parse(localStorage.getItem('win_wid_messages')) || [];
+        
+        container.innerHTML = '';
+        if(messages.length === 0) {
+            container.innerHTML = '<div style="color: #64748b; text-align: center; margin-top: 20px;">Hələ ki mesaj yoxdur. İlk mesajı siz yazın!</div>';
+            return;
+        }
+
+        messages.forEach(msg => {
+            const card = document.createElement('div');
+            card.className = 'message-card';
+            card.innerHTML = `
+                <div class="msg-user">@${msg.user}</div>
+                <div class="msg-text">${msg.text}</div>
+            `;
+            container.appendChild(card);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function logout() {
+        localStorage.removeItem('win_wid_current_user');
+        location.reload();
+    }
+
+    // Avtomatik olaraq əvvəlki sessiyanı yoxla
+    window.onload = function() {
+        const currentUser = localStorage.getItem('win_wid_current_user');
+        if (currentUser) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            document.getElementById('profile-name').textContent = "@" + currentUser;
+            loadMessages();
+        }
+    }
+</script>
+
 </body>
 </html>
-"""
-
-@app.route('/')
-def index():
-    if 'user' not in session:
-        return render_template_string(TEMPLATE)
-    if users[session['user']]['blocked']:
-        session.clear()
-        return render_template_string(TEMPLATE, error="Hesabınız 18+ təhlükəsizlik qaydalarını pozduğuna görə bloklanıb!")
-    return render_template_string(TEMPLATE, page='chat', chat_history=global_chat)
-
-@app.route('/auth', methods=['POST'])
-def auth():
-    action = request.form.get('action')
-    username = request.form.get('username')
-    password = request.form.get('password')
-    profile_pic = request.form.get('profile_pic', '')
-
-    if action == 'register':
-        if username in users:
-            return render_template_string(TEMPLATE, error="Bu istifadəçi adı artıq mövcuddur!")
-        users[username] = {"password": password, "profile_pic": profile_pic, "blocked": False}
-        session['user'] = username
-    elif action == 'login':
-        if username in users and users[username]['password'] == password:
-            if users[username]['blocked']:
-                return render_template_string(TEMPLATE, error="Bu hesab bloklanıb!")
-            session['user'] = username
-        else:
-            return render_template_string(TEMPLATE, error="İstifadəçi adı və ya şifrə yanlışdır!")
-    return redirect(url_for('index'))
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('index'))
-
-@app.route('/feed')
-def feed():
-    if 'user' not in session: return redirect(url_for('index'))
-    return render_template_string(TEMPLATE, page='feed', posts=posts)
-
-@app.route('/add_post', methods=['POST'])
-def add_post():
-    if 'user' not in session: return redirect(url_for('index'))
-    
-    post_type = request.form.get('type')
-    url = request.form.get('url')
-    caption = request.form.get('caption')
-    
-    # 5. Təhlükəsizlik Yoxlaması (18+ məzmun aşkarlandıqda)
-    if check_security(caption) or check_security(url):
-        users[session['user']]['blocked'] = True
-        session.clear()
-        return render_template_string(TEMPLATE, error="Təhlükəsizlik Sistemi: Paylaşımda 18+ məzmun aşkarlandı. Hesabınız bloklandı!")
-
-    posts.insert(0, {"user": session['user'], "type": post_type, "url": url, "caption": caption})
-    return redirect(url_for('feed'))
-
-@app.route('/dm')
-def dm():
-    if 'user' not in session: return redirect(url_for('index'))
-    receiver = request.args.get('receiver')
-    return render_template_string(TEMPLATE, page='dm', users=users, receiver=receiver, dm_messages=messages)
-
-@app.route('/send_dm', methods=['POST'])
-def send_dm():
-    if 'user' not in session: return redirect(url_for('index'))
-    receiver = request.form.get('receiver')
-    text = request.form.get('text')
-
-    # 5. Təhlükəsizlik Yoxlaması (DM-də 18+)
-    if check_security(text):
-        users[session['user']]['blocked'] = True
-        session.clear()
-        return render_template_string(TEMPLATE, error="Təhlükəsizlik Sistemi: Şəxsi mesajda 18+ söz aşkarlandı. Hesabınız bloklandı!")
-
-    messages.append({"sender": session['user'], "receiver": receiver, "text": text})
-    return redirect(url_for('dm', receiver=receiver))
-
-@app.route('/profile')
-def profile():
-    if 'user' not in session: return redirect(url_for('index'))
-    return render_template_string(TEMPLATE, page='profile', current_user_data=users[session['user']])
-
-# WebSocket vasitəsilə Ümumi Çat İdarəetməsi
-@socketio.on('new_chat_message')
-def handle_chat_message(data):
-    user = session.get('user')
-    if not user: return
-    
-    text = data.get('text')
-    
-    # 5. Təhlükəsizlik Yoxlaması (Ümumi çatda 18+)
-    if check_security(text):
-        users[user]['blocked'] = True
-        emit('update_chat', {'blocked': True})
-        return
-
-    msg_obj = {"user": user, "text": text}
-    global_chat.append(msg_obj)
-    emit('update_chat', msg_obj, broadcast=True)
-
-if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5000)
