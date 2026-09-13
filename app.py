@@ -1,13 +1,34 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session
+import sqlite3
+import os
 
 app = Flask(__name__)
-app.secret_key = 'win_wid_gizli_kalit'  # Sessiyanı idarə etmək üçün
+app.secret_key = 'win_wid_gizli_kalit'
 
-# Sadə yaddaş (müvəqqəti olaraq siyahıda saxlanılır)
-messages = []
-users = {}  # {nickname: password}
+# Bazanın yaradılması və cədvəllərin qurulması
+def init_db():
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    # İstifadəçilər cədvəli
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            nickname TEXT PRIMARY KEY,
+            password TEXT NOT NULL
+        )
+    ''')
+    # Mesajlar cədvəli
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-# Giriş və Qeydiyyat Səhifəsi (Mavi fon)
+init_db()
+
+# Giriş və Qeydiyyat Səhifəsi
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -82,7 +103,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Mesajlaşma Paneli (1 və 2 nömrəli yerlər və mavi fon)
+# Mesajlaşma Paneli (Daimi yaddaşlı baza ilə)
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -93,7 +114,7 @@ CHAT_TEMPLATE = '''
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 20px; 
+            padding: 15px; 
             background: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
@@ -107,35 +128,41 @@ CHAT_TEMPLATE = '''
             align-items: center; 
             background: #172554; 
             color: white; 
-            padding: 15px 20px; 
+            padding: 12px 20px; 
             border-radius: 8px; 
             border: 1px solid #3b82f6; 
+            margin-bottom: 15px;
         }
-        /* 1 Nömrəli Yer: Bütün mesajların göründüyü qutu */
+        .header h2 {
+            font-size: 16px;
+            margin: 0;
+        }
         .chat-box { 
             background: #172554; 
             flex: 1; 
             border: 2px solid #f97316; 
             border-radius: 8px; 
-            margin-top: 15px; 
             padding: 15px; 
-            overflow-y: scroll; 
+            overflow-y: auto; 
             color: #ffffff; 
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         .chat-box p {
             background: #1e3a8a;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 6px;
-            margin-bottom: 8px;
+            margin: 0;
             border-left: 4px solid #3b82f6;
+            word-break: break-all;
         }
-        /* 2 Nömrəli Yer: Mesaj yazmaq və göndərmək üçün yer */
         .message-form { 
-            margin-top: 15px; 
             display: flex; 
             gap: 10px; 
             background: #172554;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid #f97316;
             border-radius: 8px;
         }
@@ -146,10 +173,11 @@ CHAT_TEMPLATE = '''
             border-radius: 6px; 
             background: #1e3a8a; 
             color: #ffffff; 
+            font-size: 14px;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
-            padding: 12px 25px; 
+            padding: 12px 22px; 
             background: #22c55e; 
             color: white; 
             border: none; 
@@ -162,9 +190,9 @@ CHAT_TEMPLATE = '''
             color: white; 
             text-decoration: none; 
             background: #dc2626; 
-            padding: 8px 15px; 
+            padding: 6px 12px; 
             border-radius: 6px; 
-            font-size: 14px; 
+            font-size: 13px; 
         }
         a.logout:hover { background: #b91c1c; }
     </style>
@@ -175,14 +203,16 @@ CHAT_TEMPLATE = '''
         <a href="/logout" class="logout">Çıxış</a>
     </div>
 
-    <!-- 1 Nömrəli Yer -->
     <div class="chat-box">
-        {% for msg in messages %}
-            <p>{{ msg }}</p>
-        {% endfor %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p>{{ msg }}</p>
+            {% endfor %}
+        {% else %}
+            <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+        {% endif %}
     </div>
 
-    <!-- 2 Nömrəli Yer -->
     <form method="POST" class="message-form">
         <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
         <button type="submit">Göndər</button>
@@ -201,19 +231,31 @@ def index():
         
         if not nickname or not password:
             error = "Xanalar boş ola bilməz!"
-        elif action == 'register':
-            if nickname in users:
-                error = "Bu nikname artıq istifadədədir!"
-            else:
-                users[nickname] = password
-                session['user'] = nickname
-                return redirect(url_for('chat'))
-        elif action == 'login':
-            if nickname in users and users[nickname] == password:
-                session['user'] = nickname
-                return redirect(url_for('chat'))
-            else:
-                error = "Yanlış nikname və ya kod!"
+        else:
+            conn = sqlite3.connect('win_wid.db')
+            cursor = conn.cursor()
+            
+            if action == 'register':
+                cursor.execute("SELECT * FROM users WHERE nickname = ?", (nickname,))
+                if cursor.fetchone():
+                    error = "Bu nikname artıq istifadədədir!"
+                else:
+                    cursor.execute("INSERT INTO users (nickname, password) VALUES (?, ?)", (nickname, password))
+                    conn.commit()
+                    session['user'] = nickname
+                    conn.close()
+                    return redirect(url_for('chat'))
+                    
+            elif action == 'login':
+                cursor.execute("SELECT password FROM users WHERE nickname = ?", (nickname,))
+                row = cursor.fetchone()
+                if row and row[0] == password:
+                    session['user'] = nickname
+                    conn.close()
+                    return redirect(url_for('chat'))
+                else:
+                    error = "Yanlış nikname və ya kod!"
+            conn.close()
                 
     return render_template_string(INDEX_TEMPLATE, error=error)
 
@@ -222,12 +264,21 @@ def chat():
     if 'user' not in session:
         return redirect(url_for('index'))
         
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    
     if request.method == 'POST':
         msg = request.form.get('message').strip()
         if msg:
             full_msg = f"{session['user']}: {msg}"
-            messages.append(full_msg)
+            cursor.execute("INSERT INTO messages (content) VALUES (?)", (full_msg,))
+            conn.commit()
+        conn.close()
         return redirect(url_for('chat'))
+        
+    cursor.execute("SELECT content FROM messages")
+    messages = [row[0] for row in cursor.fetchall()]
+    conn.close()
         
     return render_template_string(CHAT_TEMPLATE, user=session['user'], messages=messages)
 
