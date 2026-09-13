@@ -121,7 +121,7 @@ def init_db():
 
 init_db()
 
-# Giriş və Qeydiyyat Səhifəsi
+# Giriş və Qeydiyyat Səhifəsi (Narıncı çərçivə qutu ilə birləşdirildi və yazılar böyıldildi)
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -140,30 +140,31 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 320px; 
-            padding: 25px 20px; 
+            width: 360px; 
+            padding: 30px 25px; 
             background: #172554; 
-            border-radius: 12px; 
+            border-radius: 14px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); 
             text-align: center; 
-            border: 1px solid #3b82f6; 
+            border: 3px solid #f97316; 
         }
         h1 { 
-            font-size: 15px; 
-            margin-bottom: 20px; 
+            font-size: 18px; 
+            margin-bottom: 22px; 
             color: #ffffff; 
             letter-spacing: 0.5px;
+            font-weight: bold;
         }
         input { 
             width: 100%; 
-            padding: 10px 12px; 
-            margin: 8px 0; 
+            padding: 12px 14px; 
+            margin: 10px 0; 
             border: 1px solid #3b82f6; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             background: #1e3a8a; 
             color: #ffffff; 
             box-sizing: border-box; 
-            font-size: 13px;
+            font-size: 15px;
         }
         input:focus {
             border-color: #60a5fa;
@@ -172,18 +173,18 @@ INDEX_TEMPLATE = '''
         input::placeholder { color: #93c5fd; }
         button { 
             width: 100%; 
-            padding: 10px; 
-            margin: 8px 0; 
+            padding: 12px; 
+            margin: 10px 0; 
             background: #2563eb; 
             color: white; 
             border: none; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 13px;
+            font-size: 15px;
         }
         button:hover { background: #1d4ed8; }
-        .error { color: #f87171; font-size: 12px; margin-bottom: 10px; }
+        .error { color: #f87171; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -1787,7 +1788,6 @@ def add_points():
     
     return {"success": True, "new_points": new_pts}
 
-# Çat bölməsi "tezliklə aktiv olacaqdır" mesajı ilə yeniləndi
 @app.route('/chat')
 def chat():
     if 'user' not in session:
@@ -2157,7 +2157,7 @@ def profil():
                 message = "Profil şəkli dəyişdirildi!"
                 
         elif action == 'delete_account':
-            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user))
+            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
             conn.commit()
             conn.close()
             session.pop('user', None)
@@ -2228,7 +2228,7 @@ def wow_oyunu():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(WOW_TEMPLATE, points=points, header=header)
+    return render_template_string(SUB_TEMPLATE, title="WOW Oyunu", header=header)
 
 @app.route('/oyun/sual_cavab')
 def sual_cavab():
@@ -2236,7 +2236,7 @@ def sual_cavab():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUAL_CAVAB_TEMPLATE, points=points, header=header)
+    return render_template_string(SUB_TEMPLATE, title="Sual-Cavab", header=header)
 
 @app.route('/bildiris')
 def bildiris():
