@@ -561,42 +561,50 @@ PROFIL_TEMPLATE = '''
     <title>WİN_WİD - Profil</title>
     ''' + COMMON_STYLE + '''
     <style>
-        .profile-container {
-            background: #172554;
-            flex: 0 1 auto;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 10px 12px;
+        .profile-wrapper {
+            flex: 1;
             display: flex;
-            flex-direction: column;
-            gap: 7px;
-            max-width: 400px;
-            margin: 0 auto;
-            width: 100%;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 10px;
             box-sizing: border-box;
         }
+        .profile-container {
+            background: #172554;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
         .profile-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 4px;
+            padding-bottom: 6px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             background: #1e3a8a;
-            padding: 8px 10px;
+            padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 46px;
-            height: 46px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             border: 2px solid #ef4444;
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
@@ -612,17 +620,17 @@ PROFIL_TEMPLATE = '''
         }
         .crown-icon {
             position: absolute;
-            bottom: -5px;
+            bottom: -4px;
             right: -4px;
-            font-size: 11px;
+            font-size: 12px;
             background: #1e3a8a;
             border-radius: 50%;
             padding: 1px;
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 2px 0;
-            font-size: 14px;
+            margin: 0 0 3px 0;
+            font-size: 15px;
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -630,7 +638,7 @@ PROFIL_TEMPLATE = '''
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
             margin: 0;
         }
@@ -638,34 +646,34 @@ PROFIL_TEMPLATE = '''
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px;
             display: flex;
-            gap: 5px;
+            gap: 6px;
             flex-wrap: wrap;
-            min-height: 28px;
+            min-height: 32px;
             align-items: center;
         }
         .gift-item {
-            font-size: 15px;
+            font-size: 16px;
             background: #172554;
-            padding: 2px 5px;
+            padding: 3px 6px;
             border-radius: 4px;
             border: 1px solid #f97316;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 7px 10px;
+            padding: 9px 12px;
             border: 1px solid #3b82f6;
             border-radius: 6px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 11px;
+            font-size: 12px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -677,10 +685,10 @@ PROFIL_TEMPLATE = '''
             background: #0284c7;
             color: white;
             border: none;
-            padding: 7px;
+            padding: 9px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -691,10 +699,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 7px;
+            padding: 9px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -705,10 +713,10 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 7px;
+            padding: 9px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -716,7 +724,7 @@ PROFIL_TEMPLATE = '''
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
-            font-size: 11px;
+            font-size: 12px;
             text-align: center;
             margin: 0;
         }
@@ -725,57 +733,59 @@ PROFIL_TEMPLATE = '''
 <body>
     {{ header|safe }}
 
-    <div class="profile-container">
-        <p class="profile-title">Mənim Profilim</p>
-        
-        {% if message %}
-            <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
-        {% endif %}
+    <div class="profile-wrapper">
+        <div class="profile-container">
+            <p class="profile-title">Mənim Profilim</p>
+            
+            {% if message %}
+                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
+            {% endif %}
 
-        <div class="profile-header">
-            <div class="avatar-wrapper">
-                <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
-                <div class="crown-icon">👑</div>
+            <div class="profile-header">
+                <div class="avatar-wrapper">
+                    <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
+                    <div class="crown-icon">👑</div>
+                </div>
+                <div class="profile-info">
+                    <h3>@{{ user }} 👑</h3>
+                    <p class="status">● Aktivdir</p>
+                </div>
             </div>
-            <div class="profile-info">
-                <h3>@{{ user }} 👑</h3>
-                <p class="status">● Aktivdir</p>
+
+            <div>
+                <p style="font-size: 12px; margin: 0 0 4px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
+                <div class="gifts-box">
+                    {% if gifts %}
+                        {% for g in gifts %}
+                            <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                    {% endif %}
+                </div>
             </div>
+
+            <form method="POST">
+                <input type="hidden" name="action" value="change_name">
+                <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
+                <button type="submit" class="btn-blue">Adı Dəyiş</button>
+            </form>
+
+            <form method="POST" enctype="multipart/form-data" id="picForm">
+                <input type="hidden" name="action" value="change_pic">
+                <input type="file" name="pic_file" id="picInput" accept="image/*" onchange="document.getElementById('picForm').submit();">
+                <button type="button" class="btn-gray" onclick="document.getElementById('picInput').click();">Profil Şəklini Dəyiş</button>
+            </form>
+
+            <button type="button" class="btn-blue" onclick="alert('Şəkil yadda saxlanıldı!');">Şəkli Yadda Saxla</button>
+
+            <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
+                <input type="hidden" name="action" value="delete_account">
+                <button type="submit" class="btn-red">Hesabımı Sil</button>
+            </form>
+
+            <a href="/logout" class="btn-red" style="text-decoration: none; box-sizing: border-box; display: block; text-align: center;">Hesabdan Çıxış</a>
         </div>
-
-        <div>
-            <p style="font-size: 11px; margin: 0 0 3px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
-            <div class="gifts-box">
-                {% if gifts %}
-                    {% for g in gifts %}
-                        <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
-                    {% endfor %}
-                {% else %}
-                    <span style="font-size: 11px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
-                {% endif %}
-            </div>
-        </div>
-
-        <form method="POST">
-            <input type="hidden" name="action" value="change_name">
-            <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
-            <button type="submit" class="btn-blue">Adı Dəyiş</button>
-        </form>
-
-        <form method="POST" enctype="multipart/form-data" id="picForm">
-            <input type="hidden" name="action" value="change_pic">
-            <input type="file" name="pic_file" id="picInput" accept="image/*" onchange="document.getElementById('picForm').submit();">
-            <button type="button" class="btn-gray" onclick="document.getElementById('picInput').click();">Profil Şəklini Dəyiş</button>
-        </form>
-
-        <button type="button" class="btn-blue" onclick="alert('Şəkil yadda saxlanıldı!');">Şəkli Yadda Saxla</button>
-
-        <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
-            <input type="hidden" name="action" value="delete_account">
-            <button type="submit" class="btn-red">Hesabımı Sil</button>
-        </form>
-
-        <a href="/logout" class="btn-red" style="text-decoration: none; box-sizing: border-box; display: block; text-align: center;">Hesabdan Çıxış</a>
     </div>
 </body>
 </html>
