@@ -294,199 +294,6 @@ COMMON_STYLE = '''
     </style>
 '''
 
-CHAT_TEMPLATE = '''
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <title>WİN_WİD - Çat</title>
-    ''' + COMMON_STYLE + '''
-    <style>
-        .chat-outer-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: stretch;
-            padding-top: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            margin-bottom: 4px;
-        }
-        .chat-main-wrapper {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: #172554;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 10px;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .chat-header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            font-weight: bold;
-            color: #f97316;
-            background: #1e3a8a;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #3b82f6;
-            margin-bottom: 8px;
-            flex-shrink: 0;
-        }
-        .chat-box { 
-            flex: 1; 
-            overflow-y: auto; 
-            color: #ffffff; 
-            margin-bottom: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-right: 4px;
-        }
-        .message-card {
-            background: #1e3a8a;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border-left: 3px solid #3b82f6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-        }
-        .message-content {
-            word-break: break-all;
-            flex: 1;
-        }
-        .message-actions {
-            display: flex;
-            gap: 6px;
-            margin-left: 8px;
-            flex-shrink: 0;
-        }
-        .action-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 4px;
-            border-radius: 4px;
-        }
-        .action-btn:hover {
-            background: rgba(59, 130, 246, 0.4);
-        }
-        .message-form { 
-            display: flex; 
-            gap: 8px; 
-            background: #1e3a8a;
-            padding: 8px;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        input[type="text"] { 
-            flex: 1; 
-            padding: 9px 12px; 
-            border: 1px solid #f97316; 
-            border-radius: 6px; 
-            background: #172554; 
-            color: #ffffff; 
-            font-size: 13px;
-        }
-        input[type="text"]::placeholder { color: #93c5fd; }
-        button[type="submit"] { 
-            padding: 9px 16px; 
-            background: #22c55e; 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 13px;
-        }
-        button[type="submit"]:hover { background: #16a34a; }
-    </style>
-</head>
-<body>
-    {{ header|safe }}
-    <div class="chat-outer-container">
-        <div class="chat-main-wrapper">
-            <div class="chat-header-info">
-                <span>💬 Ümumi Çat</span>
-                <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
-            </div>
-            <div class="chat-box" id="chatBox">
-                {% if messages %}
-                    {% for msg in messages %}
-                        <div class="message-card" id="msg-{{ msg[0] }}">
-                            <div class="message-content" id="content-{{ msg[0] }}"><b>{{ msg[1] }}</b>: {{ msg[2] }}</div>
-                            {% if msg[1] == current_user %}
-                                <div class="message-actions">
-                                    <button class="action-btn" title="Redaktə et" onclick="editMessage('{{ msg[0] }}', '{{ msg[2] }}')">✏️</button>
-                                    <button class="action-btn" title="Sil" onclick="deleteMessage('{{ msg[0] }}')">🗑️</button>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
-                {% endif %}
-            </div>
-            <!-- Mesaj göndərmə yeri çərçivənin (chat-main-wrapper) içərisinə səliqəli yerləşdirildi -->
-            <form method="POST" class="message-form">
-                <input type="text" name="message" placeholder="Mesaj yaz..." autocomplete="off" required>
-                <button type="submit">Göndər</button>
-            </form>
-        </div>
-    </div>
-    <script>
-        window.onload = function() {
-            let chatBox = document.getElementById('chatBox');
-            chatBox.scrollTop = chatBox.scrollHeight;
-        };
-
-        function deleteMessage(msgId) {
-            if(confirm("Bu mesajı silmək istədiyinizə əminsinizmi?")) {
-                fetch('/delete_message/' + msgId, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        document.getElementById('msg-' + msgId).remove();
-                    } else {
-                        alert(data.error || "Xəta baş verdi!");
-                    }
-                });
-            }
-        }
-
-        function editMessage(msgId, oldText) {
-            let newText = prompt("Mesajınızı redaktə edin:", oldText);
-            if(newText !== null && newText.trim() !== "") {
-                fetch('/edit_message/' + msgId, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: newText.trim() })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.error || "Xəta baş verdi!");
-                    }
-                });
-            }
-        }
-    </script>
-</body>
-</html>
-'''
-
 USERS_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1883,311 +1690,6 @@ OYUN_PANEL_TEMPLATE = '''
 </html>
 '''
 
-WOW_TEMPLATE = '''
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <title>WİN_WİD - WOW Oyunu</title>
-    ''' + COMMON_STYLE + '''
-    <style>
-        .game-container {
-            background: #172554;
-            flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            text-align: center;
-        }
-        .game-box {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 20px;
-            width: 100%;
-            max-width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-sizing: border-box;
-        }
-        .word-display {
-            font-size: 24px;
-            letter-spacing: 4px;
-            font-weight: bold;
-            color: #f97316;
-            margin: 5px 0;
-        }
-        .btn-action {
-            background: #22c55e;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .btn-action:hover { background: #16a34a; }
-        .back-link {
-            font-size: 11px;
-            color: #93c5fd;
-            text-decoration: none;
-            margin-top: 5px;
-        }
-        .back-link:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    {{ header|safe }}
-    <div class="game-container">
-        <div class="game-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #f97316;">
-                <span>🔠 WOW SÖZ OYUNU</span>
-                <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
-            </div>
-            <p style="font-size: 11px; color: #93c5fd; margin: 0;">Sözdə 1 hərf əskikdir. Tap və 5 bal qazan!</p>
-            <div class="word-display" id="maskedWord">---</div>
-            <input type="text" id="userLetter" maxlength="1" placeholder="Bir hərf yaz" style="padding: 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 14px; text-transform: uppercase;">
-            <button class="btn-action" onclick="checkLetter()">Yoxla</button>
-            <p id="wowResult" style="font-size: 12px; font-weight: bold; margin: 0;"></p>
-            <a href="/oyun" class="back-link">⬅️ Oyunlar Panelinə Qayıt</a>
-        </div>
-    </div>
-    <script>
-        let words = [
-            { full: "KITAB", hiddenIndex: 2, hiddenChar: "T" },
-            { full: "QƏLƏM", hiddenIndex: 2, hiddenChar: "L" },
-            { full: "MƏKTƏB", hiddenIndex: 3, hiddenChar: "T" },
-            { full: "KOMPYUTER", hiddenIndex: 5, hiddenChar: "Y" },
-            { full: "TELEFON", hiddenIndex: 4, hiddenChar: "F" },
-            { full: "AZƏRBAYCAN", hiddenIndex: 3, hiddenChar: "R" },
-            { full: "DOSKA", hiddenIndex: 2, hiddenChar: "S" }
-        ];
-        let currentWordObj = {};
-
-        function nextWord() {
-            let randomIndex = Math.floor(Math.random() * words.length);
-            currentWordObj = words[randomIndex];
-            
-            let maskedArr = currentWordObj.full.split('');
-            maskedArr[currentWordObj.hiddenIndex] = '_';
-            document.getElementById('maskedWord').innerText = maskedArr.join(' ');
-            document.getElementById('userLetter').value = '';
-            document.getElementById('wowResult').innerText = '';
-        }
-
-        function checkLetter() {
-            let userVal = document.getElementById('userLetter').value.toUpperCase();
-            let res = document.getElementById('wowResult');
-            if(!userVal) {
-                res.style.color = "#f87171";
-                res.innerText = "Zəhmət olmasa hərf daxil edin!";
-                return;
-            }
-            if(userVal === currentWordObj.hiddenChar) {
-                res.style.color = "#22c55e";
-                res.innerText = "Təbriklər! Düzdür (+5 bal)";
-                
-                fetch('/add_points', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ points: 5 })
-                }).then(res => res.json()).then(data => {
-                    if(data.success) {
-                        let elements = document.querySelectorAll('#userPointsDisplay');
-                        elements.forEach(el => el.innerText = data.new_points);
-                    }
-                });
-
-                setTimeout(nextWord, 1500);
-            } else {
-                res.style.color = "#f87171";
-                res.innerText = "Səhvdir! Yenidən yoxla.";
-            }
-        }
-        nextWord();
-    </script>
-</body>
-</html>
-'''
-
-SUAL_CAVAB_TEMPLATE = '''
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <title>WİN_WİD - Sual-Cavab</title>
-    ''' + COMMON_STYLE + '''
-    <style>
-        .game-container {
-            background: #172554;
-            flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            text-align: center;
-        }
-        .game-box {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 20px;
-            width: 100%;
-            max-width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-sizing: border-box;
-        }
-        .timer-box {
-            font-size: 13px;
-            color: #f97316;
-            font-weight: bold;
-        }
-        .question-text {
-            font-size: 13px;
-            color: #fff;
-            margin: 5px 0;
-            font-weight: bold;
-        }
-        .hint-text {
-            font-size: 11px;
-            color: #93c5fd;
-            font-style: italic;
-        }
-        .btn-action {
-            background: #22c55e;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .btn-action:hover { background: #16a34a; }
-        .back-link {
-            font-size: 11px;
-            color: #93c5fd;
-            text-decoration: none;
-            margin-top: 5px;
-        }
-        .back-link:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    {{ header|safe }}
-    <div class="game-container">
-        <div class="game-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #f97316;">
-                <span>❓ SUAL-CAVAB</span>
-                <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
-            </div>
-            <div class="timer-box">⏰ Qalan Vaxt: <span id="timeLeft">60</span> san</div>
-            <div class="question-text" id="questionBox">Sual yüklənir...</div>
-            <div class="hint-text" id="hintBox">İpucu: ...</div>
-            <input type="text" id="userAnswer" placeholder="Cavabınızı yazın..." style="padding: 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 12px;">
-            <button class="btn-action" onclick="checkAnswer()">Cavab Ver</button>
-            <p id="qaResult" style="font-size: 12px; font-weight: bold; margin: 0;"></p>
-            <a href="/oyun" class="back-link">⬅️ Oyunlar Panelinə Qayıt</a>
-        </div>
-    </div>
-    <script>
-        let questions = [
-            { q: "Azərbaycanın paytaxtı hansı şəhərdir?", hint: "B hərfi ilə başlayır", a: "BAKI" },
-            { q: "Dünyanın ən böyük okeanı hansıdır?", hint: "Sakit okean da deyilir", a: "SAKIT OKEAN" },
-            { q: "İşığın sürəti təxminən neçə km/san-dir?", hint: "300 min civarında", a: "300000" },
-            { q: "Dəmirin kimyəvi işarəsi necədir?", hint: "Fe", a: "FE" },
-            { q: "Günəş sistemində ən böyük planet hansıdır?", hint: "Yupiter", a: "YUPITER" }
-        ];
-        
-        let currentQIndex = 0;
-        let timer;
-        let timeLeft = 60;
-
-        function loadQuestion() {
-            clearInterval(timer);
-            timeLeft = 60;
-            document.getElementById('timeLeft').innerText = timeLeft;
-            
-            if (currentQIndex >= questions.length) {
-                currentQIndex = 0;
-            }
-            
-            let qObj = questions[currentQIndex];
-            document.getElementById('questionBox').innerText = qObj.q;
-            document.getElementById('hintBox').innerText = "İpucu: " + qObj.hint;
-            document.getElementById('userAnswer').value = '';
-            document.getElementById('qaResult').innerText = '';
-
-            timer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timeLeft').innerText = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    document.getElementById('qaResult').style.color = "#f87171";
-                    document.getElementById('qaResult').innerText = "Vaxt bitdi! Növbəti suala keçilir...";
-                    setTimeout(nextQuestion, 2000);
-                }
-            }, 1000);
-        }
-
-        function nextQuestion() {
-            currentQIndex++;
-            loadQuestion();
-        }
-
-        function checkAnswer() {
-            let userVal = document.getElementById('userAnswer').value.trim().toUpperCase();
-            let qObj = questions[currentQIndex];
-            let res = document.getElementById('qaResult');
-
-            if (!userVal) {
-                res.style.color = "#f87171";
-                res.innerText = "Zəhmət olmasa cavab yazın!";
-                return;
-            }
-
-            if (userVal === qObj.a) {
-                clearInterval(timer);
-                res.style.color = "#22c55e";
-                res.innerText = "Təbriklər! Düzgün cavab (+8 bal)";
-                
-                fetch('/add_points', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ points: 8 })
-                }).then(res => res.json()).then(data => {
-                    if(data.success) {
-                        let elements = document.querySelectorAll('#userPointsDisplay');
-                        elements.forEach(el => el.innerText = data.new_points);
-                    }
-                });
-
-                setTimeout(nextQuestion, 2000);
-            } else {
-                res.style.color = "#f87171";
-                res.innerText = "Səhv cavab! Yenidən cəhd et.";
-            }
-        }
-
-        loadQuestion();
-    </script>
-</body>
-</html>
-'''
-
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2214,7 +1716,7 @@ SUB_TEMPLATE = '''
 <body>
     {{ header|safe }}
     <div class="content-box">
-        <p>{{ title }} bölməsi tezliklə aktiv olacaq!</p>
+        <p>{{ title }} bölməsi tezliklə aktiv olacaqdır</p>
     </div>
 </body>
 </html>
@@ -2285,74 +1787,14 @@ def add_points():
     
     return {"success": True, "new_points": new_pts}
 
-@app.route('/chat', methods=['GET', 'POST'])
+# Çat bölməsi "tezliklə aktiv olacaqdır" mesajı ilə yeniləndi
+@app.route('/chat')
 def chat():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
-    conn = sqlite3.connect('win_wid.db')
-    cursor = conn.cursor()
-    
-    if request.method == 'POST':
-        msg = request.form.get('message').strip()
-        if msg:
-            cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (session['user'], msg))
-            conn.commit()
-        conn.close()
-        return redirect(url_for('chat'))
-        
-    cursor.execute("SELECT id, sender, content FROM messages")
-    messages = cursor.fetchall()
-    conn.close()
-    
     points = get_user_points(session['user'])
     header = get_header_template(points)
-        
-    return render_template_string(CHAT_TEMPLATE, messages=messages, header=header, points=points, current_user=session['user'])
-
-@app.route('/delete_message/<int:msg_id>', methods=['POST'])
-def delete_message(msg_id):
-    if 'user' not in session:
-        return jsonify({"success": False, "error": "Giriş etməmisiniz"}), 401
-        
-    conn = sqlite3.connect('win_wid.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
-    row = cursor.fetchone()
-    
-    if row and row[0] == session['user']:
-        cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
-        conn.commit()
-        conn.close()
-        return jsonify({"success": True})
-    
-    conn.close()
-    return jsonify({"success": False, "error": "Bu mesajı silməyə icazəniz yoxdur"})
-
-@app.route('/edit_message/<int:msg_id>', methods=['POST'])
-def edit_message(msg_id):
-    if 'user' not in session:
-        return jsonify({"success": False, "error": "Giriş etməmisiniz"}), 401
-        
-    data = request.get_json()
-    new_content = data.get('content', '').strip()
-    
-    if not new_content:
-        return jsonify({"success": False, "error": "Mesaj boş ola bilməz"})
-        
-    conn = sqlite3.connect('win_wid.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
-    row = cursor.fetchone()
-    
-    if row and row[0] == session['user']:
-        cursor.execute("UPDATE messages SET content = ? WHERE id = ?", (new_content, msg_id))
-        conn.commit()
-        conn.close()
-        return jsonify({"success": True})
-        
-    conn.close()
-    return jsonify({"success": False, "error": "Bu mesajı redaktə etməyə icazəniz yoxdur"})
+    return render_template_string(SUB_TEMPLATE, title="Çat", header=header)
 
 @app.route('/istifadeciler')
 def istifadeciler():
@@ -2712,33 +2154,26 @@ def profil():
                 pic_url = f"data:{mime_type};base64,{encoded}"
                 cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
                 conn.commit()
-                message = "Profil şəkli yeniləndi!"
+                message = "Profil şəkli dəyişdirildi!"
                 
         elif action == 'delete_account':
-            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
-            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
+            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user))
             conn.commit()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
             
-    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (current_user,))
-    pic_row = cursor.fetchone()
-    pic = pic_row[0] if pic_row else ''
+    cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
+    row = cursor.fetchone()
+    pic = row[0] if row else ''
+    points = row[1] if row and row[1] is not None else 500
     
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
     
     conn.close()
-    
-    points = get_user_points(current_user)
     header = get_header_template(points)
     return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
-
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return redirect(url_for('index'))
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -2758,23 +2193,26 @@ def magaza():
             receiver = request.form.get('receiver')
             gift = request.form.get('gift')
             
-            points = get_user_points(current_user)
-            if points >= 20:
+            cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+            pts = cursor.fetchone()[0]
+            
+            if pts < 20:
+                message = "Balınız kifayət etmir (20 bal lazımdır)!"
+                error = True
+            else:
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
-                message = f"Hədiyyə @{receiver} istifadəçisinə uğurla göndərildi!"
-            else:
-                message = "Balınız kifayət etmir! (Minimum 20 bal lazımdır)"
-                error = True
+                message = f"Hədiyyə @{receiver}-ə uğurla göndərildi!"
                 
     cursor.execute("SELECT nickname FROM users")
     users = [row[0] for row in cursor.fetchall()]
-    conn.close()
     
     points = get_user_points(current_user)
+    conn.close()
+    
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, message=message, error=error, header=header, points=points)
+    return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, points=points, message=message, error=error, header=header)
 
 @app.route('/oyun')
 def oyun_panel():
@@ -2782,23 +2220,23 @@ def oyun_panel():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(OYUN_PANEL_TEMPLATE, header=header, points=points)
+    return render_template_string(OYUN_PANEL_TEMPLATE, points=points, header=header)
 
 @app.route('/oyun/wow')
-def oyun_wow():
+def wow_oyunu():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(WOW_TEMPLATE, header=header, points=points)
+    return render_template_string(WOW_TEMPLATE, points=points, header=header)
 
 @app.route('/oyun/sual_cavab')
-def oyun_sual_cavab():
+def sual_cavab():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header, points=points)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, points=points, header=header)
 
 @app.route('/bildiris')
 def bildiris():
@@ -2808,5 +2246,10 @@ def bildiris():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
 
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
