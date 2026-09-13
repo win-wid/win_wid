@@ -136,7 +136,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst Menyu (Oyun əlavə olundu)
+# Üst Menyu
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -695,7 +695,7 @@ PROFIL_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="profile-container">
-        <p class="profile-title">Mənim Profilim (Bal: {{ points }})</p>
+        <p class="profile-title">Mənim Profilim (Bal: <span id="userPointsDisplay">{{ points }}</span>)</p>
         
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
@@ -921,15 +921,105 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-OYUN_TEMPLATE = '''
+# Yeni Əsas Oyun Paneli (WOW və Sual-Cavab seçimi)
+OYUN_PANEL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Oyun</title>
+    <title>WİN_WİD - Oyunlar Paneli</title>
     ''' + COMMON_STYLE + '''
     <style>
-        .oyun-container {
+        .panel-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+        }
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+        }
+        .games-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .game-card {
+            background: #1e3a8a;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #fff;
+            transition: 0.2s;
+        }
+        .game-card:hover {
+            border-color: #f97316;
+            transform: translateY(-3px);
+            background: #1d4ed8;
+        }
+        .game-icon {
+            font-size: 32px;
+        }
+        .game-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .game-desc {
+            font-size: 11px;
+            color: #93c5fd;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+    <div class="panel-container">
+        <p class="panel-title">🎮 OYUNLAR PANELİ (Balın: <span id="pointsVal">{{ points }}</span>)</p>
+        <div class="games-grid">
+            <a href="/oyun/wow" class="game-card">
+                <span class="game-icon">🔠</span>
+                <p class="game-name">WOW Oyunu</p>
+                <p class="game-desc">Gizli hərfi tap, 5 bal qazan!</p>
+            </a>
+            <a href="/oyun/sual_cavab" class="game-card">
+                <span class="game-icon">❓</span>
+                <p class="game-name">Sual-Cavab</p>
+                <p class="game-desc">1 dəqiqə ərzində cavabla, 8 bal qazan!</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+# WOW Oyunu Səhifəsi
+WOW_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - WOW Oyunu</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .game-container {
             background: #172554;
             flex: 1;
             border: 2px solid #f97316;
@@ -942,25 +1032,26 @@ OYUN_TEMPLATE = '''
             gap: 12px;
             text-align: center;
         }
-        .oyun-title {
-            font-size: 15px;
-            font-weight: bold;
-            color: #ffffff;
-            margin: 0;
-        }
-        .oyun-box {
+        .game-box {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             box-sizing: border-box;
         }
-        .btn-oyna {
+        .word-display {
+            font-size: 24px;
+            letter-spacing: 4px;
+            font-weight: bold;
+            color: #f97316;
+            margin: 5px 0;
+        }
+        .btn-action {
             background: #22c55e;
             color: white;
             border: none;
@@ -970,37 +1061,252 @@ OYUN_TEMPLATE = '''
             cursor: pointer;
             font-size: 12px;
         }
-        .btn-oyna:hover { background: #16a34a; }
+        .btn-action:hover { background: #16a34a; }
+        .back-link {
+            font-size: 11px;
+            color: #93c5fd;
+            text-decoration: none;
+            margin-top: 5px;
+        }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     {{ header|safe }}
-    <div class="oyun-container">
-        <div class="oyun-box">
-            <p class="oyun-title">🎮 Mini Bəxt Oyunu</p>
-            <p style="font-size: 12px; color: #93c5fd; margin: 0;">1 ilə 10 arasında rəqəm tut və yoxla!</p>
-            <input type="number" id="userGuess" min="1" max="10" placeholder="1-10 arası rəqəm" style="padding: 6px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 12px;">
-            <button class="btn-oyna" onclick="playGame()">Yoxla</button>
-            <p id="gameResult" style="font-size: 12px; font-weight: bold; margin: 0; color: #f97316;"></p>
+    <div class="game-container">
+        <div class="game-box">
+            <p style="font-size: 14px; font-weight: bold; margin: 0;">🔠 WOW SÖZ OYUNU</p>
+            <p style="font-size: 11px; color: #93c5fd; margin: 0;">Aşağıdakı sözdə 1 hərf əskikdir. Tap və 5 bal qazan!</p>
+            <div class="word-display" id="maskedWord">---</div>
+            <input type="text" id="userLetter" maxlength="1" placeholder="Bir hərf yaz" style="padding: 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 14px; text-transform: uppercase;">
+            <button class="btn-action" onclick="checkLetter()">Yoxla</button>
+            <p id="wowResult" style="font-size: 12px; font-weight: bold; margin: 0;"></p>
+            <a href="/oyun" class="back-link">⬅️ Oyunlar Panelinə Qayıt</a>
         </div>
     </div>
     <script>
-        function playGame() {
-            let val = document.getElementById('userGuess').value;
-            let res = document.getElementById('gameResult');
-            if(!val) {
-                res.innerText = "Zəhmət olmasa rəqəm daxil edin!";
+        let words = [
+            { full: "KITAB", hiddenIndex: 2, hiddenChar: "T" },
+            { full: "QƏLƏM", hiddenIndex: 2, hiddenChar: "L" },
+            { full: "MƏKTƏB", hiddenIndex: 3, hiddenChar: "T" },
+            { full: "KOMPYUTER", hiddenIndex: 5, hiddenChar: "Y" },
+            { full: "TELEFON", hiddenIndex: 4, hiddenChar: "F" },
+            { full: "AZƏRBAYCAN", hiddenIndex: 3, hiddenChar: "R" },
+            { full: "DOSKA", hiddenIndex: 2, hiddenChar: "S" }
+        ];
+        let currentWordObj = {};
+
+        function nextWord() {
+            let randomIndex = Math.floor(Math.random() * words.length);
+            currentWordObj = words[randomIndex];
+            
+            let maskedArr = currentWordObj.full.split('');
+            maskedArr[currentWordObj.hiddenIndex] = '_';
+            document.getElementById('maskedWord').innerText = maskedArr.join(' ');
+            document.getElementById('userLetter').value = '';
+            document.getElementById('wowResult').innerText = '';
+        }
+
+        function checkLetter() {
+            let userVal = document.getElementById('userLetter').value.toUpperCase();
+            let res = document.getElementById('wowResult');
+            if(!userVal) {
+                res.style.color = "#f87171";
+                res.innerText = "Zəhmət olmasa hərf daxil edin!";
                 return;
             }
-            let rand = Math.floor(Math.random() * 10) + 1;
-            if(parseInt(val) === rand) {
+            if(userVal === currentWordObj.hiddenChar) {
                 res.style.color = "#22c55e";
-                res.innerText = "Təbriklər! Tapdın (Gizli rəqəm: " + rand + ")";
+                res.innerText = "Təbriklər! Düzdür (+5 bal)";
+                
+                // Serverə bal əlavə etmək üçün sorğu göndər
+                fetch('/add_points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ points: 5 })
+                }).then(res => res.json()).then(data => {
+                    if(data.success) {
+                        let pEl = document.getElementById('userPointsDisplay');
+                        if(pEl) pEl.innerText = data.new_points;
+                    }
+                });
+
+                setTimeout(nextWord, 1500);
             } else {
                 res.style.color = "#f87171";
-                res.innerText = "Təəssüf, tapmadın. Gizli rəqəm: " + rand;
+                res.innerText = "Səhvdir! Yenidən yoxla.";
             }
         }
+        nextWord();
+    </script>
+</body>
+</html>
+'''
+
+# Sual-Cavab Oyunu Səhifəsi
+SUAL_CAVAB_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Sual-Cavab</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .game-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+        }
+        .game-box {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+        .timer-box {
+            font-size: 13px;
+            color: #f97316;
+            font-weight: bold;
+        }
+        .question-text {
+            font-size: 13px;
+            color: #fff;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .hint-text {
+            font-size: 11px;
+            color: #93c5fd;
+            font-style: italic;
+        }
+        .btn-action {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-action:hover { background: #16a34a; }
+        .back-link {
+            font-size: 11px;
+            color: #93c5fd;
+            text-decoration: none;
+            margin-top: 5px;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+    <div class="game-container">
+        <div class="game-box">
+            <p style="font-size: 14px; font-weight: bold; margin: 0;">❓ SUAL-CAVAB OYUNU</p>
+            <div class="timer-box">⏰ Qalan Vaxt: <span id="timeLeft">60</span> san</div>
+            <div class="question-text" id="questionBox">Sual yüklənir...</div>
+            <div class="hint-text" id="hintBox">İpucu: ...</div>
+            <input type="text" id="userAnswer" placeholder="Cavabınızı yazın..." style="padding: 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 12px;">
+            <button class="btn-action" onclick="checkAnswer()">Cavab Ver</button>
+            <p id="qaResult" style="font-size: 12px; font-weight: bold; margin: 0;"></p>
+            <a href="/oyun" class="back-link">⬅️ Oyunlar Panelinə Qayıt</a>
+        </div>
+    </div>
+    <script>
+        let questions = [
+            { q: "Azərbaycanın paytaxtı hansı şəhərdir?", hint: "B hərfi ilə başlayır", a: "BAKI" },
+            { q: "Dünyanın ən böyük okeanı hansıdır?", hint: "Sakit okean da deyilir", a: "SAKIT OKEAN" },
+            { q: "İşığın sürəti təxminən neçə km/san-dir?", hint: "300 min civarında", a: "300000" },
+            { q: "Dəmirin kimyəvi işarəsi necədir?", hint: "Fe", a: "FE" },
+            { q: "Günəş sistemində ən böyük planet hansıdır?", hint: "Yupiter", a: "YUPITER" }
+        ];
+        
+        let currentQIndex = 0;
+        let timer;
+        let timeLeft = 60;
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            document.getElementById('timeLeft').innerText = timeLeft;
+            
+            if (currentQIndex >= questions.length) {
+                currentQIndex = 0; // Başa qayıtsın
+            }
+            
+            let qObj = questions[currentQIndex];
+            document.getElementById('questionBox').innerText = qObj.q;
+            document.getElementById('hintBox').innerText = "İpucu: " + qObj.hint;
+            document.getElementById('userAnswer').value = '';
+            document.getElementById('qaResult').innerText = '';
+
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('qaResult').style.color = "#f87171";
+                    document.getElementById('qaResult').innerText = "Vaxt bitdi! Növbəti suala keçilir...";
+                    setTimeout(nextQuestion, 2000);
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            loadQuestion();
+        }
+
+        function checkAnswer() {
+            let userVal = document.getElementById('userAnswer').value.trim().toUpperCase();
+            let qObj = questions[currentQIndex];
+            let res = document.getElementById('qaResult');
+
+            if (!userVal) {
+                res.style.color = "#f87171";
+                res.innerText = "Zəhmət olmasa cavab yazın!";
+                return;
+            }
+
+            if (userVal === qObj.a) {
+                clearInterval(timer);
+                res.style.color = "#22c55e";
+                res.innerText = "Təbriklər! Düzgün cavab (+8 bal)";
+                
+                fetch('/add_points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ points: 8 })
+                }).then(res => res.json()).then(data => {
+                    if(data.success) {
+                        let pEl = document.getElementById('userPointsDisplay');
+                        if(pEl) pEl.innerText = data.new_points;
+                    }
+                });
+
+                setTimeout(nextQuestion, 2000);
+            } else {
+                res.style.color = "#f87171";
+                res.innerText = "Səhv cavab! Yenidən cəhd et.";
+            }
+        }
+
+        loadQuestion();
     </script>
 </body>
 </html>
@@ -1083,6 +1389,26 @@ def get_user_points(username):
     row = cursor.fetchone()
     conn.close()
     return row[0] if row and row[0] is not None else 500
+
+# Oyunlar zamanı qazanılan balları yeniləmək üçün endpoint
+@app.route('/add_points', methods=['POST'])
+def add_points():
+    if 'user' not in session:
+        return {"success": False}, 401
+    data = request.get_json()
+    added_pts = data.get('points', 0)
+    current_user = session['user']
+    
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET points = points + ? WHERE nickname = ?", (added_pts, current_user))
+    conn.commit()
+    
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    new_pts = cursor.fetchone()[0]
+    conn.close()
+    
+    return {"success": True, "new_points": new_pts}
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -1279,7 +1605,23 @@ def oyun():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(OYUN_TEMPLATE, header=header)
+    return render_template_string(OYUN_PANEL_TEMPLATE, header=header, points=points)
+
+@app.route('/oyun/wow')
+def oyun_wow():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(WOW_TEMPLATE, header=header, points=points)
+
+@app.route('/oyun/sual_cavab')
+def oyun_sual_cavab():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header, points=points)
 
 @app.route('/bildiris')
 def bildiris():
