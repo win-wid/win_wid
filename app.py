@@ -692,23 +692,30 @@ VIDYO_TEMPLATE = '''
             height: 100%;
             object-fit: cover;
         }
-        /* Üstdən video yükləmə düyməsi/modal açmaq üçün kiçik panel */
+        
+        /* Çərçivə tamamilə silindi, yaşıl düymə çərçivənin əvvəlki yeri boyu uzadıldı */
         .upload-trigger-bar {
             position: absolute;
             top: 10px;
             right: 15px;
             z-index: 20;
+            width: 110px; /* Çərçivənin eninə uyğunlaşdırıldı */
+            height: 32px; /* Çərçivənin hündürlüyünə uyğunlaşdırıldı */
         }
         .btn-open-upload {
             background: #22c55e;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
+            width: 100%;
+            height: 100%;
+            border-radius: 6px; /* Çərçivəyə uyğun künc forması */
             font-weight: bold;
             font-size: 11px;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .btn-open-upload:hover { background: #16a34a; }
 
@@ -882,7 +889,7 @@ VIDYO_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="shorts-container" id="shortsContainer">
-        <!-- Video Yükləmə düyməsi -->
+        <!-- Video Yükləmə düyməsi (Çərçivə silindi, düymə ölçüsü genişləndirildi) -->
         <div class="upload-trigger-bar">
             <button class="btn-open-upload" onclick="toggleUploadModal()">➕ Video Yüklə</button>
         </div>
