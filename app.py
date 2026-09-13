@@ -174,7 +174,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst Menyu
+# Üst Menyu (İstədiyin ardıcıllıqla yeniləndi)
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -183,7 +183,7 @@ def get_header_template(points=500):
             <span>Çat</span>
         </a>
         <a href="/istifadeciler" class="nav-item">
-            <span class="icon">👥</span>
+            <span class="icon">👤</span>
             <span>İstifadəçi</span>
         </a>
         <a href="/sekil" class="nav-item">
@@ -655,7 +655,7 @@ SEKIL_TEMPLATE = '''
 </html>
 '''
 
-# YUTUB SHORTS TƏRZİNDƏ VİDEO BÖLMƏSİ (VIDYO_TEMPLATE)
+# VİDEO BÖLMƏSİ (VIDYO_TEMPLATE)
 VIDYO_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -692,15 +692,13 @@ VIDYO_TEMPLATE = '''
             height: 100%;
             object-fit: cover;
         }
-        
-        /* Çərçivə tamamilə silindi, yaşıl düymə çərçivənin əvvəlki yeri boyu uzadıldı */
         .upload-trigger-bar {
             position: absolute;
             top: 10px;
             right: 15px;
             z-index: 20;
-            width: 110px; /* Çərçivənin eninə uyğunlaşdırıldı */
-            height: 32px; /* Çərçivənin hündürlüyünə uyğunlaşdırıldı */
+            width: 110px;
+            height: 32px;
         }
         .btn-open-upload {
             background: #22c55e;
@@ -708,7 +706,7 @@ VIDYO_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 6px; /* Çərçivəyə uyğun künc forması */
+            border-radius: 6px;
             font-weight: bold;
             font-size: 11px;
             cursor: pointer;
@@ -719,7 +717,6 @@ VIDYO_TEMPLATE = '''
         }
         .btn-open-upload:hover { background: #16a34a; }
 
-        /* Yükləmə Modalı */
         .upload-modal {
             display: none;
             position: absolute;
@@ -736,7 +733,6 @@ VIDYO_TEMPLATE = '''
             box-shadow: 0 4px 15px rgba(0,0,0,0.7);
         }
         
-        /* Şəkildə göstərilən kvadratın yerinə yerləşdirildi və çərçivə (border) silindi */
         .shorts-actions {
             position: absolute;
             right: 15px;
@@ -749,8 +745,8 @@ VIDYO_TEMPLATE = '''
             justify-content: flex-end;
             gap: 15px;
             z-index: 10;
-            border: none; /* Kvadratın xətti silindi */
-            background: transparent; /* Kvadratın fonu şəffaf edildi */
+            border: none;
+            background: transparent;
         }
         .action-item {
             display: flex;
@@ -781,7 +777,6 @@ VIDYO_TEMPLATE = '''
             text-shadow: 0 1px 2px #000;
         }
 
-        /* Sol aşağıda kanal adı və başlıq */
         .shorts-info {
             position: absolute;
             left: 15px;
@@ -807,7 +802,6 @@ VIDYO_TEMPLATE = '''
             margin-top: 5px;
         }
 
-        /* Şərhlər Paneli (Açılıb-bağlanan) */
         .comments-drawer {
             position: absolute;
             bottom: -100%;
@@ -889,12 +883,10 @@ VIDYO_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="shorts-container" id="shortsContainer">
-        <!-- Video Yükləmə düyməsi (Çərçivə silindi, düymə ölçüsü genişləndirildi) -->
         <div class="upload-trigger-bar">
             <button class="btn-open-upload" onclick="toggleUploadModal()">➕ Video Yüklə</button>
         </div>
 
-        <!-- Video Yükləmə Modalı -->
         <div class="upload-modal" id="uploadModal">
             <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:8px;">
                 <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Shorts Videosu Seç:</label>
@@ -907,10 +899,8 @@ VIDYO_TEMPLATE = '''
         {% if videos %}
             {% for v in videos %}
                 <div class="short-card" id="video-card-{{ v[0] }}">
-                    <!-- Şaquli Şort Video -->
                     <video src="{{ v[2] }}" loop playsinline onclick="togglePlay(this)"></video>
 
-                    <!-- Sol Aşağı Məlumat -->
                     <div class="shorts-info">
                         <div class="shorts-username">@{{ v[1] }}</div>
                         {% if v[1] == current_user %}
@@ -918,9 +908,7 @@ VIDYO_TEMPLATE = '''
                         {% endif %}
                     </div>
 
-                    <!-- Sağ Tərəf Düymələr (Kvadratın içi) -->
                     <div class="shorts-actions">
-                        <!-- Bəyənmə -->
                         <div style="display:flex; flex-direction:column; align-items:center;">
                             <button class="action-item" onclick="toggleLike('{{ v[0] }}')">
                                 <span id="like-icon-{{ v[0] }}">{{ '❤️' if v[3] else '🤍' }}</span>
@@ -928,7 +916,6 @@ VIDYO_TEMPLATE = '''
                             <span class="action-count" id="like-count-{{ v[0] }}">{{ v[4] }}</span>
                         </div>
 
-                        <!-- Şərh Açma -->
                         <div style="display:flex; flex-direction:column; align-items:center;">
                             <button class="action-item" onclick="openComments('{{ v[0] }}')">
                                 <span>💬</span>
@@ -936,7 +923,6 @@ VIDYO_TEMPLATE = '''
                             <span class="action-count" id="comm-count-{{ v[0] }}">{{ v[5]|length }}</span>
                         </div>
 
-                        <!-- Paylaş / Göndər -->
                         <div style="display:flex; flex-direction:column; align-items:center;">
                             <button class="action-item" onclick="shareVideo('{{ v[0] }}')">
                                 <span>↗️</span>
@@ -945,7 +931,6 @@ VIDYO_TEMPLATE = '''
                         </div>
                     </div>
 
-                    <!-- Şərhlər Çekmecəsi (Drawer) -->
                     <div class="comments-drawer" id="drawer-{{ v[0] }}">
                         <div class="drawer-header">
                             <span>Şərhlər</span>
@@ -1444,7 +1429,6 @@ MAGAZA_TEMPLATE = '''
                 <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <!-- 1. Rəngli Nik -->
             <div class="product-section">
                 <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
                 <div class="color-list">
@@ -1456,7 +1440,6 @@ MAGAZA_TEMPLATE = '''
                 </div>
             </div>
 
-            <!-- 2. Rəngli Mesaj -->
             <div class="product-section">
                 <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
                 <div class="color-list">
@@ -1468,7 +1451,6 @@ MAGAZA_TEMPLATE = '''
                 </div>
             </div>
 
-            <!-- 3. Hədiyyə Atmaq -->
             <div class="product-section">
                 <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
                 <form method="POST">
@@ -1490,7 +1472,6 @@ MAGAZA_TEMPLATE = '''
                 </form>
             </div>
 
-            <!-- 4. Profil Stikerləri -->
             <div class="product-section">
                 <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
                 <div class="emoji-grid">
@@ -1506,7 +1487,6 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-# Oyunlar Paneli
 OYUN_PANEL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2110,7 +2090,6 @@ def sekil():
     header = get_header_template(points)
     return render_template_string(SEKIL_TEMPLATE, photos=photos, header=header)
 
-# VİDEO YOLLARI (ROUTES) - SHORTS FORMATI ÜÇÜN
 @app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
