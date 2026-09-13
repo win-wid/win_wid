@@ -33,6 +33,10 @@ def init_db():
             content TEXT NOT NULL
         )
     ''')
+    try:
+        cursor.execute("ALTER TABLE messages ADD COLUMN sender TEXT")
+    except sqlite3.OperationalError:
+        pass
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gifts (
@@ -51,30 +55,35 @@ def init_db():
         )
     ''')
 
+    # VİDEO BÖLMƏSİ ÜÇÜN CƏDVƏLLƏR
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS videos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             uploader TEXT NOT NULL,
-            video_data TEXT NOT NULL,
-            likes INTEGER DEFAULT 0
+            video_data TEXT NOT NULL
         )
     ''')
-
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS video_likes (
+            video_id INTEGER,
+            username TEXT,
+            PRIMARY KEY (video_id, username)
+        )
+    ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS video_comments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            video_id INTEGER NOT NULL,
-            commenter TEXT NOT NULL,
-            content TEXT NOT NULL
+            video_id INTEGER,
+            username TEXT,
+            comment TEXT
         )
     ''')
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS video_shares (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sender TEXT NOT NULL,
-            receiver TEXT NOT NULL,
-            video_id INTEGER NOT NULL
+            video_id INTEGER,
+            sender TEXT,
+            receiver TEXT
         )
     ''')
 
@@ -646,6 +655,7 @@ SEKIL_TEMPLATE = '''
 </html>
 '''
 
+# VİDYODU VƏ BÜTÜN FUNKSİYALARINI EHTİVA EDƏN TEMPLATE
 VIDYO_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -704,93 +714,114 @@ VIDYO_TEMPLATE = '''
             display: flex;
             flex-direction: column;
             gap: 15px;
+            align-items: center;
         }
         .video-card {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .video-card header {
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: #172554;
             font-size: 12px;
             font-weight: bold;
             color: #93c5fd;
         }
+        .delete-vid-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
         video {
             width: 100%;
-            max-height: 280px;
+            max-height: 250px;
             background: #000;
-            border-radius: 6px;
         }
         .video-actions {
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            background: #1e3a8a;
+            border-top: 1px solid #3b82f6;
         }
-        .v-btn {
-            background: #2563eb;
-            color: #fff;
+        .like-btn, .share-btn {
+            background: transparent;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 11px;
             cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #fff;
             font-weight: bold;
         }
-        .v-btn:hover { background: #1d4ed8; }
         .comments-section {
+            padding: 8px 10px;
             background: #172554;
-            border-radius: 6px;
-            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border-top: 1px solid #3b82f6;
+        }
+        .comment-list {
+            max-height: 80px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 4px;
-            max-height: 100px;
-            overflow-y: auto;
+            font-size: 11px;
         }
         .comment-item {
-            font-size: 11px;
-            color: #cbd5e1;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-            padding-bottom: 2px;
+            background: #1e3a8a;
+            padding: 4px 6px;
+            border-radius: 4px;
+            word-break: break-all;
         }
         .comment-form {
             display: flex;
             gap: 4px;
         }
-        .comment-form input {
+        .comment-input {
             flex: 1;
-            padding: 5px;
-            font-size: 11px;
+            padding: 5px 8px;
+            background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 4px;
-            background: #172554;
             color: #fff;
-        }
-        .comment-form button {
-            padding: 5px 8px;
             font-size: 11px;
-            background: #f97316;
+        }
+        .comment-submit {
+            background: #2563eb;
+            color: white;
             border: none;
-            color: #fff;
+            padding: 5px 8px;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 11px;
             font-weight: bold;
         }
-        .comment-form button:hover { background: #ea580c; }
+        .comment-submit:hover { background: #1d4ed8; }
     </style>
 </head>
 <body>
     {{ header|safe }}
 
     <div class="vidyo-container">
-        <p class="vidyo-title">📹 VİDYO AKIŞI VƏ PAYLAŞIM</p>
+        <p class="vidyo-title">📹 VİDEO BÖLMƏSİ</p>
 
-        <form method="POST" enctype="multipart/form-data" class="upload-box">
-            <input type="hidden" name="action" value="upload_video">
+        <form method="POST" enctype="multipart/form-data" class="upload-box" action="/vidyo/upload">
             <label style="font-size: 12px; color: #93c5fd; font-weight: bold;">Qalereyadan video seç:</label>
             <input type="file" name="video_file" accept="video/*" required>
             <button type="submit" class="btn-upload">Videonu Yüklə</button>
@@ -799,23 +830,36 @@ VIDYO_TEMPLATE = '''
         <div class="video-feed">
             {% if videos %}
                 {% for v in videos %}
-                    <div class="video-card">
-                        <header>@{{ v[1] }} tərəfindən yüklənib</header>
-                        <video controls src="{{ v[2] }}"></video>
+                    <div class="video-card" id="video-card-{{ v[0] }}">
+                        <div class="video-header">
+                            <span>@{{ v[1] }}</span>
+                            {% if v[1] == current_user %}
+                                <button class="delete-vid-btn" title="Videonu Sil" onclick="deleteVideo('{{ v[0] }}')">🗑️</button>
+                            {% endif %}
+                        </div>
+                        <video controls>
+                            <source src="{{ v[2] }}" type="video/mp4">
+                            Sizin brauzer video dəstəkləmir.
+                        </video>
                         <div class="video-actions">
-                            <button class="v-btn" onclick="likeVideo('{{ v[0] }}')">❤️ Bəyən (<span id="likes-{{ v[0] }}">{{ v[3] }}</span>)</button>
-                            <button class="v-btn" style="background: #f97316;" onclick="shareVideo('{{ v[0] }}')">📤 İstifadəçiyə At</button>
+                            <button class="like-btn" onclick="toggleLike('{{ v[0] }}')">
+                                <span id="like-icon-{{ v[0] }}">{{ '❤️' if v[3] else '🤍' }}</span> 
+                                <span id="like-count-{{ v[0] }}">{{ v[4] }}</span>
+                            </button>
+                            <button class="share-btn" onclick="shareVideo('{{ v[0] }}')">
+                                ↗️ Göndər
+                            </button>
                         </div>
-                        
-                        <div class="comments-section" id="comments-box-{{ v[0] }}">
-                            {% for c in v[4] %}
-                                <div class="comment-item"><b>@{{ c[0] }}</b>: {{ c[1] }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="comment-form">
-                            <input type="text" id="comment-input-{{ v[0] }}" placeholder="Yorum yaz...">
-                            <button onclick="addComment('{{ v[0] }}')">Yaz</button>
+                        <div class="comments-section">
+                            <div class="comment-list" id="comment-list-{{ v[0] }}">
+                                {% for c in v[5] %}
+                                    <div class="comment-item"><b>@{{ c[1] }}</b>: {{ c[2] }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="comment-form">
+                                <input type="text" class="comment-input" id="comment-input-{{ v[0] }}" placeholder="Yorum yaz...">
+                                <button class="comment-submit" onclick="addComment('{{ v[0] }}')">Yaz</button>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -826,49 +870,64 @@ VIDYO_TEMPLATE = '''
     </div>
 
     <script>
-        function likeVideo(videoId) {
-            fetch('/video/like/' + videoId, { method: 'POST' })
+        function toggleLike(videoId) {
+            fetch('/vidyo/like/' + videoId, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    document.getElementById('likes-' + videoId).innerText = data.likes;
+                    document.getElementById('like-count-' + videoId).innerText = data.count;
+                    document.getElementById('like-icon-' + videoId).innerText = data.liked ? '❤️' : '🤍';
                 }
             });
         }
 
         function addComment(videoId) {
             let input = document.getElementById('comment-input-' + videoId);
-            let content = input.value.trim();
-            if(!content) return;
+            let text = input.value.trim();
+            if(!text) return;
 
-            fetch('/video/comment/' + videoId, {
+            fetch('/vidyo/comment/' + videoId, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: content })
+                body: JSON.stringify({ comment: text })
             })
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    let box = document.getElementById('comments-box-' + videoId);
-                    box.innerHTML += `<div class="comment-item"><b>@${data.user}</b>: ${data.content}</div>`;
+                    let list = document.getElementById('comment-list-' + videoId);
+                    list.innerHTML += `<div class="comment-item"><b>@${data.user}</b>: ${data.comment}</div>`;
                     input.value = '';
-                    box.scrollTop = box.scrollHeight;
+                    list.scrollTop = list.scrollHeight;
                 }
             });
         }
 
         function shareVideo(videoId) {
-            let receiver = prompt("Videonu göndərmək istədiyiniz istifadəçinin nikini yazın:");
-            if(receiver && receiver.trim() !== "") {
-                fetch('/video/share', {
+            let user = prompt("Videonu hansı istifadəçiyə göndərmək istəyirsiniz? (Nik növünü qeyd edin)");
+            if(user && user.trim() !== "") {
+                fetch('/vidyo/share/' + videoId, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ video_id: videoId, receiver: receiver.trim() })
+                    body: JSON.stringify({ receiver: user.trim() })
                 })
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        alert("Video istifadəçiyə uğurla göndərildi!");
+                        alert("Video istifadəçiyə göndərildi!");
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+
+        function deleteVideo(videoId) {
+            if(confirm("Bu videonu silmək istədiyinizə əminsinizmi?")) {
+                fetch('/vidyo/delete/' + videoId, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('video-card-' + videoId).remove();
                     } else {
                         alert(data.error || "Xəta baş verdi!");
                     }
@@ -1699,12 +1758,12 @@ SUAL_CAVAB_TEMPLATE = '''
 </html>
 '''
 
-BİLDIRIS_TEMPLATE = '''
+SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Bildiriş</title>
+    <title>WİN_WİD - {{ title }}</title>
     ''' + COMMON_STYLE + '''
     <style>
         .content-box { 
@@ -1713,37 +1772,19 @@ BİLDIRIS_TEMPLATE = '''
             border: 2px solid #f97316; 
             border-radius: 12px; 
             padding: 15px; 
+            text-align: center;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
-        }
-        .notif-card {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            font-size: 14px;
+            color: #93c5fd;
         }
     </style>
 </head>
 <body>
     {{ header|safe }}
     <div class="content-box">
-        <p style="font-size: 14px; font-weight: bold; color: #f97316; text-align: center; margin: 0 0 10px 0;">🔔 Paylaşılan Videolar / Bildirişlər</p>
-        {% if shares %}
-            {% for s in shares %}
-                <div class="notif-card">
-                    <div><b>@{{ s[0] }}</b> sizə video göndərdi!</div>
-                    <a href="/vidyo" style="background: #22c55e; color: #fff; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">Videoya Bax</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p style="text-align: center; color: #93c5fd; font-size: 12px;">Yeni bildiriş yoxdur.</p>
-        {% endif %}
+        <p>{{ title }} bölməsi tezliklə aktiv olacaq!</p>
     </div>
 </body>
 </html>
@@ -1927,80 +1968,112 @@ def sekil():
     header = get_header_template(points)
     return render_template_string(SEKIL_TEMPLATE, photos=photos, header=header)
 
-@app.route('/vidyo', methods=['GET', 'POST'])
+# VİDEO YOLLARI (ROUTES)
+@app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
+    
+    current_user = session['user']
     conn = sqlite3.connect('win_wid.db')
     cursor = conn.cursor()
     
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'upload_video':
-            file = request.files.get('video_file')
-            if file and file.filename != '':
-                file_bytes = file.read()
-                encoded = base64.b64encode(file_bytes).decode('utf-8')
-                mime_type = file.content_type or 'video/mp4'
-                video_data = f"data:{mime_type};base64,{encoded}"
-                
-                cursor.execute("INSERT INTO videos (uploader, video_data, likes) VALUES (?, ?, 0)", (session['user'], video_data))
-                conn.commit()
-        conn.close()
-        return redirect(url_for('vidyo'))
-        
-    cursor.execute("SELECT id, uploader, video_data, likes FROM videos ORDER BY id DESC")
+    cursor.execute("SELECT id, uploader, video_data FROM videos ORDER BY id DESC")
     raw_videos = cursor.fetchall()
     
     videos = []
     for v in raw_videos:
         v_id = v[0]
-        cursor.execute("SELECT commenter, content FROM video_comments WHERE video_id = ?", (v_id,))
+        uploader = v[1]
+        v_data = v[2]
+        
+        # Bəyənmə sayı və istifadəçinin bəyənib-bəyənmədiyini yoxla
+        cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (v_id,))
+        like_count = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ? AND username = ?", (v_id, current_user))
+        is_liked = cursor.fetchone()[0] > 0
+        
+        # Şərhlər
+        cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = ?", (v_id,))
         comments = cursor.fetchall()
-        videos.append((v[0], v[1], v[2], v[3], comments))
+        
+        videos.append((v_id, uploader, v_data, is_liked, like_count, comments))
         
     conn.close()
-    points = get_user_points(session['user'])
+    points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(VIDYO_TEMPLATE, videos=videos, header=header)
+    return render_template_string(VIDYO_TEMPLATE, videos=videos, header=header, current_user=current_user)
 
-@app.route('/video/like/<int:video_id>', methods=['POST'])
-def video_like(video_id):
+@app.route('/vidyo/upload', methods=['POST'])
+def vidyo_upload():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    file = request.files.get('video_file')
+    if file and file.filename != '':
+        file_bytes = file.read()
+        encoded = base64.b64encode(file_bytes).decode('utf-8')
+        mime_type = file.content_type or 'video/mp4'
+        video_data = f"data:{mime_type};base64,{encoded}"
+        
+        conn = sqlite3.connect('win_wid.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO videos (uploader, video_data) VALUES (?, ?)", (session['user'], video_data))
+        conn.commit()
+        conn.close()
+        
+    return redirect(url_for('vidyo'))
+
+@app.route('/vidyo/like/<int:video_id>', methods=['POST'])
+def vidyo_like(video_id):
     if 'user' not in session:
         return jsonify({"success": False}), 401
+    
+    current_user = session['user']
     conn = sqlite3.connect('win_wid.db')
     cursor = conn.cursor()
-    cursor.execute("UPDATE videos SET likes = likes + 1 WHERE id = ?", (video_id,))
+    
+    cursor.execute("SELECT * FROM video_likes WHERE video_id = ? AND username = ?", (video_id, current_user))
+    if cursor.fetchone():
+        cursor.execute("DELETE FROM video_likes WHERE video_id = ? AND username = ?", (video_id, current_user))
+        liked = False
+    else:
+        cursor.execute("INSERT INTO video_likes (video_id, username) VALUES (?, ?)", (video_id, current_user))
+        liked = True
+        
     conn.commit()
-    cursor.execute("SELECT likes FROM videos WHERE id = ?", (video_id,))
-    likes = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (video_id,))
+    count = cursor.fetchone()[0]
     conn.close()
-    return jsonify({"success": True, "likes": likes})
+    
+    return jsonify({"success": True, "liked": liked, "count": count})
 
-@app.route('/video/comment/<int:video_id>', methods=['POST'])
-def video_comment(video_id):
+@app.route('/vidyo/comment/<int:video_id>', methods=['POST'])
+def vidyo_comment(video_id):
     if 'user' not in session:
         return jsonify({"success": False}), 401
+        
     data = request.get_json()
-    content = data.get('content', '').strip()
-    if not content:
+    comment = data.get('comment', '').strip()
+    if not comment:
         return jsonify({"success": False})
         
     current_user = session['user']
     conn = sqlite3.connect('win_wid.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO video_comments (video_id, commenter, content) VALUES (?, ?, ?)", (video_id, current_user, content))
+    cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (?, ?, ?)", (video_id, current_user, comment))
     conn.commit()
     conn.close()
-    return jsonify({"success": True, "user": current_user, "content": content})
+    
+    return jsonify({"success": True, "user": current_user, "comment": comment})
 
-@app.route('/video/share', methods=['POST'])
-def video_share():
+@app.route('/vidyo/share/<int:video_id>', methods=['POST'])
+def vidyo_share(video_id):
     if 'user' not in session:
         return jsonify({"success": False}), 401
+        
     data = request.get_json()
-    video_id = data.get('video_id')
     receiver = data.get('receiver', '').strip()
     current_user = session['user']
     
@@ -2011,10 +2084,34 @@ def video_share():
         conn.close()
         return jsonify({"success": False, "error": "İstifadəçi tapılmadı!"})
         
-    cursor.execute("INSERT INTO video_shares (sender, receiver, video_id) VALUES (?, ?, ?)", (current_user, receiver, video_id))
+    cursor.execute("INSERT INTO video_shares (video_id, sender, receiver) VALUES (?, ?, ?)", (video_id, current_user, receiver))
     conn.commit()
     conn.close()
+    
     return jsonify({"success": True})
+
+@app.route('/vidyo/delete/<int:video_id>', methods=['POST'])
+def vidyo_delete(video_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+        
+    current_user = session['user']
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == current_user:
+        cursor.execute("DELETE FROM videos WHERE id = ?", (video_id,))
+        cursor.execute("DELETE FROM video_likes WHERE video_id = ?", (video_id,))
+        cursor.execute("DELETE FROM video_comments WHERE video_id = ?", (video_id,))
+        cursor.execute("DELETE FROM video_shares WHERE video_id = ?", (video_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+        
+    conn.close()
+    return jsonify({"success": False, "error": "Bu videonu silməyə icazəniz yoxdur"})
 
 @app.route('/profil', methods=['GET', 'POST'])
 def profil():
@@ -2051,7 +2148,8 @@ def profil():
                     cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
-                    cursor.execute("UPDATE video_comments SET commenter = ? WHERE commenter = ?", (new_name, current_user))
+                    cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE video_comments SET username = ? WHERE username = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     conn.commit()
@@ -2080,7 +2178,8 @@ def profil():
             cursor.execute("DELETE FROM photos WHERE uploader = ?", (current_user,))
             cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
             cursor.execute("DELETE FROM videos WHERE uploader = ?", (current_user,))
-            cursor.execute("DELETE FROM video_comments WHERE commenter = ?", (current_user,))
+            cursor.execute("DELETE FROM video_likes WHERE username = ?", (current_user,))
+            cursor.execute("DELETE FROM video_comments WHERE username = ?", (current_user,))
             cursor.execute("DELETE FROM video_shares WHERE sender = ? OR receiver = ?", (current_user, current_user))
             conn.commit()
             conn.close()
@@ -2164,16 +2263,9 @@ def oyun_sual_cavab():
 def bildiris():
     if 'user' not in session:
         return redirect(url_for('index'))
-    current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT sender, video_id FROM video_shares WHERE receiver = ?", (current_user,))
-    shares = cursor.fetchall()
-    conn.close()
-
-    points = get_user_points(current_user)
+    points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(BİLDIRIS_TEMPLATE, header=header, shares=shares)
+    return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
 
 @app.route('/logout')
 def logout():
