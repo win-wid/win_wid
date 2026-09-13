@@ -120,7 +120,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst hissə şablonu
+# Üst hissə şablonu (İstifadəçilər bölməsi əlavə olunub)
 def get_header_template(points=500):
     return f'''
     <div class="top-header-bar">
@@ -133,6 +133,10 @@ def get_header_template(points=500):
         <a href="/chat" class="nav-item">
             <span class="icon">💬</span>
             <span>Çat</span>
+        </a>
+        <a href="/istifadeciler" class="nav-item">
+            <span class="icon">👥</span>
+            <span>İstifadəçilər</span>
         </a>
         <a href="/sekil" class="nav-item">
             <span class="icon">📷</span>
@@ -343,7 +347,98 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-# Profil Səhifəsi Şablonu (Gələn hədiyyələrlə birlikdə)
+# İstifadəçilər Səhifəsi Şablonu
+USERS_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - İstifadəçilər</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .users-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .users-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 8px;
+            margin: 0 0 5px 0;
+            text-align: center;
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e3a8a;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #3b82f6;
+        }
+        .user-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #f97316;
+            object-fit: cover;
+            background: #111;
+        }
+        .user-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0 0 3px 0;
+        }
+        .user-status {
+            font-size: 11px;
+            color: #22c55e;
+            font-weight: bold;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="users-container">
+        <p class="users-title">👥 SAYTIN İSTİFADƏÇİLƏRİ</p>
+        
+        {% if all_users %}
+            {% for u in all_users %}
+                <div class="user-card">
+                    <div class="user-left">
+                        <img src="{{ u[1] if u[1] else 'https://i.imgur.com/6VBx3io.png' }}" class="user-avatar" alt="Profil">
+                        <div>
+                            <p class="user-name">@{{ u[0] }} 👑</p>
+                            <p class="user-status">● Aktivdir</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #93c5fd; font-size: 13px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+'''
+
+# Profil Səhifəsi Şablonu
 PROFIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -842,6 +937,21 @@ def chat():
     header = get_header_template(points)
         
     return render_template_string(CHAT_TEMPLATE, messages=messages, header=header)
+
+@app.route('/istifadeciler')
+def istifadeciler():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+        
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT nickname, profile_pic FROM users")
+    all_users = cursor.fetchall()
+    conn.close()
+    
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(USERS_TEMPLATE, all_users=all_users, header=header)
 
 @app.route('/profil', methods=['GET', 'POST'])
 def profil():
