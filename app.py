@@ -236,13 +236,13 @@ CHAT_TEMPLATE = '''
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding-top: 4px;
+            padding-top: 15px;
             box-sizing: border-box;
             overflow: hidden;
         }
         .chat-main-wrapper {
             width: 98%;
-            max-width: 650px;
+            max-width: 620px;
             height: 58vh;
             display: flex;
             flex-direction: column;
