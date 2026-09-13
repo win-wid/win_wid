@@ -31,6 +31,15 @@ def init_db():
             content TEXT NOT NULL
         )
     ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS gifts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender TEXT NOT NULL,
+            receiver TEXT NOT NULL,
+            gift TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -249,11 +258,6 @@ COMMON_STYLE = '''
             color: #ffffff;
             background: rgba(59, 130, 246, 0.2);
         }
-        .nav-item.active {
-            background: #0284c7;
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
-        }
     </style>
 '''
 
@@ -339,7 +343,7 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-# Profil Səhifəsi Şablonu
+# Profil Səhifəsi Şablonu (Gələn hədiyyələrlə birlikdə)
 PROFIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -409,6 +413,24 @@ PROFIL_TEMPLATE = '''
             font-size: 12px;
             font-weight: bold;
             margin: 0;
+        }
+        .gifts-box {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            min-height: 40px;
+            align-items: center;
+        }
+        .gift-item {
+            font-size: 20px;
+            background: #172554;
+            padding: 4px 6px;
+            border-radius: 6px;
+            border: 1px solid #f97316;
         }
         form {
             display: flex;
@@ -492,6 +514,19 @@ PROFIL_TEMPLATE = '''
             <div class="profile-info">
                 <h3>@{{ user }} 👑</h3>
                 <p class="status">● Aktivdir</p>
+            </div>
+        </div>
+
+        <div>
+            <p style="font-size: 13px; margin: 0 0 5px 0; color: #93c5fd;">Gələn Hədiyyələr / Stikerlər:</p>
+            <div class="gifts-box">
+                {% if gifts %}
+                    {% for g in gifts %}
+                        <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                {% endif %}
             </div>
         </div>
 
@@ -587,43 +622,39 @@ MAGAZA_TEMPLATE = '''
             color: #93c5fd;
             font-weight: bold;
         }
-        .gift-form {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-top: 5px;
-        }
-        .target-input {
-            padding: 8px;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
-            background: #172554;
-            color: white;
-            font-size: 12px;
-        }
-        .target-input::placeholder { color: #93c5fd; }
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            max-height: 90px;
+            gap: 6px;
+            max-height: 110px;
             overflow-y: auto;
             background: #172554;
-            padding: 6px;
-            border-radius: 6px;
+            padding: 8px;
+            border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .emoji-btn {
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
-            padding: 3px 6px;
+            padding: 4px;
             background: #1e3a8a;
-            border: 1px solid transparent;
             border-radius: 4px;
+            border: 1px solid transparent;
+            transition: 0.1s;
         }
         .emoji-btn:hover {
+            transform: scale(1.15);
             border-color: #f97316;
             background: #2563eb;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            background: #172554;
+            color: #fff;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            font-size: 13px;
         }
         .msg-alert {
             font-size: 12px;
@@ -644,7 +675,8 @@ MAGAZA_TEMPLATE = '''
 
         <!-- 1. Rəngli Nik -->
         <div class="product-section">
-            <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
+            <p class="product-title">🎨 RƏNGLİ NİK</p>
+            <p class="price-tag">Qiyməti: 30 Bal</p>
             <div class="color-list">
                 <button class="color-btn btn-yellow">Sarı</button>
                 <button class="color-btn btn-red">Qırmızı</button>
@@ -656,7 +688,8 @@ MAGAZA_TEMPLATE = '''
 
         <!-- 2. Rəngli Mesaj -->
         <div class="product-section">
-            <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
+            <p class="product-title">💬 RƏNGLİ MESAJ</p>
+            <p class="price-tag">Qiyməti: 30 Bal</p>
             <div class="color-list">
                 <button class="color-btn btn-yellow">Sarı</button>
                 <button class="color-btn btn-red">Qırmızı</button>
@@ -669,14 +702,22 @@ MAGAZA_TEMPLATE = '''
         <!-- 3. Hədiyyə Atmaq -->
         <div class="product-section">
             <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
-            <form method="POST" class="gift-form">
-                <input type="hidden" name="item_type" value="gift">
-                <input type="text" name="target_user" class="target-input" placeholder="Hədiyyə atılacaq istifadəçi adı..." required>
-                <p class="price-tag" style="margin:0;">Hədiyyə seç:</p>
+            <form method="POST">
+                <input type="hidden" name="action" value="send_gift">
+                <label style="font-size: 12px; color: #93c5fd;">İstifadəçi seç:</label>
+                <select name="receiver" required>
+                    <option value="" disabled selected>İstifadəçini seçin</option>
+                    {% for u in users %}
+                        {% if u != current_user %}
+                            <option value="{{ u }}">{{ u }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <label style="font-size: 12px; color: #93c5fd; margin-top: 4px;">Hədiyyə stikeri seç və göndər:</label>
                 <div class="emoji-grid">
-                    {% set emojis = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','😎','😱','🥺','🥳','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰'] %}
-                    {% for emoji in emojis %}
-                        <button type="submit" name="emoji" value="{{ emoji }}" class="emoji-btn">{{ emoji }}</button>
+                    {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '🫪', '☠️', '👻', '😸', '😹', '🙀', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🫰', '🐻', '🐹', '🐼', '🐸', '🌹', '🍻', '🗽', '✈️', '✨', '🧨', '🎉', '🎖️', '💰'] %}
+                    {% for emo in emojis %}
+                        <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
                     {% endfor %}
                 </div>
             </form>
@@ -685,16 +726,11 @@ MAGAZA_TEMPLATE = '''
         <!-- 4. Profil Stikerləri -->
         <div class="product-section">
             <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
-            <form method="POST" class="gift-form">
-                <input type="hidden" name="item_type" value="profile_sticker">
-                <input type="text" name="target_user" class="target-input" placeholder="Stiker göndəriləcək istifadəçi adı..." required>
-                <p class="price-tag" style="margin:0;">Stiker seç:</p>
-                <div class="emoji-grid">
-                    {% for emoji in emojis %}
-                        <button type="submit" name="emoji" value="{{ emoji }}" class="emoji-btn">{{ emoji }}</button>
-                    {% endfor %}
-                </div>
-            </form>
+            <div class="emoji-grid">
+                {% for emo in emojis %}
+                    <span class="emoji-btn" style="cursor: default;">{{ emo }}</span>
+                {% endfor %}
+            </div>
         </div>
 
     </div>
@@ -702,7 +738,7 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-# Digər Səhifələr Üçün Şablon
+# Digər Səhifələr Üçün Şablon (Şəkil, Vidyo, Oyun)
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -817,10 +853,10 @@ def profil():
     
     message = None
     error = False
+    current_user = session['user']
     
     if request.method == 'POST':
         action = request.form.get('action')
-        current_user = session['user']
         
         if action == 'change_name':
             new_name = request.form.get('new_nickname').strip()
@@ -837,8 +873,11 @@ def profil():
                     error = True
                 else:
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
+                    cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
+                    cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
                     conn.commit()
                     session['user'] = new_name
+                    current_user = new_name
                     message = "Nik adı uğurla dəyişdirildi!"
                     
         elif action == 'change_pic':
@@ -853,65 +892,60 @@ def profil():
                 
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            cursor.execute("DELETE FROM gifts WHERE receiver = ? OR sender = ?", (current_user, current_user))
             conn.commit()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
             
-    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (session['user'],))
+    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (current_user,))
     row = cursor.fetchone()
     pic = row[0] if row and row[0] else ''
     
+    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
+    gifts = cursor.fetchall()
+    
     conn.close()
-    points = get_user_points(session['user'])
+    points = get_user_points(current_user)
     header = get_header_template(points)
     
-    return render_template_string(PROFIL_TEMPLATE, user=session['user'], pic=pic, message=message, error=error, header=header)
+    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
     if 'user' not in session:
         return redirect(url_for('index'))
         
+    current_user = session['user']
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    
     message = None
     error = False
-    current_user = session['user']
     
     if request.method == 'POST':
-        item_type = request.form.get('item_type')
-        target_user = request.form.get('target_user').strip()
-        emoji = request.form.get('emoji')
-        
-        conn = sqlite3.connect('win_wid.db')
-        cursor = conn.cursor()
-        
-        # Hədəf istifadəçinin mövcudluğunu yoxlayaq
-        cursor.execute("SELECT points FROM users WHERE nickname = ?", (target_user,))
-        target_row = cursor.fetchone()
-        
-        # Alıcının (cari istifadəçinin) balını yoxlayaq
-        current_points = get_user_points(current_user)
-        
-        cost = 20 if item_type == 'gift' else 25 if item_type == 'profile_sticker' else 0
-        
-        if not target_row:
-            message = f"'{target_user}' adlı istifadəçi tapılmadı!"
-            error = True
-        elif current_points < cost:
-            message = "Balınız kifayət etmir!"
-            error = True
-        else:
-            # Balı çıxırıq
-            new_points = current_points - cost
-            cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
-            conn.commit()
-            message = f"Uğurla göndərildi! -{cost} bal."
+        action = request.form.get('action')
+        if action == 'send_gift':
+            receiver = request.form.get('receiver')
+            gift = request.form.get('gift')
+            points = get_user_points(current_user)
             
-        conn.close()
-
+            if points >= 20:
+                cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
+                cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
+                conn.commit()
+                message = f"{receiver} istifadəçisinə uğurla hədiyyə göndərildi!"
+            else:
+                message = "Balınız kifayət etmir (20 bal lazımdır)!"
+                error = True
+                
+    cursor.execute("SELECT nickname FROM users")
+    users = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    
     points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, header=header, message=message, error=error)
+    return render_template_string(MAGAZA_TEMPLATE, header=header, users=users, current_user=current_user, message=message, error=error)
 
 @app.route('/sekil')
 def sekil():
