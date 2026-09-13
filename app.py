@@ -1,14 +1,17 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 import sqlite3
 import base64
+import os
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
-# Bazanın yaradılması və cədvəllərin qurulması
+# Bazanın yaradılması və cədvəllərin qurulması (Məlumatların silinməməsi üçün qoruyucu yoxlamalar ilə)
 def init_db():
     conn = sqlite3.connect('win_wid.db')
     cursor = conn.cursor()
+    
+    # İstifadəçilər cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             nickname TEXT PRIMARY KEY,
@@ -26,6 +29,7 @@ def init_db():
     except sqlite3.OperationalError:
         pass
         
+    # Mesajlar cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,6 +42,7 @@ def init_db():
     except sqlite3.OperationalError:
         pass
     
+    # Hədiyyələr cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gifts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +52,7 @@ def init_db():
         )
     ''')
 
-    # ŞƏKİL BÖLMƏSİ ÜÇÜN CƏDVƏLLƏR (Shorts formatına uyğunlaşdırıldı)
+    # ŞƏKİL BÖLMƏSİ ÜÇÜN CƏDVƏLLƏR
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS photos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -2705,39 +2710,19 @@ def profil():
                 cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
                 conn.commit()
                 message = "Profil şəkli yeniləndi!"
-            else:
-                message = "Şəkil seçilmədi!"
-                error = True
-                
-        elif action == 'delete_account':
-            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
-            cursor.execute("DELETE FROM gifts WHERE receiver = ? OR sender = ?", (current_user, current_user))
-            cursor.execute("DELETE FROM photos WHERE uploader = ?", (current_user,))
-            cursor.execute("DELETE FROM photo_likes WHERE username = ?", (current_user,))
-            cursor.execute("DELETE FROM photo_comments WHERE username = ?", (current_user,))
-            cursor.execute("DELETE FROM photo_shares WHERE sender = ? OR receiver = ?", (current_user, current_user))
-            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
-            cursor.execute("DELETE FROM videos WHERE uploader = ?", (current_user,))
-            cursor.execute("DELETE FROM video_likes WHERE username = ?", (current_user,))
-            cursor.execute("DELETE FROM video_comments WHERE username = ?", (current_user,))
-            cursor.execute("DELETE FROM video_shares WHERE sender = ? OR receiver = ?", (current_user, current_user))
-            conn.commit()
-            conn.close()
-            session.pop('user', None)
-            return redirect(url_for('index'))
-            
+
+    # Profildə məlumatları səhifəyə ötürmək üçün çəkirik:
     cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (current_user,))
-    row = cursor.fetchone()
-    pic = row[0] if row and row[0] else ''
-    
+    user_row = cursor.fetchone()
+    pic = user_row[0] if user_row else ""
+
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
-    
+
     conn.close()
-    points = get_user_points(current_user)
-    header = get_header_template(points)
-    
-    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header, points=points)
+    header = get_header_template(get_user_points(current_user))
+    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
+
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -2762,18 +2747,19 @@ def magaza():
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
-                message = f"{receiver} istifadəçisinə hədiyyə göndərildi!"
+                message = f"{receiver}-ə hədiyyə göndərildi!"
             else:
-                message = "Balınız kifayət etmir (20 bal lazımdır)!"
+                message = "Balınız kifayət etmir! (20 bal lazımdır)"
                 error = True
-                
+
     cursor.execute("SELECT nickname FROM users")
     users = [row[0] for row in cursor.fetchall()]
     conn.close()
     
     points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, header=header, users=users, current_user=current_user, message=message, error=error, points=points)
+    return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, points=points, message=message, error=error, header=header)
+
 
 @app.route('/oyun')
 def oyun():
@@ -2781,7 +2767,8 @@ def oyun():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(OYUN_PANEL_TEMPLATE, header=header, points=points)
+    return render_template_string(OYUN_PANEL_TEMPLATE, points=points, header=header)
+
 
 @app.route('/oyun/wow')
 def oyun_wow():
@@ -2789,7 +2776,8 @@ def oyun_wow():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(WOW_TEMPLATE, header=header, points=points)
+    return render_template_string(WOW_TEMPLATE, points=points, header=header)
+
 
 @app.route('/oyun/sual_cavab')
 def oyun_sual_cavab():
@@ -2797,7 +2785,8 @@ def oyun_sual_cavab():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header, points=points)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, points=points, header=header)
+
 
 @app.route('/bildiris')
 def bildiris():
@@ -2807,10 +2796,12 @@ def bildiris():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
 
+
 @app.route('/logout')
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
