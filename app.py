@@ -15,7 +15,6 @@ def init_db():
             profile_pic TEXT
         )
     ''')
-    # Əgər əvvəlki bazada profile_pic sütunu yoxdursa əlavə etmək üçün
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN profile_pic TEXT")
     except sqlite3.OperationalError:
@@ -107,11 +106,13 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üfüqi Menyu Paneli
-NAV_TEMPLATE = '''
-    <div class="header">
-        <h2>WİN_WİD, {{ session.get('user', '') }}</h2>
-        <a href="/logout" class="logout">Çıxış</a>
+# Dil seçimi olmadan yığcam üst hissə
+HEADER_TEMPLATE = '''
+    <div class="top-header-bar">
+        <div class="bal-box">BALI<br>500</div>
+        <div class="user-box">İSTİFADƏÇİ</div>
+        <div class="bell-icon">🔔</div>
+        <a href="/logout" class="logout-btn">Çıxış</a>
     </div>
     <div class="nav-bar">
         <a href="/chat" class="nav-item {% if active == 'chat' %}active{% endif %}">
@@ -120,15 +121,15 @@ NAV_TEMPLATE = '''
         </a>
         <a href="/sekil" class="nav-item {% if active == 'sekil' %}active{% endif %}">
             <span class="icon">📷</span>
-            <span>Şəkil</span>
+            <span>Şəkillər</span>
         </a>
         <a href="/vidyo" class="nav-item {% if active == 'vidyo' %}active{% endif %}">
             <span class="icon">📹</span>
-            <span>Vidyo</span>
+            <span>Videolar</span>
         </a>
         <a href="/oyun" class="nav-item {% if active == 'oyun' %}active{% endif %}">
             <span class="icon">🎮</span>
-            <span>Oyun</span>
+            <span>Oyunlar</span>
         </a>
         <a href="/magaza" class="nav-item {% if active == 'magaza' %}active{% endif %}">
             <span class="icon">🛍️</span>
@@ -147,7 +148,7 @@ COMMON_STYLE = '''
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 15px; 
+            padding: 12px; 
             background: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
@@ -155,31 +156,70 @@ COMMON_STYLE = '''
             height: 100vh; 
             box-sizing: border-box; 
         }
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #172554; 
-            color: white; 
-            padding: 10px 15px; 
-            border-radius: 8px; 
-            border: 1px solid #3b82f6; 
-            margin-bottom: 10px;
+        .top-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #172554;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #3b82f6;
+            margin-bottom: 8px;
+            gap: 8px;
         }
-        .header h2 {
-            font-size: 15px;
-            margin: 0;
+        .bal-box {
+            background: #f97316;
+            color: #000;
+            font-weight: bold;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.1;
         }
+        .user-box {
+            background: #f97316;
+            color: #000;
+            font-weight: bold;
+            padding: 9px 15px;
+            border-radius: 8px;
+            font-size: 11px;
+            text-align: center;
+            white-space: nowrap;
+            flex: 1;
+        }
+        .bell-icon {
+            background: #f97316;
+            color: #000;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            text-decoration: none;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .logout-btn:hover { background: #b91c1c; }
+
         .nav-bar { 
             background: #172554; 
             border: 2px solid #f97316; 
             border-radius: 12px; 
-            padding: 10px; 
+            padding: 8px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 12px;
-            gap: 5px;
+            margin-bottom: 10px;
+            gap: 4px;
             overflow-x: auto;
         }
         .nav-item {
@@ -188,16 +228,16 @@ COMMON_STYLE = '''
             align-items: center;
             text-decoration: none;
             color: #cbd5e1;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 13px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 18px;
-            margin-bottom: 3px;
+            font-size: 16px;
+            margin-bottom: 2px;
         }
         .nav-item:hover {
             color: #ffffff;
@@ -206,17 +246,8 @@ COMMON_STYLE = '''
         .nav-item.active {
             background: #0284c7;
             color: #ffffff;
-            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
         }
-        a.logout { 
-            color: white; 
-            text-decoration: none; 
-            background: #dc2626; 
-            padding: 5px 10px; 
-            border-radius: 6px; 
-            font-size: 12px; 
-        }
-        a.logout:hover { background: #b91c1c; }
     </style>
 '''
 
@@ -237,7 +268,7 @@ CHAT_TEMPLATE = '''
             padding: 12px; 
             overflow-y: auto; 
             color: #ffffff; 
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -284,7 +315,7 @@ CHAT_TEMPLATE = '''
     </style>
 </head>
 <body>
-    ''' + NAV_TEMPLATE + '''
+    ''' + HEADER_TEMPLATE + '''
     <div class="chat-box">
         {% if messages %}
             {% for msg in messages %}
@@ -302,7 +333,7 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-# Profil Səhifəsi Şablonu (Şəkildəki dizayn və funksiyalar)
+# Profil Səhifəsi Şablonu
 PROFIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -316,33 +347,33 @@ PROFIL_TEMPLATE = '''
             flex: 1;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
         .profile-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             margin: 0;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             background: #1e3a8a;
-            padding: 12px;
+            padding: 10px;
             border-radius: 10px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: 3px solid #f97316;
             overflow: hidden;
@@ -360,33 +391,33 @@ PROFIL_TEMPLATE = '''
             bottom: -2px;
             right: 50%;
             transform: translateX(50%);
-            font-size: 12px;
+            font-size: 10px;
         }
         .profile-info h3 {
-            margin: 0 0 5px 0;
-            font-size: 18px;
+            margin: 0 0 4px 0;
+            font-size: 16px;
             color: #ffffff;
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             margin: 0;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #3b82f6;
             border-radius: 8px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 14px;
+            font-size: 13px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -395,10 +426,10 @@ PROFIL_TEMPLATE = '''
             background: #0284c7;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -408,10 +439,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -421,24 +452,24 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
             margin: 0;
         }
     </style>
 </head>
 <body>
-    ''' + NAV_TEMPLATE + '''
+    ''' + HEADER_TEMPLATE + '''
 
     <div class="profile-container">
         <p class="profile-title">Mənim Profilim</p>
@@ -458,14 +489,12 @@ PROFIL_TEMPLATE = '''
             </div>
         </div>
 
-        <!-- 1. Nik Adını Dəyiş -->
         <form method="POST">
             <input type="hidden" name="action" value="change_name">
             <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
             <button type="submit" class="btn-blue">Adı Dəyiş</button>
         </form>
 
-        <!-- 2. Şəkil URL-i Daxil Etmək Üçün Form -->
         <form method="POST">
             <input type="hidden" name="action" value="change_pic">
             <input type="text" name="pic_url" placeholder="Profil şəklinin linkini (URL) bura yapışdır" required>
@@ -473,20 +502,18 @@ PROFIL_TEMPLATE = '''
             <button type="submit" class="btn-blue">Şəkli Yadda Saxla</button>
         </form>
 
-        <!-- 3. Hesabı Sil -->
         <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
             <input type="hidden" name="action" value="delete_account">
             <button type="submit" class="btn-red">Hesabımı Sil</button>
         </form>
 
-        <!-- 4. Çıxış Et -->
-        <a href="/logout" class="btn-gray" style="text-decoration: none; box-sizing: border-box; display: block;">Çıxış Et</a>
+        <a href="/logout" class="btn-gray" style="text-decoration: none; box-sizing: border-box; display: block; text-align: center;">Çıxış Et</a>
     </div>
 </body>
 </html>
 '''
 
-# Digər Səhifələr Üçün Şablon
+# Digər Səhifələr Üçün Şablon (Şəkil, Vidyo, Oyun, Mağaza)
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -499,19 +526,19 @@ SUB_TEMPLATE = '''
             background: #172554; 
             flex: 1; 
             border: 2px solid #f97316; 
-            border-radius: 8px; 
+            border-radius: 12px; 
             padding: 20px; 
             text-align: center;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px;
+            font-size: 16px;
             color: #93c5fd;
         }
     </style>
 </head>
 <body>
-    ''' + NAV_TEMPLATE + '''
+    ''' + HEADER_TEMPLATE + '''
     <div class="content-box">
         <p>{{ title }} bölməsi tezliklə aktiv olacaq!</p>
     </div>
@@ -631,7 +658,6 @@ def profil():
             session.pop('user', None)
             return redirect(url_for('index'))
             
-    # İstifadəçinin cari şəkil məlumatını çəkək
     cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (session['user'],))
     row = cursor.fetchone()
     pic = row[0] if row and row[0] else ''
@@ -643,19 +669,19 @@ def profil():
 def sekil():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Şəkil", active='sekil')
+    return render_template_string(SUB_TEMPLATE, title="Şəkillər", active='sekil')
 
 @app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Vidyo", active='vidyo')
+    return render_template_string(SUB_TEMPLATE, title="Videolar", active='vidyo')
 
 @app.route('/oyun')
 def oyun():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Oyun", active='oyun')
+    return render_template_string(SUB_TEMPLATE, title="Oyunlar", active='oyun')
 
 @app.route('/magaza')
 def magaza():
