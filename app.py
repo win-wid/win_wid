@@ -655,221 +655,323 @@ SEKIL_TEMPLATE = '''
 </html>
 '''
 
-# VİDYODU VƏ BÜTÜN FUNKSİYALARINI EHTİVA EDƏN TEMPLATE
+# YUTUB SHORTS TƏRZİNDƏ VİDEO BÖLMƏSİ (VIDYO_TEMPLATE)
 VIDYO_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Vidyo</title>
+    <title>WİN_WİD - Shorts</title>
     ''' + COMMON_STYLE + '''
     <style>
-        .vidyo-container {
-            background: #172554;
+        .shorts-container {
+            background: #000;
             flex: 1;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 12px;
-            overflow-y: auto;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            align-items: center;
         }
-        .vidyo-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
-            margin: 0;
-            text-align: center;
-        }
-        .upload-box {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 10px;
+        .short-card {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            scroll-snap-align: start;
+            position: relative;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            background: #111;
         }
-        input[type="file"] {
-            color: #93c5fd;
-            font-size: 12px;
+        .short-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .btn-upload {
+        /* Üstdən video yükləmə düyməsi/modal açmaq üçün kiçik panel */
+        .upload-trigger-bar {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            z-index: 20;
+        }
+        .btn-open-upload {
             background: #22c55e;
             color: white;
             border: none;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
-            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
-        .btn-upload:hover { background: #16a34a; }
-        
-        .video-feed {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-        .video-card {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
+        .btn-open-upload:hover { background: #16a34a; }
+
+        /* Yükləmə Modalı */
+        .upload-modal {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #172554;
+            border: 2px solid #f97316;
+            padding: 15px;
             border-radius: 10px;
-            width: 100%;
-            max-width: 400px;
-            overflow: hidden;
+            z-index: 30;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+        }
+        
+        /* Sağ tərəfdə hərəkətli düymələr (Shorts stili) */
+        .shorts-actions {
+            position: absolute;
+            right: 15px;
+            bottom: 60px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            align-items: center;
+            gap: 15px;
+            z-index: 10;
         }
-        .video-header {
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .action-item:hover {
+            background: rgba(59, 130, 246, 0.6);
+        }
+        .action-item span {
+            font-size: 18px;
+        }
+        .action-count {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 2px;
+            color: #fff;
+            text-shadow: 0 1px 2px #000;
+        }
+
+        /* Sol aşağıda kanal adı və başlıq */
+        .shorts-info {
+            position: absolute;
+            left: 15px;
+            bottom: 20px;
+            z-index: 10;
+            color: #fff;
+            text-shadow: 0 1px 3px #000;
+        }
+        .shorts-username {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .delete-short-btn {
+            background: #dc2626;
+            border: none;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        /* Şərhlər Paneli (Açılıb-bağlanan) */
+        .comments-drawer {
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #172554;
+            border-top: 2px solid #f97316;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            transition: 0.3s ease-in-out;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .comments-drawer.active {
+            bottom: 0;
+        }
+        .drawer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 10px;
-            background: #172554;
             font-size: 12px;
             font-weight: bold;
-            color: #93c5fd;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 6px;
+            color: #f97316;
         }
-        .delete-vid-btn {
+        .close-drawer {
             background: transparent;
             border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        video {
-            width: 100%;
-            max-height: 250px;
-            background: #000;
-        }
-        .video-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 10px;
-            background: #1e3a8a;
-            border-top: 1px solid #3b82f6;
-        }
-        .like-btn, .share-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
             color: #fff;
-            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
         }
-        .comments-section {
-            padding: 8px 10px;
-            background: #172554;
+        .drawer-list {
+            flex: 1;
+            overflow-y: auto;
+            margin: 8px 0;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            border-top: 1px solid #3b82f6;
-        }
-        .comment-list {
-            max-height: 80px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
             font-size: 11px;
         }
-        .comment-item {
+        .drawer-comment-item {
             background: #1e3a8a;
-            padding: 4px 6px;
-            border-radius: 4px;
+            padding: 5px 8px;
+            border-radius: 6px;
             word-break: break-all;
         }
-        .comment-form {
+        .drawer-form {
             display: flex;
-            gap: 4px;
+            gap: 6px;
         }
-        .comment-input {
+        .drawer-input {
             flex: 1;
-            padding: 5px 8px;
+            padding: 6px;
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 4px;
+            border-radius: 6px;
             color: #fff;
             font-size: 11px;
         }
-        .comment-submit {
+        .drawer-submit {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 5px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
         }
-        .comment-submit:hover { background: #1d4ed8; }
     </style>
 </head>
 <body>
     {{ header|safe }}
 
-    <div class="vidyo-container">
-        <p class="vidyo-title">📹 VİDEO BÖLMƏSİ</p>
+    <div class="shorts-container" id="shortsContainer">
+        <!-- Video Yükləmə düyməsi -->
+        <div class="upload-trigger-bar">
+            <button class="btn-open-upload" onclick="toggleUploadModal()">➕ Video Yüklə</button>
+        </div>
 
-        <form method="POST" enctype="multipart/form-data" class="upload-box" action="/vidyo/upload">
-            <label style="font-size: 12px; color: #93c5fd; font-weight: bold;">Qalereyadan video seç:</label>
-            <input type="file" name="video_file" accept="video/*" required>
-            <button type="submit" class="btn-upload">Videonu Yüklə</button>
-        </form>
+        <!-- Video Yükləmə Modalı -->
+        <div class="upload-modal" id="uploadModal">
+            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:8px;">
+                <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Shorts Videosu Seç:</label>
+                <input type="file" name="video_file" accept="video/*" required style="font-size:10px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#dc2626; color:#fff; border:none; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">Bağla</button>
+            </form>
+        </div>
 
-        <div class="video-feed">
-            {% if videos %}
-                {% for v in videos %}
-                    <div class="video-card" id="video-card-{{ v[0] }}">
-                        <div class="video-header">
-                            <span>@{{ v[1] }}</span>
-                            {% if v[1] == current_user %}
-                                <button class="delete-vid-btn" title="Videonu Sil" onclick="deleteVideo('{{ v[0] }}')">🗑️</button>
-                            {% endif %}
-                        </div>
-                        <video controls>
-                            <source src="{{ v[2] }}" type="video/mp4">
-                            Sizin brauzer video dəstəkləmir.
-                        </video>
-                        <div class="video-actions">
-                            <button class="like-btn" onclick="toggleLike('{{ v[0] }}')">
-                                <span id="like-icon-{{ v[0] }}">{{ '❤️' if v[3] else '🤍' }}</span> 
-                                <span id="like-count-{{ v[0] }}">{{ v[4] }}</span>
+        {% if videos %}
+            {% for v in videos %}
+                <div class="short-card" id="video-card-{{ v[0] }}">
+                    <!-- Şaquli Şort Video -->
+                    <video src="{{ v[2] }}" loop playsinline onclick="togglePlay(this)"></video>
+
+                    <!-- Sol Aşağı Məlumat -->
+                    <div class="shorts-info">
+                        <div class="shorts-username">@{{ v[1] }}</div>
+                        {% if v[1] == current_user %}
+                            <button class="delete-short-btn" onclick="deleteVideo('{{ v[0] }}')">Sil 🗑️</button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sağ Tərəf Düymələr -->
+                    <div class="shorts-actions">
+                        <!-- Bəyənmə -->
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="toggleLike('{{ v[0] }}')">
+                                <span id="like-icon-{{ v[0] }}">{{ '❤️' if v[3] else '🤍' }}</span>
                             </button>
-                            <button class="share-btn" onclick="shareVideo('{{ v[0] }}')">
-                                ↗️ Göndər
-                            </button>
+                            <span class="action-count" id="like-count-{{ v[0] }}">{{ v[4] }}</span>
                         </div>
-                        <div class="comments-section">
-                            <div class="comment-list" id="comment-list-{{ v[0] }}">
-                                {% for c in v[5] %}
-                                    <div class="comment-item"><b>@{{ c[1] }}</b>: {{ c[2] }}</div>
-                                {% endfor %}
-                            </div>
-                            <div class="comment-form">
-                                <input type="text" class="comment-input" id="comment-input-{{ v[0] }}" placeholder="Yorum yaz...">
-                                <button class="comment-submit" onclick="addComment('{{ v[0] }}')">Yaz</button>
-                            </div>
+
+                        <!-- Şərh Açma -->
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="openComments('{{ v[0] }}')">
+                                <span>💬</span>
+                            </button>
+                            <span class="action-count" id="comm-count-{{ v[0] }}">{{ v[5]|length }}</span>
+                        </div>
+
+                        <!-- Paylaş / Göndər -->
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="shareVideo('{{ v[0] }}')">
+                                <span>↗️</span>
+                            </button>
+                            <span class="action-count">Paylaş</span>
                         </div>
                     </div>
-                {% endfor %}
-            {% else %}
-                <p style="text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki video yüklənməyib.</p>
-            {% endif %}
-        </div>
+
+                    <!-- Şərhlər Çekmecəsi (Drawer) -->
+                    <div class="comments-drawer" id="drawer-{{ v[0] }}">
+                        <div class="drawer-header">
+                            <span>Şərhlər</span>
+                            <button class="close-drawer" onclick="closeComments('{{ v[0] }}')">✕</button>
+                        </div>
+                        <div class="drawer-list" id="comment-list-{{ v[0] }}">
+                            {% for c in v[5] %}
+                                <div class="drawer-comment-item"><b>@{{ c[1] }}</b>: {{ c[2] }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="drawer-form">
+                            <input type="text" class="drawer-input" id="comment-input-{{ v[0] }}" placeholder="Şərh yaz...">
+                            <button class="drawer-submit" onclick="addComment('{{ v[0] }}')">Yaz</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#93c5fd; font-size:13px; text-align:center; padding:20px;">
+                Hələ ki Shorts videosu yoxdur. Yuxarıdakı düymədən ilk videonu sən yüklə!
+            </div>
+        {% endif %}
     </div>
 
     <script>
+        function toggleUploadModal() {
+            let modal = document.getElementById('uploadModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function togglePlay(videoElement) {
+            if (videoElement.paused) {
+                videoElement.play();
+            } else {
+                videoElement.pause();
+            }
+        }
+
         function toggleLike(videoId) {
             fetch('/vidyo/like/' + videoId, { method: 'POST' })
             .then(res => res.json())
@@ -879,6 +981,14 @@ VIDYO_TEMPLATE = '''
                     document.getElementById('like-icon-' + videoId).innerText = data.liked ? '❤️' : '🤍';
                 }
             });
+        }
+
+        function openComments(videoId) {
+            document.getElementById('drawer-' + videoId).classList.add('active');
+        }
+
+        function closeComments(videoId) {
+            document.getElementById('drawer-' + videoId).classList.remove('active');
         }
 
         function addComment(videoId) {
@@ -895,9 +1005,12 @@ VIDYO_TEMPLATE = '''
             .then(data => {
                 if(data.success) {
                     let list = document.getElementById('comment-list-' + videoId);
-                    list.innerHTML += `<div class="comment-item"><b>@${data.user}</b>: ${data.comment}</div>`;
+                    list.innerHTML += `<div class="drawer-comment-item"><b>@${data.user}</b>: ${data.comment}</div>`;
                     input.value = '';
                     list.scrollTop = list.scrollHeight;
+                    
+                    let cCount = document.getElementById('comm-count-' + videoId);
+                    cCount.innerText = parseInt(cCount.innerText) + 1;
                 }
             });
         }
@@ -934,6 +1047,24 @@ VIDYO_TEMPLATE = '''
                 });
             }
         }
+
+        // Avtomatik olaraq ekranda görünən videonu oxutmaq üçün IntersectionObserver
+        document.addEventListener("DOMContentLoaded", function() {
+            let cards = document.querySelectorAll('.short-card');
+            let observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    let vid = entry.target.querySelector('video');
+                    if (entry.isIntersecting) {
+                        vid.play().catch(e => {});
+                    } else {
+                        vid.pause();
+                        vid.currentTime = 0;
+                    }
+                });
+            }, { threshold: 0.6 });
+
+            cards.forEach(card => observer.observe(card));
+        });
     </script>
 </body>
 </html>
@@ -1968,7 +2099,7 @@ def sekil():
     header = get_header_template(points)
     return render_template_string(SEKIL_TEMPLATE, photos=photos, header=header)
 
-# VİDEO YOLLARI (ROUTES)
+# VİDEO YOLLARI (ROUTES) - SHORTS FORMATI ÜÇÜN
 @app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
@@ -1987,14 +2118,12 @@ def vidyo():
         uploader = v[1]
         v_data = v[2]
         
-        # Bəyənmə sayı və istifadəçinin bəyənib-bəyənmədiyini yoxla
         cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (v_id,))
         like_count = cursor.fetchone()[0]
         
         cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ? AND username = ?", (v_id, current_user))
         is_liked = cursor.fetchone()[0] > 0
         
-        # Şərhlər
         cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = ?", (v_id,))
         comments = cursor.fetchall()
         
