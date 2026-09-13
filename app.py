@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, redirect, url_for, session
+from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 import sqlite3
 import base64
 
@@ -29,9 +29,14 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender TEXT NOT NULL,
             content TEXT NOT NULL
         )
     ''')
+    try:
+        cursor.execute("ALTER TABLE messages ADD COLUMN sender TEXT")
+    except sqlite3.OperationalError:
+        pass
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gifts (
@@ -281,14 +286,36 @@ CHAT_TEMPLATE = '''
             gap: 6px;
             padding-right: 4px;
         }
-        .chat-box p {
+        .message-card {
             background: #1e3a8a;
             padding: 6px 10px;
             border-radius: 6px;
-            margin: 0;
             border-left: 3px solid #3b82f6;
-            word-break: break-all;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 12px;
+        }
+        .message-content {
+            word-break: break-all;
+            flex: 1;
+        }
+        .message-actions {
+            display: flex;
+            gap: 4px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px;
+            border-radius: 4px;
+        }
+        .action-btn:hover {
+            background: rgba(59, 130, 246, 0.4);
         }
         .message-form { 
             display: flex; 
@@ -334,7 +361,15 @@ CHAT_TEMPLATE = '''
             <div class="chat-box">
                 {% if messages %}
                     {% for msg in messages %}
-                        <p>{{ msg }}</p>
+                        <div class="message-card" id="msg-{{ msg[0] }}">
+                            <div class="message-content" id="content-{{ msg[0] }}"><b>{{ msg[1] }}</b>: {{ msg[2] }}</div>
+                            {% if msg[1] == current_user %}
+                                <div class="message-actions">
+                                    <button class="action-btn" title="Redaktə et" onclick="editMessage('{{ msg[0] }}', '{{ msg[2] }}')">✏️</button>
+                                    <button class="action-btn" title="Sil" onclick="deleteMessage('{{ msg[0] }}')">🗑️</button>
+                                </div>
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 {% else %}
                     <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 11px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
@@ -346,6 +381,40 @@ CHAT_TEMPLATE = '''
             </form>
         </div>
     </div>
+    <script>
+        function deleteMessage(msgId) {
+            if(confirm("Bu mesajı silmək istədiyinizə əminsinizmi?")) {
+                fetch('/delete_message/' + msgId, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('msg-' + msgId).remove();
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+
+        function editMessage(msgId, oldText) {
+            let newText = prompt("Mesajınızı redaktə edin:", oldText);
+            if(newText !== null && newText.trim() !== "") {
+                fetch('/edit_message/' + msgId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newText.trim() })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
 '''
@@ -574,12 +643,12 @@ PROFIL_TEMPLATE = '''
             background: #172554;
             border: 2px solid #f97316;
             border-radius: 14px;
-            padding: 16px 22px;
+            padding: 21px 27px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            width: 95%;
-            max-width: 780px;
+            gap: 15px;
+            width: 100%;
+            max-width: 830px;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
@@ -1067,7 +1136,6 @@ OYUN_PANEL_TEMPLATE = '''
 </html>
 '''
 
-# WOW Oyunu Səhifəsi
 WOW_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1202,7 +1270,6 @@ WOW_TEMPLATE = '''
 </html>
 '''
 
-# Sual-Cavab Oyunu Səhifəsi
 SUAL_CAVAB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1482,20 +1549,63 @@ def chat():
     if request.method == 'POST':
         msg = request.form.get('message').strip()
         if msg:
-            full_msg = f"{session['user']}: {msg}"
-            cursor.execute("INSERT INTO messages (content) VALUES (?)", (full_msg,))
+            cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (session['user'], msg))
             conn.commit()
         conn.close()
         return redirect(url_for('chat'))
         
-    cursor.execute("SELECT content FROM messages")
-    messages = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SELECT id, sender, content FROM messages")
+    messages = cursor.fetchall()
     conn.close()
     
     points = get_user_points(session['user'])
     header = get_header_template(points)
         
-    return render_template_string(CHAT_TEMPLATE, messages=messages, header=header, points=points)
+    return render_template_string(CHAT_TEMPLATE, messages=messages, header=header, points=points, current_user=session['user'])
+
+@app.route('/delete_message/<int:msg_id>', methods=['POST'])
+def delete_message(msg_id):
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Giriş etməmisiniz"}), 401
+        
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == session['user']:
+        cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+    
+    conn.close()
+    return jsonify({"success": False, "error": "Bu mesajı silməyə icazəniz yoxdur"})
+
+@app.route('/edit_message/<int:msg_id>', methods=['POST'])
+def edit_message(msg_id):
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Giriş etməmisiniz"}), 401
+        
+    data = request.get_json()
+    new_content = data.get('content', '').strip()
+    
+    if not new_content:
+        return jsonify({"success": False, "error": "Mesaj boş ola bilməz"})
+        
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == session['user']:
+        cursor.execute("UPDATE messages SET content = ? WHERE id = ?", (new_content, msg_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+        
+    conn.close()
+    return jsonify({"success": False, "error": "Bu mesajı redaktə etməyə icazəniz yoxdur"})
 
 @app.route('/istifadeciler')
 def istifadeciler():
@@ -1574,6 +1684,7 @@ def profil():
                     cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
+                    cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
                     conn.commit()
                     session['user'] = new_name
                     current_user = new_name
@@ -1598,6 +1709,7 @@ def profil():
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
             cursor.execute("DELETE FROM gifts WHERE receiver = ? OR sender = ?", (current_user, current_user))
             cursor.execute("DELETE FROM photos WHERE uploader = ?", (current_user,))
+            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
             conn.commit()
             conn.close()
             session.pop('user', None)
