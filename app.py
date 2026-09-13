@@ -54,7 +54,7 @@ def init_db():
 
 init_db()
 
-# Giriş və Qeydiyyat Səhifəsi (Şəkildəki kimi yeniləndi)
+# Giriş və Qeydiyyat Səhifəsi
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -136,7 +136,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst menyu şablonu
+# Böyük və səliqəli dizayn edilmiş Üst Meny (Navigasiya)
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -150,23 +150,23 @@ def get_header_template(points=500):
         </a>
         <a href="/sekil" class="nav-item">
             <span class="icon">📷</span>
-            <span>Şəkillər</span>
+            <span>Şəkil</span>
         </a>
         <a href="/vidyo" class="nav-item">
             <span class="icon">📹</span>
             <span>Videolar</span>
         </a>
-        <a href="/oyun" class="nav-item">
-            <span class="icon">🎮</span>
-            <span>Oyunlar</span>
-        </a>
         <a href="/magaza" class="nav-item">
-            <span class="icon">🛍️</span>
-            <span>Mağaza</span>
+            <span class="icon">🪙</span>
+            <span>{points} Bal</span>
         </a>
         <a href="/profil" class="nav-item">
             <span class="icon">👤</span>
             <span>Profil</span>
+        </a>
+        <a href="/bildirisler" class="nav-item">
+            <span class="icon">🔔</span>
+            <span>Bildiriş</span>
         </a>
     </div>
 '''
@@ -176,7 +176,7 @@ COMMON_STYLE = '''
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 8px; 
+            padding: 10px; 
             background: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
@@ -186,15 +186,16 @@ COMMON_STYLE = '''
         }
         .nav-bar { 
             background: #172554; 
-            border: 1px solid #f97316; 
-            border-radius: 8px; 
-            padding: 6px; 
+            border: 2px solid #f97316; 
+            border-radius: 10px; 
+            padding: 10px 8px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 6px;
-            gap: 2px;
+            margin-bottom: 10px;
+            gap: 4px;
             overflow-x: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         .nav-item {
             display: flex;
@@ -202,20 +203,24 @@ COMMON_STYLE = '''
             align-items: center;
             text-decoration: none;
             color: #cbd5e1;
-            padding: 4px 6px;
-            border-radius: 6px;
-            font-size: 10px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            min-width: 45px;
         }
         .nav-item .icon {
-            font-size: 14px;
-            margin-bottom: 1px;
+            font-size: 18px;
+            margin-bottom: 3px;
         }
         .nav-item:hover {
             color: #ffffff;
-            background: rgba(59, 130, 246, 0.2);
+            background: #2563eb;
+            border-color: #f97316;
         }
     </style>
 '''
@@ -233,51 +238,51 @@ CHAT_TEMPLATE = '''
             flex: 1; 
             border: 1px solid #f97316; 
             border-radius: 8px; 
-            padding: 8px; 
+            padding: 10px; 
             overflow-y: auto; 
             color: #ffffff; 
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .chat-box p {
             background: #1e3a8a;
-            padding: 6px 8px;
-            border-radius: 5px;
+            padding: 8px 10px;
+            border-radius: 6px;
             margin: 0;
-            border-left: 3px solid #3b82f6;
+            border-left: 4px solid #3b82f6;
             word-break: break-all;
-            font-size: 12px;
+            font-size: 13px;
         }
         .message-form { 
             display: flex; 
-            gap: 6px; 
+            gap: 8px; 
             background: #172554;
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #f97316;
             border-radius: 8px;
             align-items: center;
         }
         input[type="text"] { 
             flex: 1; 
-            padding: 7px 10px; 
+            padding: 9px 12px; 
             border: 1px solid #3b82f6; 
-            border-radius: 5px; 
+            border-radius: 6px; 
             background: #1e3a8a; 
             color: #ffffff; 
-            font-size: 12px;
+            font-size: 13px;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
-            padding: 7px 14px; 
+            padding: 9px 16px; 
             background: #22c55e; 
             color: white; 
             border: none; 
-            border-radius: 5px; 
+            border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 12px;
+            font-size: 13px;
         }
         button[type="submit"]:hover { background: #16a34a; }
     </style>
@@ -290,7 +295,7 @@ CHAT_TEMPLATE = '''
                 <p>{{ msg }}</p>
             {% endfor %}
         {% else %}
-            <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 11px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+            <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
         {% endif %}
     </div>
     <form method="POST" class="message-form">
@@ -314,19 +319,19 @@ USERS_TEMPLATE = '''
             flex: 1;
             border: 1px solid #f97316;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .users-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 5px;
-            margin: 0 0 4px 0;
+            padding-bottom: 6px;
+            margin: 0 0 6px 0;
             text-align: center;
         }
         .user-card {
@@ -334,31 +339,31 @@ USERS_TEMPLATE = '''
             align-items: center;
             justify-content: space-between;
             background: #1e3a8a;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .user-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         .user-avatar {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: 1px solid #f97316;
             object-fit: cover;
             background: #111;
         }
         .user-name {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             color: #ffffff;
             margin: 0 0 2px 0;
         }
         .user-status {
-            font-size: 10px;
+            font-size: 11px;
             color: #22c55e;
             font-weight: bold;
             margin: 0;
@@ -384,7 +389,7 @@ USERS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #93c5fd; font-size: 11px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            <p style="text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
 </body>
@@ -396,7 +401,7 @@ SEKIL_TEMPLATE = '''
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Şəkillər</title>
+    <title>WİN_WİD - Şəkil</title>
     ''' + COMMON_STYLE + '''
     <style>
         .sekil-container {
@@ -404,50 +409,50 @@ SEKIL_TEMPLATE = '''
             flex: 1;
             border: 1px solid #f97316;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .sekil-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 5px;
+            padding-bottom: 6px;
             margin: 0;
             text-align: center;
         }
         .upload-box {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: 8px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
         }
         input[type="file"] {
             color: #93c5fd;
-            font-size: 11px;
+            font-size: 12px;
         }
         .btn-upload {
             background: #22c55e;
             color: white;
             border: none;
-            padding: 6px;
-            border-radius: 5px;
+            padding: 8px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
         }
         .btn-upload:hover { background: #16a34a; }
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 6px;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
         }
         .gallery-item {
             background: #1e3a8a;
@@ -459,13 +464,13 @@ SEKIL_TEMPLATE = '''
         }
         .gallery-item img {
             width: 100%;
-            height: 80px;
+            height: 90px;
             object-fit: cover;
         }
         .gallery-user {
-            font-size: 9px;
+            font-size: 10px;
             color: #93c5fd;
-            padding: 3px;
+            padding: 4px;
             text-align: center;
             background: #172554;
             margin: 0;
@@ -479,10 +484,10 @@ SEKIL_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="sekil-container">
-        <p class="sekil-title">📷 QALEREYA VƏ ŞƏKİLLƏR</p>
+        <p class="sekil-title">📷 ŞƏKİL QALEREYASI</p>
 
         <form method="POST" enctype="multipart/form-data" class="upload-box">
-            <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç:</label>
+            <label style="font-size: 12px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç:</label>
             <input type="file" name="sekil_file" accept="image/*" required>
             <button type="submit" class="btn-upload">Şəkli Yüklə</button>
         </form>
@@ -496,7 +501,7 @@ SEKIL_TEMPLATE = '''
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="grid-column: 1 / -1; text-align: center; color: #93c5fd; font-size: 11px;">Hələ ki şəkil yüklənməyib.</p>
+                <p style="grid-column: 1 / -1; text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki şəkil yüklənməyib.</p>
             {% endif %}
         </div>
     </div>
@@ -517,33 +522,34 @@ PROFIL_TEMPLATE = '''
             flex: 1;
             border: 1px solid #f97316;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .profile-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 4px;
+            padding-bottom: 6px;
             margin: 0;
+            text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             background: #1e3a8a;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: 2px solid #f97316;
             overflow: hidden;
@@ -560,67 +566,67 @@ PROFIL_TEMPLATE = '''
             bottom: -2px;
             right: 50%;
             transform: translateX(50%);
-            font-size: 8px;
+            font-size: 9px;
         }
         .profile-info h3 {
-            margin: 0 0 2px 0;
-            font-size: 13px;
+            margin: 0 0 3px 0;
+            font-size: 14px;
             color: #ffffff;
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
             margin: 0;
         }
         .gifts-box {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 6px;
-            padding: 6px;
+            border-radius: 8px;
+            padding: 8px;
             display: flex;
-            gap: 4px;
+            gap: 6px;
             flex-wrap: wrap;
-            min-height: 30px;
+            min-height: 35px;
             align-items: center;
         }
         .gift-item {
-            font-size: 16px;
+            font-size: 18px;
             background: #172554;
-            padding: 2px 4px;
-            border-radius: 4px;
+            padding: 3px 6px;
+            border-radius: 6px;
             border: 1px solid #f97316;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 6px 8px;
+            padding: 8px 10px;
             border: 1px solid #3b82f6;
-            border-radius: 5px;
+            border-radius: 6px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 11px;
+            font-size: 12px;
             box-sizing: border-box;
             text-align: center;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         input[type="file"] {
             color: #93c5fd;
-            font-size: 10px;
+            font-size: 11px;
         }
         .btn-blue {
             background: #0284c7;
             color: white;
             border: none;
-            padding: 6px;
-            border-radius: 5px;
+            padding: 8px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -630,10 +636,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 6px;
-            border-radius: 5px;
+            padding: 8px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -643,17 +649,17 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 6px;
-            border-radius: 5px;
+            padding: 8px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
-            font-size: 11px;
+            font-size: 12px;
             text-align: center;
             margin: 0;
         }
@@ -681,14 +687,14 @@ PROFIL_TEMPLATE = '''
         </div>
 
         <div>
-            <p style="font-size: 11px; margin: 0 0 3px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
+            <p style="font-size: 12px; margin: 0 0 4px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
             <div class="gifts-box">
                 {% if gifts %}
                     {% for g in gifts %}
                         <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                     {% endfor %}
                 {% else %}
-                    <span style="font-size: 11px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                    <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
                 {% endif %}
             </div>
         </div>
@@ -729,32 +735,32 @@ MAGAZA_TEMPLATE = '''
             flex: 1;
             border: 1px solid #f97316;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .magaza-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 5px;
+            padding-bottom: 6px;
             margin: 0;
             text-align: center;
         }
         .product-section {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: 8px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
         }
         .product-title {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             color: #f97316;
             margin: 0;
@@ -765,12 +771,12 @@ MAGAZA_TEMPLATE = '''
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
             border: none;
             font-weight: bold;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 12px;
         }
         .btn-yellow { background: #eab308; color: #000; }
         .btn-red { background: #ef4444; color: #fff; }
@@ -781,20 +787,20 @@ MAGAZA_TEMPLATE = '''
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
-            max-height: 85px;
+            gap: 6px;
+            max-height: 100px;
             overflow-y: auto;
             background: #172554;
-            padding: 6px;
+            padding: 8px;
             border-radius: 6px;
             border: 1px solid #3b82f6;
         }
         .emoji-btn {
-            font-size: 15px;
+            font-size: 18px;
             cursor: pointer;
-            padding: 2px;
+            padding: 4px;
             background: #1e3a8a;
-            border-radius: 4px;
+            border-radius: 6px;
             border: 1px solid transparent;
         }
         .emoji-btn:hover {
@@ -804,15 +810,15 @@ MAGAZA_TEMPLATE = '''
         }
         select {
             width: 100%;
-            padding: 6px;
+            padding: 8px;
             background: #172554;
             color: #fff;
             border: 1px solid #3b82f6;
-            border-radius: 5px;
-            font-size: 11px;
+            border-radius: 6px;
+            font-size: 12px;
         }
         .msg-alert {
-            font-size: 11px;
+            font-size: 12px;
             text-align: center;
             margin: 0;
         }
@@ -822,13 +828,12 @@ MAGAZA_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="magaza-container">
-        <p class="magaza-title">🛍️ MAĞAZA BÖLMƏSİ (Balın: {{ points }})</p>
+        <p class="magaza-title">🛍️ MAĞAZA VƏ BAL (Balın: {{ points }})</p>
 
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
         {% endif %}
 
-        <!-- 1. Rəngli Nik -->
         <div class="product-section">
             <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
             <div class="color-list">
@@ -840,19 +845,6 @@ MAGAZA_TEMPLATE = '''
             </div>
         </div>
 
-        <!-- 2. Rəngli Mesaj -->
-        <div class="product-section">
-            <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
-            <div class="color-list">
-                <button class="color-btn btn-yellow">Sarı</button>
-                <button class="color-btn btn-red">Qırmızı</button>
-                <button class="color-btn btn-blue">Göy</button>
-                <button class="color-btn btn-purple">Bənövşəyi</button>
-                <button class="color-btn btn-green">Yaşıl</button>
-            </div>
-        </div>
-
-        <!-- 3. Hədiyyə Atmaq -->
         <div class="product-section">
             <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
             <form method="POST">
@@ -865,7 +857,7 @@ MAGAZA_TEMPLATE = '''
                         {% endif %}
                     {% endfor %}
                 </select>
-                <div class="emoji-grid" style="margin-top: 4px;">
+                <div class="emoji-grid" style="margin-top: 6px;">
                     {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                     {% for emo in emojis %}
                         <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
@@ -873,17 +865,6 @@ MAGAZA_TEMPLATE = '''
                 </div>
             </form>
         </div>
-
-        <!-- 4. Profil Stikerləri -->
-        <div class="product-section">
-            <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
-            <div class="emoji-grid">
-                {% for emo in emojis %}
-                    <span class="emoji-btn" style="cursor: default;">{{ emo }}</span>
-                {% endfor %}
-            </div>
-        </div>
-
     </div>
 </body>
 </html>
@@ -907,7 +888,7 @@ SUB_TEMPLATE = '''
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 13px;
+            font-size: 14px;
             color: #93c5fd;
         }
     </style>
@@ -1156,13 +1137,13 @@ def vidyo():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Videolar", header=header)
 
-@app.route('/oyun')
-def oyun():
+@app.route('/bildirisler')
+def bildirisler():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Oyunlar", header=header)
+    return render_template_string(SUB_TEMPLATE, title="Bildirişlər", header=header)
 
 @app.route('/logout')
 def logout():
