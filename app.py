@@ -799,16 +799,27 @@ MAGAZA_TEMPLATE = '''
     <title>WİN_WİD - Maqazin</title>
     ''' + COMMON_STYLE + '''
     <style>
+        .magaza-outer-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
         .magaza-container {
             background: #172554;
-            flex: 1;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 12px;
-            overflow-y: auto;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            width: 100%;
+            max-width: 680px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .magaza-title {
             font-size: 14px;
@@ -823,10 +834,10 @@ MAGAZA_TEMPLATE = '''
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .product-title {
             font-size: 13px;
@@ -840,7 +851,7 @@ MAGAZA_TEMPLATE = '''
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             border: none;
             font-weight: bold;
@@ -857,17 +868,17 @@ MAGAZA_TEMPLATE = '''
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            max-height: 100px;
+            max-height: 120px;
             overflow-y: auto;
             background: #172554;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .emoji-btn {
             font-size: 18px;
             cursor: pointer;
-            padding: 3px;
+            padding: 4px 6px;
             background: #1e3a8a;
             border-radius: 6px;
             border: 1px solid transparent;
@@ -879,12 +890,13 @@ MAGAZA_TEMPLATE = '''
         }
         select {
             width: 100%;
-            padding: 8px;
+            padding: 9px 12px;
             background: #172554;
             color: #fff;
             border: 1px solid #3b82f6;
             border-radius: 6px;
             font-size: 12px;
+            box-sizing: border-box;
         }
         .msg-alert {
             font-size: 12px;
@@ -896,69 +908,71 @@ MAGAZA_TEMPLATE = '''
 <body>
     {{ header|safe }}
 
-    <div class="magaza-container">
-        <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
+    <div class="magaza-outer-wrapper">
+        <div class="magaza-container">
+            <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
 
-        {% if message %}
-            <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
-        {% endif %}
+            {% if message %}
+                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
+            {% endif %}
 
-        <!-- 1. Rəngli Nik -->
-        <div class="product-section">
-            <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
-            <div class="color-list">
-                <button class="color-btn btn-yellow">Sarı</button>
-                <button class="color-btn btn-red">Qırmızı</button>
-                <button class="color-btn btn-blue">Göy</button>
-                <button class="color-btn btn-purple">Bənövşəyi</button>
-                <button class="color-btn btn-green">Yaşıl</button>
+            <!-- 1. Rəngli Nik -->
+            <div class="product-section">
+                <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
+                <div class="color-list">
+                    <button class="color-btn btn-yellow">Sarı</button>
+                    <button class="color-btn btn-red">Qırmızı</button>
+                    <button class="color-btn btn-blue">Göy</button>
+                    <button class="color-btn btn-purple">Bənövşəyi</button>
+                    <button class="color-btn btn-green">Yaşıl</button>
+                </div>
             </div>
-        </div>
 
-        <!-- 2. Rəngli Mesaj -->
-        <div class="product-section">
-            <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
-            <div class="color-list">
-                <button class="color-btn btn-yellow">Sarı</button>
-                <button class="color-btn btn-red">Qırmızı</button>
-                <button class="color-btn btn-blue">Göy</button>
-                <button class="color-btn btn-purple">Bənövşəyi</button>
-                <button class="color-btn btn-green">Yaşıl</button>
+            <!-- 2. Rəngli Mesaj -->
+            <div class="product-section">
+                <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
+                <div class="color-list">
+                    <button class="color-btn btn-yellow">Sarı</button>
+                    <button class="color-btn btn-red">Qırmızı</button>
+                    <button class="color-btn btn-blue">Göy</button>
+                    <button class="color-btn btn-purple">Bənövşəyi</button>
+                    <button class="color-btn btn-green">Yaşıl</button>
+                </div>
             </div>
-        </div>
 
-        <!-- 3. Hədiyyə Atmaq -->
-        <div class="product-section">
-            <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
-            <form method="POST">
-                <input type="hidden" name="action" value="send_gift">
-                <select name="receiver" required>
-                    <option value="" disabled selected>İstifadəçini seçin</option>
-                    {% for u in users %}
-                        {% if u != current_user %}
-                            <option value="{{ u }}">{{ u }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-                <div class="emoji-grid" style="margin-top: 6px;">
-                    {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
+            <!-- 3. Hədiyyə Atmaq -->
+            <div class="product-section">
+                <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="send_gift">
+                    <select name="receiver" required>
+                        <option value="" disabled selected>İstifadəçini seçin</option>
+                        {% for u in users %}
+                            {% if u != current_user %}
+                                <option value="{{ u }}">{{ u }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div class="emoji-grid" style="margin-top: 6px;">
+                        {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
+                        {% for emo in emojis %}
+                            <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            <!-- 4. Profil Stikerləri -->
+            <div class="product-section">
+                <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
+                <div class="emoji-grid">
                     {% for emo in emojis %}
-                        <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
+                        <span class="emoji-btn" style="cursor: default;">{{ emo }}</span>
                     {% endfor %}
                 </div>
-            </form>
-        </div>
-
-        <!-- 4. Profil Stikerləri -->
-        <div class="product-section">
-            <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
-            <div class="emoji-grid">
-                {% for emo in emojis %}
-                    <span class="emoji-btn" style="cursor: default;">{{ emo }}</span>
-                {% endfor %}
             </div>
-        </div>
 
+        </div>
     </div>
 </body>
 </html>
