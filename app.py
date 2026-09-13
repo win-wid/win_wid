@@ -131,15 +131,9 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst hissə şablonu (Yığcam)
+# Üst menyu şablonu (Yuxarıdakı silinən hissələr çıxarıldı, yalnız naviqasiya qaldı)
 def get_header_template(points=500):
     return f'''
-    <div class="top-header-bar">
-        <div class="bal-box">BAL: {points}</div>
-        <div class="user-box">İSTİFADƏÇİ</div>
-        <div class="bell-icon">🔔</div>
-        <a href="/logout" class="logout-btn">Çıxış</a>
-    </div>
     <div class="nav-bar">
         <a href="/chat" class="nav-item">
             <span class="icon">💬</span>
@@ -186,64 +180,11 @@ COMMON_STYLE = '''
             height: 100vh; 
             box-sizing: border-box; 
         }
-        .top-header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #172554;
-            padding: 5px 8px;
-            border-radius: 8px;
-            border: 1px solid #3b82f6;
-            margin-bottom: 6px;
-            gap: 6px;
-        }
-        .bal-box {
-            background: #f97316;
-            color: #000;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            text-align: center;
-        }
-        .user-box {
-            background: #f97316;
-            color: #000;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            text-align: center;
-            white-space: nowrap;
-            flex: 1;
-        }
-        .bell-icon {
-            background: #f97316;
-            color: #000;
-            padding: 5px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logout-btn {
-            background: #dc2626;
-            color: white;
-            text-decoration: none;
-            padding: 5px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        .logout-btn:hover { background: #b91c1c; }
-
         .nav-bar { 
             background: #172554; 
             border: 1px solid #f97316; 
             border-radius: 8px; 
-            padding: 4px; 
+            padding: 6px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
@@ -257,7 +198,7 @@ COMMON_STYLE = '''
             align-items: center;
             text-decoration: none;
             color: #cbd5e1;
-            padding: 3px 5px;
+            padding: 4px 6px;
             border-radius: 6px;
             font-size: 10px;
             font-weight: bold;
@@ -265,7 +206,7 @@ COMMON_STYLE = '''
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 13px;
+            font-size: 14px;
             margin-bottom: 1px;
         }
         .nav-item:hover {
@@ -722,7 +663,7 @@ PROFIL_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="profile-container">
-        <p class="profile-title">Mənim Profilim</p>
+        <p class="profile-title">Mənim Profilim (Bal: {{ points }})</p>
         
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
@@ -887,7 +828,7 @@ MAGAZA_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="magaza-container">
-        <p class="magaza-title">🛍️ MAĞAZA BÖLMƏSİ</p>
+        <p class="magaza-title">🛍️ MAĞAZA BÖLMƏSİ (Balın: {{ points }})</p>
 
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
@@ -1176,7 +1117,7 @@ def profil():
     points = get_user_points(current_user)
     header = get_header_template(points)
     
-    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
+    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header, points=points)
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -1212,7 +1153,7 @@ def magaza():
     
     points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, header=header, users=users, current_user=current_user, message=message, error=error)
+    return render_template_string(MAGAZA_TEMPLATE, header=header, users=users, current_user=current_user, message=message, error=error, points=points)
 
 @app.route('/vidyo')
 def vidyo():
