@@ -729,11 +729,11 @@ VIDYO_TEMPLATE = '''
             box-shadow: 0 4px 15px rgba(0,0,0,0.7);
         }
         
-        /* Sağ tərəfdə hərəkətli düymələr - Yuxarı qaldırıldı və böyüdüldü */
+        /* Sağ tərəfdə hərəkətli düymələr - Daha yuxarı qaldırıldı və ölçüləri böyüdüldü */
         .shorts-actions {
             position: absolute;
             right: 15px;
-            bottom: 120px; /* Əvvəl 60px idi, yuxarı qaldırıldı */
+            bottom: 140px; 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -750,8 +750,8 @@ VIDYO_TEMPLATE = '''
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            width: 52px;  /* Ölçü böyüdüldü (əvvəl 42px idi) */
-            height: 52px; /* Ölçü böyüdüldü (əvvəl 42px idi) */
+            width: 56px;  
+            height: 56px; 
             justify-content: center;
             transition: 0.2s;
         }
@@ -759,12 +759,12 @@ VIDYO_TEMPLATE = '''
             background: rgba(59, 130, 246, 0.6);
         }
         .action-item span {
-            font-size: 24px; /* İkonlar böyüdüldü (əvvəl 18px idi) */
+            font-size: 26px; 
         }
         .action-count {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 3px;
+            margin-top: 4px;
             color: #fff;
             text-shadow: 0 1px 2px #000;
         }
@@ -773,7 +773,7 @@ VIDYO_TEMPLATE = '''
         .shorts-info {
             position: absolute;
             left: 15px;
-            bottom: 30px; /* Bir az yuxarı qaldırıldı ki, sərhəddə yapışmasın */
+            bottom: 30px; 
             z-index: 10;
             color: #fff;
             text-shadow: 0 1px 3px #000;
@@ -1048,7 +1048,6 @@ VIDYO_TEMPLATE = '''
             }
         }
 
-        // Avtomatik olaraq ekranda görünən videonu oxutmaq üçün IntersectionObserver
         document.addEventListener("DOMContentLoaded", function() {
             let cards = document.querySelectorAll('.short-card');
             let observer = new IntersectionObserver((entries) => {
