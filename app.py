@@ -729,11 +729,11 @@ VIDYO_TEMPLATE = '''
             box-shadow: 0 4px 15px rgba(0,0,0,0.7);
         }
         
-        /* Sağ tərəfdə hərəkətli düymələr (Shorts stili) */
+        /* Sağ tərəfdə hərəkətli düymələr - Yuxarı qaldırıldı və böyüdüldü */
         .shorts-actions {
             position: absolute;
             right: 15px;
-            bottom: 60px;
+            bottom: 120px; /* Əvvəl 60px idi, yuxarı qaldırıldı */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -744,14 +744,14 @@ VIDYO_TEMPLATE = '''
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
             border-radius: 50%;
             cursor: pointer;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            width: 42px;
-            height: 42px;
+            width: 52px;  /* Ölçü böyüdüldü (əvvəl 42px idi) */
+            height: 52px; /* Ölçü böyüdüldü (əvvəl 42px idi) */
             justify-content: center;
             transition: 0.2s;
         }
@@ -759,12 +759,12 @@ VIDYO_TEMPLATE = '''
             background: rgba(59, 130, 246, 0.6);
         }
         .action-item span {
-            font-size: 18px;
+            font-size: 24px; /* İkonlar böyüdüldü (əvvəl 18px idi) */
         }
         .action-count {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
-            margin-top: 2px;
+            margin-top: 3px;
             color: #fff;
             text-shadow: 0 1px 2px #000;
         }
@@ -773,13 +773,13 @@ VIDYO_TEMPLATE = '''
         .shorts-info {
             position: absolute;
             left: 15px;
-            bottom: 20px;
+            bottom: 30px; /* Bir az yuxarı qaldırıldı ki, sərhəddə yapışmasın */
             z-index: 10;
             color: #fff;
             text-shadow: 0 1px 3px #000;
         }
         .shorts-username {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             color: #fff;
             margin-bottom: 4px;
@@ -788,9 +788,9 @@ VIDYO_TEMPLATE = '''
             background: #dc2626;
             border: none;
             color: white;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 11px;
             cursor: pointer;
             margin-top: 5px;
         }
