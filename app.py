@@ -136,7 +136,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Böyük və səliqəli dizayn edilmiş Üst Menyu
+# Üst Menyu
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -196,6 +196,7 @@ COMMON_STYLE = '''
             gap: 4px;
             overflow-x: auto;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
         .nav-item {
             display: flex;
@@ -230,22 +231,30 @@ CHAT_TEMPLATE = '''
     <title>WİN_WİD - Çat</title>
     ''' + COMMON_STYLE + '''
     <style>
+        .chat-main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #172554;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 12px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
         .chat-box { 
-            background: #172554; 
             flex: 1; 
-            border: 1px solid #f97316; 
-            border-radius: 8px; 
-            padding: 10px; 
             overflow-y: auto; 
             color: #ffffff; 
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
+            padding-right: 4px;
         }
         .chat-box p {
             background: #1e3a8a;
-            padding: 8px 10px;
+            padding: 8px 12px;
             border-radius: 6px;
             margin: 0;
             border-left: 3px solid #3b82f6;
@@ -255,18 +264,19 @@ CHAT_TEMPLATE = '''
         .message-form { 
             display: flex; 
             gap: 8px; 
-            background: #172554;
+            background: #1e3a8a;
             padding: 8px;
-            border: 1px solid #f97316;
+            border: 1px solid #3b82f6;
             border-radius: 8px;
             align-items: center;
+            flex-shrink: 0;
         }
         input[type="text"] { 
             flex: 1; 
             padding: 9px 12px; 
-            border: 1px solid #3b82f6; 
+            border: 1px solid #f97316; 
             border-radius: 6px; 
-            background: #1e3a8a; 
+            background: #172554; 
             color: #ffffff; 
             font-size: 13px;
         }
@@ -286,19 +296,21 @@ CHAT_TEMPLATE = '''
 </head>
 <body>
     {{ header|safe }}
-    <div class="chat-box">
-        {% if messages %}
-            {% for msg in messages %}
-                <p>{{ msg }}</p>
-            {% endfor %}
-        {% else %}
-            <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
-        {% endif %}
+    <div class="chat-main-wrapper">
+        <div class="chat-box">
+            {% if messages %}
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            {% else %}
+                <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+            {% endif %}
+        </div>
+        <form method="POST" class="message-form">
+            <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
+            <button type="submit">Göndər</button>
+        </form>
     </div>
-    <form method="POST" class="message-form">
-        <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
-        <button type="submit">Göndər</button>
-    </form>
 </body>
 </html>
 '''
@@ -314,8 +326,8 @@ USERS_TEMPLATE = '''
         .users-container {
             background: #172554;
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 2px solid #f97316;
+            border-radius: 12px;
             padding: 12px;
             overflow-y: auto;
             display: flex;
@@ -404,8 +416,8 @@ SEKIL_TEMPLATE = '''
         .sekil-container {
             background: #172554;
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 2px solid #f97316;
+            border-radius: 12px;
             padding: 12px;
             overflow-y: auto;
             display: flex;
@@ -517,8 +529,8 @@ PROFIL_TEMPLATE = '''
         .profile-container {
             background: #172554;
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 2px solid #f97316;
+            border-radius: 12px;
             padding: 12px;
             overflow-y: auto;
             display: flex;
@@ -730,8 +742,8 @@ MAGAZA_TEMPLATE = '''
         .magaza-container {
             background: #172554;
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 2px solid #f97316;
+            border-radius: 12px;
             padding: 12px;
             overflow-y: auto;
             display: flex;
@@ -903,8 +915,8 @@ SUB_TEMPLATE = '''
         .content-box { 
             background: #172554; 
             flex: 1; 
-            border: 1px solid #f97316; 
-            border-radius: 8px; 
+            border: 2px solid #f97316; 
+            border-radius: 12px; 
             padding: 15px; 
             text-align: center;
             display: flex;
