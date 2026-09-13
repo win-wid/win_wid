@@ -729,16 +729,21 @@ VIDYO_TEMPLATE = '''
             box-shadow: 0 4px 15px rgba(0,0,0,0.7);
         }
         
-        /* Sağ tərəfdə hərəkətli düymələr - Daha yuxarı qaldırıldı və ölçüləri böyüdüldü */
+        /* Şəkildə göstərilən kvadratın yerinə yerləşdirildi və çərçivə (border) silindi */
         .shorts-actions {
             position: absolute;
             right: 15px;
             bottom: 140px; 
+            width: 60px;
+            height: 250px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-end;
             gap: 15px;
             z-index: 10;
+            border: none; /* Kvadratın xətti silindi */
+            background: transparent; /* Kvadratın fonu şəffaf edildi */
         }
         .action-item {
             display: flex;
@@ -906,7 +911,7 @@ VIDYO_TEMPLATE = '''
                         {% endif %}
                     </div>
 
-                    <!-- Sağ Tərəf Düymələr -->
+                    <!-- Sağ Tərəf Düymələr (Kvadratın içi) -->
                     <div class="shorts-actions">
                         <!-- Bəyənmə -->
                         <div style="display:flex; flex-direction:column; align-items:center;">
