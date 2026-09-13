@@ -7,7 +7,7 @@ app.secret_key = 'win_wid_gizli_kalit'  # Sessiyanı idarə etmək üçün
 messages = []
 users = {}  # {nickname: password}
 
-# Giriş və Qeydiyyat Səhifəsi (Qara fon və mərkəzləşdirilmiş kvadrat panel)
+# Giriş və Qeydiyyat Səhifəsi (Mavi fon)
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -17,7 +17,7 @@ INDEX_TEMPLATE = '''
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            background-color: #000000; 
+            background-color: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
             justify-content: center; 
@@ -28,11 +28,11 @@ INDEX_TEMPLATE = '''
         .container { 
             width: 320px; 
             padding: 30px; 
-            background: #121212; 
+            background: #172554; 
             border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
             text-align: center; 
-            border: 1px solid #333333; 
+            border: 1px solid #3b82f6; 
         }
         h1 { 
             font-size: 20px; 
@@ -43,26 +43,26 @@ INDEX_TEMPLATE = '''
             width: 100%; 
             padding: 12px; 
             margin: 10px 0; 
-            border: 1px solid #444444; 
+            border: 1px solid #3b82f6; 
             border-radius: 6px; 
-            background: #1e1e1e; 
+            background: #1e3a8a; 
             color: #ffffff; 
             box-sizing: border-box; 
         }
-        input::placeholder { color: #888888; }
+        input::placeholder { color: #93c5fd; }
         button { 
             width: 100%; 
             padding: 12px; 
             margin: 8px 0; 
-            background: #007BFF; 
+            background: #2563eb; 
             color: white; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
         }
-        button:hover { background: #0056b3; }
-        .error { color: #ff4d4d; font-size: 14px; margin-bottom: 10px; }
+        button:hover { background: #1d4ed8; }
+        .error { color: #f87171; font-size: 14px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -82,7 +82,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Mesajlaşma Paneli (Qara fon uyumlu)
+# Mesajlaşma Paneli (1 və 2 nömrəli yerlər və mavi fon)
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -94,7 +94,7 @@ CHAT_TEMPLATE = '''
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 20px; 
-            background: #000000; 
+            background: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
             flex-direction: column; 
@@ -105,52 +105,68 @@ CHAT_TEMPLATE = '''
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            background: #121212; 
+            background: #172554; 
             color: white; 
             padding: 15px 20px; 
             border-radius: 8px; 
-            border: 1px solid #333333; 
+            border: 1px solid #3b82f6; 
         }
+        /* 1 Nömrəli Yer: Bütün mesajların göründüyü qutu */
         .chat-box { 
-            background: #121212; 
+            background: #172554; 
             flex: 1; 
-            border: 1px solid #333333; 
+            border: 2px solid #f97316; 
             border-radius: 8px; 
-            margin-top: 20px; 
+            margin-top: 15px; 
             padding: 15px; 
             overflow-y: scroll; 
             color: #ffffff; 
         }
+        .chat-box p {
+            background: #1e3a8a;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        /* 2 Nömrəli Yer: Mesaj yazmaq və göndərmək üçün yer */
         .message-form { 
-            margin-top: 20px; 
+            margin-top: 15px; 
             display: flex; 
             gap: 10px; 
+            background: #172554;
+            padding: 15px;
+            border: 2px solid #f97316;
+            border-radius: 8px;
         }
         input[type="text"] { 
             flex: 1; 
             padding: 12px; 
-            border: 1px solid #444444; 
+            border: 1px solid #3b82f6; 
             border-radius: 6px; 
-            background: #1e1e1e; 
+            background: #1e3a8a; 
             color: #ffffff; 
         }
-        button { 
-            padding: 12px 20px; 
-            background: #28a745; 
+        input[type="text"]::placeholder { color: #93c5fd; }
+        button[type="submit"] { 
+            padding: 12px 25px; 
+            background: #22c55e; 
             color: white; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
         }
+        button[type="submit"]:hover { background: #16a34a; }
         a.logout { 
             color: white; 
             text-decoration: none; 
-            background: #dc3545; 
+            background: #dc2626; 
             padding: 8px 15px; 
             border-radius: 6px; 
             font-size: 14px; 
         }
+        a.logout:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
@@ -159,12 +175,14 @@ CHAT_TEMPLATE = '''
         <a href="/logout" class="logout">Çıxış</a>
     </div>
 
+    <!-- 1 Nömrəli Yer -->
     <div class="chat-box">
         {% for msg in messages %}
             <p>{{ msg }}</p>
         {% endfor %}
     </div>
 
+    <!-- 2 Nömrəli Yer -->
     <form method="POST" class="message-form">
         <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
         <button type="submit">Göndər</button>
