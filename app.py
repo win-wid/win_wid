@@ -565,47 +565,46 @@ PROFIL_TEMPLATE = '''
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             overflow-y: auto;
-            padding: 0 10px;
+            padding: 10px;
             box-sizing: border-box;
         }
         .profile-container {
             background: #172554;
             border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 10px 16px;
+            border-radius: 14px;
+            padding: 16px 22px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            max-width: 720px;
-            min-height: auto;
+            gap: 10px;
+            width: 95%;
+            max-width: 780px;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .profile-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 4px;
+            padding-bottom: 6px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             background: #1e3a8a;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 50px;
-            height: 50px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             border: 2px solid #ef4444;
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
@@ -623,7 +622,7 @@ PROFIL_TEMPLATE = '''
             position: absolute;
             bottom: -4px;
             right: -4px;
-            font-size: 10px;
+            font-size: 11px;
             background: #1e3a8a;
             border-radius: 50%;
             padding: 1px;
@@ -631,7 +630,7 @@ PROFIL_TEMPLATE = '''
         }
         .profile-info h3 {
             margin: 0 0 2px 0;
-            font-size: 14px;
+            font-size: 15px;
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -639,7 +638,7 @@ PROFIL_TEMPLATE = '''
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
             margin: 0;
         }
@@ -647,11 +646,11 @@ PROFIL_TEMPLATE = '''
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 6px;
-            padding: 6px 10px;
+            padding: 8px 12px;
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            min-height: 30px;
+            min-height: 36px;
             align-items: center;
         }
         .gift-item {
@@ -664,17 +663,17 @@ PROFIL_TEMPLATE = '''
         form {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 8px 12px;
+            padding: 9px 12px;
             border: 1px solid #3b82f6;
             border-radius: 6px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 12px;
+            font-size: 13px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -686,10 +685,10 @@ PROFIL_TEMPLATE = '''
             background: #0284c7;
             color: white;
             border: none;
-            padding: 8px;
+            padding: 9px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -700,10 +699,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 8px;
+            padding: 9px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -714,10 +713,10 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 8px;
+            padding: 9px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -725,7 +724,7 @@ PROFIL_TEMPLATE = '''
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
-            font-size: 11px;
+            font-size: 12px;
             text-align: center;
             margin: 0;
         }
@@ -754,14 +753,14 @@ PROFIL_TEMPLATE = '''
             </div>
 
             <div>
-                <p style="font-size: 11px; margin: 0 0 2px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
+                <p style="font-size: 12px; margin: 0 0 3px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
                 <div class="gifts-box">
                     {% if gifts %}
                         {% for g in gifts %}
                             <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                         {% endfor %}
                     {% else %}
-                        <span style="font-size: 11px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                        <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
                     {% endif %}
                 </div>
             </div>
