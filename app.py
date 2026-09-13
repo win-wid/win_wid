@@ -100,7 +100,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üfüqi Menyu Paneli (Şəkildəki dizayn)
+# Üfüqi Menyu Paneli
 NAV_TEMPLATE = '''
     <div class="header">
         <h2>WİN_WİD, {{ session.get('user', '') }}</h2>
@@ -163,7 +163,6 @@ COMMON_STYLE = '''
             font-size: 15px;
             margin: 0;
         }
-        /* Şəkildəki kimi üfüqi menyu çərçivəsi */
         .nav-bar { 
             background: #172554; 
             border: 2px solid #f97316; 
@@ -172,7 +171,7 @@ COMMON_STYLE = '''
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             gap: 5px;
             overflow-x: auto;
         }
@@ -197,7 +196,6 @@ COMMON_STYLE = '''
             color: #ffffff;
             background: rgba(59, 130, 246, 0.2);
         }
-        /* Seçilmiş (Aktiv) bölmənin mavi rəngli qutusu */
         .nav-item.active {
             background: #0284c7;
             color: #ffffff;
@@ -215,7 +213,7 @@ COMMON_STYLE = '''
     </style>
 '''
 
-# Çat Səhifəsi Şablonu
+# Çat Səhifəsi Şablonu (1 və 2 nömrəli yerlərin düzəldilmiş forması)
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -224,38 +222,42 @@ CHAT_TEMPLATE = '''
     <title>WİN_WİD - Çat</title>
     ''' + COMMON_STYLE + '''
     <style>
+        /* 1 Nömrəli Yer: Mesajların oxunduğu qutu (balacalaşdırıldı) */
         .chat-box { 
             background: #172554; 
-            flex: 1; 
+            height: 52vh; 
             border: 2px solid #f97316; 
             border-radius: 8px; 
-            padding: 15px; 
+            padding: 12px; 
             overflow-y: auto; 
             color: #ffffff; 
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
         .chat-box p {
             background: #1e3a8a;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 6px;
             margin: 0;
             border-left: 4px solid #3b82f6;
             word-break: break-all;
+            font-size: 14px;
         }
+        /* 2 Nömrəli Yer: Mesaj yazılacaq yer */
         .message-form { 
             display: flex; 
             gap: 10px; 
             background: #172554;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid #f97316;
             border-radius: 8px;
+            align-items: center;
         }
         input[type="text"] { 
             flex: 1; 
-            padding: 12px; 
+            padding: 10px 12px; 
             border: 1px solid #3b82f6; 
             border-radius: 6px; 
             background: #1e3a8a; 
@@ -264,13 +266,14 @@ CHAT_TEMPLATE = '''
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
-            padding: 12px 22px; 
+            padding: 10px 20px; 
             background: #22c55e; 
             color: white; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
+            font-size: 14px;
         }
         button[type="submit"]:hover { background: #16a34a; }
     </style>
@@ -278,6 +281,7 @@ CHAT_TEMPLATE = '''
 <body>
     ''' + NAV_TEMPLATE + '''
 
+    <!-- 1 Nömrəli Yer -->
     <div class="chat-box">
         {% if messages %}
             {% for msg in messages %}
@@ -288,6 +292,7 @@ CHAT_TEMPLATE = '''
         {% endif %}
     </div>
 
+    <!-- 2 Nömrəli Yer -->
     <form method="POST" class="message-form">
         <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
         <button type="submit">Göndər</button>
