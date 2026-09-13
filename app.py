@@ -306,15 +306,15 @@ CHAT_TEMPLATE = '''
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            padding-top: 10px;
+            align-items: stretch;
+            padding-top: 0;
             box-sizing: border-box;
             overflow: hidden;
+            margin-bottom: 4px;
         }
         .chat-main-wrapper {
-            width: 98%;
-            max-width: 620px;
-            height: 56vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             background: #172554;
@@ -332,10 +332,10 @@ CHAT_TEMPLATE = '''
             font-weight: bold;
             color: #f97316;
             background: #1e3a8a;
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-radius: 6px;
             border: 1px solid #3b82f6;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             flex-shrink: 0;
         }
         .chat-box { 
@@ -345,18 +345,18 @@ CHAT_TEMPLATE = '''
             margin-bottom: 8px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             padding-right: 4px;
         }
         .message-card {
             background: #1e3a8a;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
             border-left: 3px solid #3b82f6;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 13px;
         }
         .message-content {
             word-break: break-all;
@@ -364,7 +364,7 @@ CHAT_TEMPLATE = '''
         }
         .message-actions {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             margin-left: 8px;
             flex-shrink: 0;
         }
@@ -372,8 +372,8 @@ CHAT_TEMPLATE = '''
             background: transparent;
             border: none;
             cursor: pointer;
-            font-size: 13px;
-            padding: 2px;
+            font-size: 14px;
+            padding: 4px;
             border-radius: 4px;
         }
         .action-btn:hover {
@@ -381,9 +381,9 @@ CHAT_TEMPLATE = '''
         }
         .message-form { 
             display: flex; 
-            gap: 6px; 
+            gap: 8px; 
             background: #1e3a8a;
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #3b82f6;
             border-radius: 8px;
             align-items: center;
@@ -391,23 +391,23 @@ CHAT_TEMPLATE = '''
         }
         input[type="text"] { 
             flex: 1; 
-            padding: 7px 10px; 
+            padding: 9px 12px; 
             border: 1px solid #f97316; 
             border-radius: 6px; 
             background: #172554; 
             color: #ffffff; 
-            font-size: 12px;
+            font-size: 13px;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
-            padding: 7px 12px; 
+            padding: 9px 16px; 
             background: #22c55e; 
             color: white; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 12px;
+            font-size: 13px;
         }
         button[type="submit"]:hover { background: #16a34a; }
     </style>
@@ -420,7 +420,7 @@ CHAT_TEMPLATE = '''
                 <span>💬 Ümumi Çat</span>
                 <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
             </div>
-            <div class="chat-box">
+            <div class="chat-box" id="chatBox">
                 {% if messages %}
                     {% for msg in messages %}
                         <div class="message-card" id="msg-{{ msg[0] }}">
@@ -434,7 +434,7 @@ CHAT_TEMPLATE = '''
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 11px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+                    <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
                 {% endif %}
             </div>
             <form method="POST" class="message-form">
@@ -444,6 +444,12 @@ CHAT_TEMPLATE = '''
         </div>
     </div>
     <script>
+        // Səhifə açıldıqda və ya yeni mesaj gəldikdə avtomatik aşağıya (ən son mesaja) sürüşdür
+        window.onload = function() {
+            let chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
         function deleteMessage(msgId) {
             if(confirm("Bu mesajı silmək istədiyinizə əminsinizmi?")) {
                 fetch('/delete_message/' + msgId, { method: 'POST' })
@@ -2711,18 +2717,18 @@ def profil():
                 conn.commit()
                 message = "Profil şəkli yeniləndi!"
 
-    # Profildə məlumatları səhifəyə ötürmək üçün çəkirik:
-    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (current_user,))
+    # Digər profil məlumatlarının çəkilməsi
+    cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
     user_row = cursor.fetchone()
-    pic = user_row[0] if user_row else ""
+    pic = user_row[0] if user_row else ''
+    points = user_row[1] if user_row and user_row[1] is not None else 500
 
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
-
     conn.close()
-    header = get_header_template(get_user_points(current_user))
-    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
 
+    header = get_header_template(points)
+    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -2747,19 +2753,18 @@ def magaza():
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
-                message = f"{receiver}-ə hədiyyə göndərildi!"
+                message = f"Hədiyyə @{receiver} istifadəçisinə uğurla göndərildi!"
             else:
-                message = "Balınız kifayət etmir! (20 bal lazımdır)"
+                message = "Balınız kifayət etmir (20 bal tələb olunur)!"
                 error = True
-
+                
     cursor.execute("SELECT nickname FROM users")
     users = [row[0] for row in cursor.fetchall()]
     conn.close()
     
     points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, points=points, message=message, error=error, header=header)
-
+    return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, message=message, error=error, header=header, points=points)
 
 @app.route('/oyun')
 def oyun():
@@ -2767,8 +2772,7 @@ def oyun():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(OYUN_PANEL_TEMPLATE, points=points, header=header)
-
+    return render_template_string(OYUN_PANEL_TEMPLATE, header=header, points=points)
 
 @app.route('/oyun/wow')
 def oyun_wow():
@@ -2776,8 +2780,7 @@ def oyun_wow():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(WOW_TEMPLATE, points=points, header=header)
-
+    return render_template_string(WOW_TEMPLATE, header=header, points=points)
 
 @app.route('/oyun/sual_cavab')
 def oyun_sual_cavab():
@@ -2785,8 +2788,7 @@ def oyun_sual_cavab():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUAL_CAVAB_TEMPLATE, points=points, header=header)
-
+    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header, points=points)
 
 @app.route('/bildiris')
 def bildiris():
@@ -2796,12 +2798,10 @@ def bildiris():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
 
-
 @app.route('/logout')
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
