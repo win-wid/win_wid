@@ -100,13 +100,42 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Əsas Menyu və Narıncı Çərçivə daxilində bölmələr
-MENU_TEMPLATE = '''
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <title>WİN_WİD - Menyu</title>
+# Üfüqi Menyu Paneli (Şəkildəki dizayn)
+NAV_TEMPLATE = '''
+    <div class="header">
+        <h2>WİN_WİD, {{ session.get('user', '') }}</h2>
+        <a href="/logout" class="logout">Çıxış</a>
+    </div>
+    <div class="nav-bar">
+        <a href="/chat" class="nav-item {% if active == 'chat' %}active{% endif %}">
+            <span class="icon">💬</span>
+            <span>Çat</span>
+        </a>
+        <a href="/sekil" class="nav-item {% if active == 'sekil' %}active{% endif %}">
+            <span class="icon">📷</span>
+            <span>Şəkil</span>
+        </a>
+        <a href="/vidyo" class="nav-item {% if active == 'vidyo' %}active{% endif %}">
+            <span class="icon">📹</span>
+            <span>Vidyo</span>
+        </a>
+        <a href="/oyun" class="nav-item {% if active == 'oyun' %}active{% endif %}">
+            <span class="icon">🎮</span>
+            <span>Oyun</span>
+        </a>
+        <a href="/magaza" class="nav-item {% if active == 'magaza' %}active{% endif %}">
+            <span class="icon">🛍️</span>
+            <span>Mağaza</span>
+        </a>
+        <a href="/profil" class="nav-item {% if active == 'profil' %}active{% endif %}">
+            <span class="icon">👤</span>
+            <span>Profil</span>
+        </a>
+    </div>
+'''
+
+# Ümumi CSS Stilleri
+COMMON_STYLE = '''
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -125,101 +154,76 @@ MENU_TEMPLATE = '''
             align-items: center; 
             background: #172554; 
             color: white; 
-            padding: 12px 20px; 
+            padding: 10px 15px; 
             border-radius: 8px; 
             border: 1px solid #3b82f6; 
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         .header h2 {
-            font-size: 16px;
+            font-size: 15px;
             margin: 0;
         }
-        /* Narıncı Çərçivə - Menyu bölmələri */
-        .menu-box { 
+        /* Şəkildəki kimi üfüqi menyu çərçivəsi */
+        .nav-bar { 
             background: #172554; 
             border: 2px solid #f97316; 
-            border-radius: 8px; 
-            padding: 20px; 
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            border-radius: 12px; 
+            padding: 10px; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            margin-bottom: 15px;
+            gap: 5px;
+            overflow-x: auto;
         }
-        .menu-btn {
-            background: #1e3a8a;
-            color: white;
-            border: 1px solid #3b82f6;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-decoration: none;
+            color: #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: bold;
-            font-size: 15px;
             transition: 0.2s;
+            white-space: nowrap;
         }
-        .menu-btn:hover {
-            background: #2563eb;
-            border-color: #f97316;
+        .nav-item .icon {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+        .nav-item:hover {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+        /* Seçilmiş (Aktiv) bölmənin mavi rəngli qutusu */
+        .nav-item.active {
+            background: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
         }
         a.logout { 
             color: white; 
             text-decoration: none; 
             background: #dc2626; 
-            padding: 6px 12px; 
+            padding: 5px 10px; 
             border-radius: 6px; 
-            font-size: 13px; 
+            font-size: 12px; 
         }
         a.logout:hover { background: #b91c1c; }
     </style>
-</head>
-<body>
-    <div class="header">
-        <h2>WİN_WİD'Ə XOŞ GƏLMİSİZ, {{ user }}!</h2>
-        <a href="/logout" class="logout">Çıxış</a>
-    </div>
-
-    <!-- Narıncı Çərçivə və 6 Bölmə -->
-    <div class="menu-box">
-        <a href="/chat" class="menu-btn">1. ÇAT</a>
-        <a href="/sekil" class="menu-btn">2. ŞƏKİL</a>
-        <a href="/vidyo" class="menu-btn">3. VİDYO</a>
-        <a href="/oyun" class="menu-btn">4. OYUN</a>
-        <a href="/magaza" class="menu-btn">5. MAGAZA</a>
-        <a href="/profil" class="menu-btn">6. PROFİL</a>
-    </div>
-</body>
-</html>
 '''
 
-# Çat Səhifəsi
+# Çat Səhifəsi Şablonu
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
     <title>WİN_WİD - Çat</title>
+    ''' + COMMON_STYLE + '''
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            background: #1e3a8a; 
-            color: #ffffff; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            box-sizing: border-box; 
-        }
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #172554; 
-            color: white; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            border: 1px solid #3b82f6; 
-            margin-bottom: 15px;
-        }
         .chat-box { 
             background: #172554; 
             flex: 1; 
@@ -258,6 +262,7 @@ CHAT_TEMPLATE = '''
             color: #ffffff; 
             font-size: 14px;
         }
+        input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
             padding: 12px 22px; 
             background: #22c55e; 
@@ -267,21 +272,11 @@ CHAT_TEMPLATE = '''
             cursor: pointer; 
             font-weight: bold; 
         }
-        a.back { 
-            color: white; 
-            text-decoration: none; 
-            background: #2563eb; 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            font-size: 13px; 
-        }
+        button[type="submit"]:hover { background: #16a34a; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Çat Bölməsi</h2>
-        <a href="/menu" class="back">Geri Qayıt</a>
-    </div>
+    ''' + NAV_TEMPLATE + '''
 
     <div class="chat-box">
         {% if messages %}
@@ -301,36 +296,15 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-# Digər səhifələr üçün ümumi şablon
+# Digər Səhifələr Üçün Şablon
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
     <title>WİN_WİD - {{ title }}</title>
+    ''' + COMMON_STYLE + '''
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            background: #1e3a8a; 
-            color: #ffffff; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            box-sizing: border-box; 
-        }
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #172554; 
-            color: white; 
-            padding: 12px 20px; 
-            border-radius: 8px; 
-            border: 1px solid #3b82f6; 
-            margin-bottom: 15px;
-        }
         .content-box { 
             background: #172554; 
             flex: 1; 
@@ -344,21 +318,10 @@ SUB_TEMPLATE = '''
             font-size: 18px;
             color: #93c5fd;
         }
-        a.back { 
-            color: white; 
-            text-decoration: none; 
-            background: #2563eb; 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            font-size: 13px; 
-        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>{{ title }} Bölməsi</h2>
-        <a href="/menu" class="back">Geri Qayıt</a>
-    </div>
+    ''' + NAV_TEMPLATE + '''
     <div class="content-box">
         <p>{{ title }} bölməsi tezliklə aktiv olacaq!</p>
     </div>
@@ -389,7 +352,7 @@ def index():
                     conn.commit()
                     session['user'] = nickname
                     conn.close()
-                    return redirect(url_for('menu'))
+                    return redirect(url_for('chat'))
                     
             elif action == 'login':
                 cursor.execute("SELECT password FROM users WHERE nickname = ?", (nickname,))
@@ -397,18 +360,12 @@ def index():
                 if row and row[0] == password:
                     session['user'] = nickname
                     conn.close()
-                    return redirect(url_for('menu'))
+                    return redirect(url_for('chat'))
                 else:
                     error = "Yanlış nikname və ya kod!"
             conn.close()
                 
     return render_template_string(INDEX_TEMPLATE, error=error)
-
-@app.route('/menu')
-def menu():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    return render_template_string(MENU_TEMPLATE, user=session['user'])
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -431,37 +388,37 @@ def chat():
     messages = [row[0] for row in cursor.fetchall()]
     conn.close()
         
-    return render_template_string(CHAT_TEMPLATE, messages=messages)
+    return render_template_string(CHAT_TEMPLATE, messages=messages, active='chat')
 
 @app.route('/sekil')
 def sekil():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="ŞƏKİL")
+    return render_template_string(SUB_TEMPLATE, title="Şəkil", active='sekil')
 
 @app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="VİDYO")
+    return render_template_string(SUB_TEMPLATE, title="Vidyo", active='vidyo')
 
 @app.route('/oyun')
 def oyun():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="OYUN")
+    return render_template_string(SUB_TEMPLATE, title="Oyun", active='oyun')
 
 @app.route('/magaza')
 def magaza():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="MAGAZA")
+    return render_template_string(SUB_TEMPLATE, title="Mağaza", active='magaza')
 
 @app.route('/profil')
 def profil():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="PROFİL")
+    return render_template_string(SUB_TEMPLATE, title="Profil", active='profil')
 
 @app.route('/logout')
 def logout():
