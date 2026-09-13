@@ -240,14 +240,14 @@ CHAT_TEMPLATE = '''
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding-top: 15px;
+            padding-top: 10px;
             box-sizing: border-box;
             overflow: hidden;
         }
         .chat-main-wrapper {
             width: 98%;
             max-width: 620px;
-            height: 58vh;
+            height: 56vh;
             display: flex;
             flex-direction: column;
             background: #172554;
@@ -256,6 +256,20 @@ CHAT_TEMPLATE = '''
             padding: 10px;
             box-sizing: border-box;
             overflow: hidden;
+        }
+        .chat-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #f97316;
+            background: #1e3a8a;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #3b82f6;
+            margin-bottom: 6px;
+            flex-shrink: 0;
         }
         .chat-box { 
             flex: 1; 
@@ -313,6 +327,10 @@ CHAT_TEMPLATE = '''
     {{ header|safe }}
     <div class="chat-outer-container">
         <div class="chat-main-wrapper">
+            <div class="chat-header-info">
+                <span>💬 Ümumi Çat</span>
+                <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
+            </div>
             <div class="chat-box">
                 {% if messages %}
                     {% for msg in messages %}
@@ -695,7 +713,7 @@ PROFIL_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="profile-container">
-        <p class="profile-title">Mənim Profilim (Bal: <span id="userPointsDisplay">{{ points }}</span>)</p>
+        <p class="profile-title">Mənim Profilim (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
         
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
@@ -854,7 +872,7 @@ MAGAZA_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="magaza-container">
-        <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (Balın: {{ points }})</p>
+        <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
 
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
@@ -921,7 +939,7 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-# Yeni Əsas Oyun Paneli (WOW və Sual-Cavab seçimi)
+# Oyunlar Paneli
 OYUN_PANEL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -992,7 +1010,7 @@ OYUN_PANEL_TEMPLATE = '''
 <body>
     {{ header|safe }}
     <div class="panel-container">
-        <p class="panel-title">🎮 OYUNLAR PANELİ (Balın: <span id="pointsVal">{{ points }}</span>)</p>
+        <p class="panel-title">🎮 OYUNLAR PANELİ (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
         <div class="games-grid">
             <a href="/oyun/wow" class="game-card">
                 <span class="game-icon">🔠</span>
@@ -1075,8 +1093,11 @@ WOW_TEMPLATE = '''
     {{ header|safe }}
     <div class="game-container">
         <div class="game-box">
-            <p style="font-size: 14px; font-weight: bold; margin: 0;">🔠 WOW SÖZ OYUNU</p>
-            <p style="font-size: 11px; color: #93c5fd; margin: 0;">Aşağıdakı sözdə 1 hərf əskikdir. Tap və 5 bal qazan!</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #f97316;">
+                <span>🔠 WOW SÖZ OYUNU</span>
+                <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
+            </div>
+            <p style="font-size: 11px; color: #93c5fd; margin: 0;">Sözdə 1 hərf əskikdir. Tap və 5 bal qazan!</p>
             <div class="word-display" id="maskedWord">---</div>
             <input type="text" id="userLetter" maxlength="1" placeholder="Bir hərf yaz" style="padding: 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 14px; text-transform: uppercase;">
             <button class="btn-action" onclick="checkLetter()">Yoxla</button>
@@ -1119,15 +1140,14 @@ WOW_TEMPLATE = '''
                 res.style.color = "#22c55e";
                 res.innerText = "Təbriklər! Düzdür (+5 bal)";
                 
-                // Serverə bal əlavə etmək üçün sorğu göndər
                 fetch('/add_points', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ points: 5 })
                 }).then(res => res.json()).then(data => {
                     if(data.success) {
-                        let pEl = document.getElementById('userPointsDisplay');
-                        if(pEl) pEl.innerText = data.new_points;
+                        let elements = document.querySelectorAll('#userPointsDisplay');
+                        elements.forEach(el => el.innerText = data.new_points);
                     }
                 });
 
@@ -1217,7 +1237,10 @@ SUAL_CAVAB_TEMPLATE = '''
     {{ header|safe }}
     <div class="game-container">
         <div class="game-box">
-            <p style="font-size: 14px; font-weight: bold; margin: 0;">❓ SUAL-CAVAB OYUNU</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #f97316;">
+                <span>❓ SUAL-CAVAB</span>
+                <span>BAL - <span id="userPointsDisplay">{{ points }}</span></span>
+            </div>
             <div class="timer-box">⏰ Qalan Vaxt: <span id="timeLeft">60</span> san</div>
             <div class="question-text" id="questionBox">Sual yüklənir...</div>
             <div class="hint-text" id="hintBox">İpucu: ...</div>
@@ -1246,7 +1269,7 @@ SUAL_CAVAB_TEMPLATE = '''
             document.getElementById('timeLeft').innerText = timeLeft;
             
             if (currentQIndex >= questions.length) {
-                currentQIndex = 0; // Başa qayıtsın
+                currentQIndex = 0;
             }
             
             let qObj = questions[currentQIndex];
@@ -1294,8 +1317,8 @@ SUAL_CAVAB_TEMPLATE = '''
                     body: JSON.stringify({ points: 8 })
                 }).then(res => res.json()).then(data => {
                     if(data.success) {
-                        let pEl = document.getElementById('userPointsDisplay');
-                        if(pEl) pEl.innerText = data.new_points;
+                        let elements = document.querySelectorAll('#userPointsDisplay');
+                        elements.forEach(el => el.innerText = data.new_points);
                     }
                 });
 
@@ -1390,7 +1413,6 @@ def get_user_points(username):
     conn.close()
     return row[0] if row and row[0] is not None else 500
 
-# Oyunlar zamanı qazanılan balları yeniləmək üçün endpoint
 @app.route('/add_points', methods=['POST'])
 def add_points():
     if 'user' not in session:
@@ -1434,7 +1456,7 @@ def chat():
     points = get_user_points(session['user'])
     header = get_header_template(points)
         
-    return render_template_string(CHAT_TEMPLATE, messages=messages, header=header)
+    return render_template_string(CHAT_TEMPLATE, messages=messages, header=header, points=points)
 
 @app.route('/istifadeciler')
 def istifadeciler():
