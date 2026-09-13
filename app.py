@@ -235,15 +235,15 @@ CHAT_TEMPLATE = '''
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 5px;
+            align-items: flex-start;
+            padding-top: 4px;
             box-sizing: border-box;
             overflow: hidden;
         }
         .chat-main-wrapper {
-            width: 96%;
-            max-width: 600px;
-            height: 68vh;
+            width: 98%;
+            max-width: 650px;
+            height: 58vh;
             display: flex;
             flex-direction: column;
             background: #172554;
