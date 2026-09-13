@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session
 import sqlite3
+import base64
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -38,6 +39,14 @@ def init_db():
             sender TEXT NOT NULL,
             receiver TEXT NOT NULL,
             gift TEXT NOT NULL
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS photos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            uploader TEXT NOT NULL,
+            image_data TEXT NOT NULL
         )
     ''')
     conn.commit()
@@ -120,7 +129,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst hissə şablonu (İstifadəçilər bölməsi əlavə olunub)
+# Üst hissə şablonu
 def get_header_template(points=500):
     return f'''
     <div class="top-header-bar">
@@ -438,6 +447,120 @@ USERS_TEMPLATE = '''
 </html>
 '''
 
+# Şəkillər Səhifəsi Şablonu
+SEKIL_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Şəkillər</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .sekil-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .sekil-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 8px;
+            margin: 0;
+            text-align: center;
+        }
+        .upload-box {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        input[type="file"] {
+            color: #93c5fd;
+            font-size: 12px;
+        }
+        .btn-upload {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-upload:hover { background: #16a34a; }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .gallery-item {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        .gallery-user {
+            font-size: 10px;
+            color: #93c5fd;
+            padding: 4px;
+            text-align: center;
+            background: #172554;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="sekil-container">
+        <p class="sekil-title">📷 QALEREYA VƏ ŞƏKİLLƏR</p>
+
+        <form method="POST" enctype="multipart/form-data" class="upload-box">
+            <label style="font-size: 13px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç və yüklə:</label>
+            <input type="file" name="sekil_file" accept="image/*" required>
+            <button type="submit" class="btn-upload">Şəkli Yüklə</button>
+        </form>
+
+        <div class="gallery-grid">
+            {% if photos %}
+                {% for p in photos %}
+                    <div class="gallery-item">
+                        <img src="{{ p[1] }}" alt="Şəkil">
+                        <p class="gallery-user">@{{ p[0] }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="grid-column: 1 / -1; text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki şəkil yüklənməyib.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+'''
+
 # Profil Səhifəsi Şablonu
 PROFIL_TEMPLATE = '''
 <!DOCTYPE html>
@@ -545,6 +668,10 @@ PROFIL_TEMPLATE = '''
             text-align: center;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
+        input[type="file"] {
+            color: #93c5fd;
+            font-size: 12px;
+        }
         .btn-blue {
             background: #0284c7;
             color: white;
@@ -631,11 +758,11 @@ PROFIL_TEMPLATE = '''
             <button type="submit" class="btn-blue">Adı Dəyiş</button>
         </form>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="action" value="change_pic">
-            <input type="text" name="pic_url" placeholder="Profil şəklinin linkini (URL) bura yapışdır" required>
-            <button type="submit" class="btn-gray">Profil Şəklini Dəyiş</button>
-            <button type="submit" class="btn-blue">Şəkli Yadda Saxla</button>
+            <label style="font-size: 12px; color: #93c5fd;">Qalereyadan profil şəkli seç:</label>
+            <input type="file" name="pic_file" accept="image/*" required>
+            <button type="submit" class="btn-blue">Profil Şəklini Yüklə və Yadda Saxla</button>
         </form>
 
         <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
@@ -833,7 +960,7 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-# Digər Səhifələr Üçün Şablon (Şəkil, Vidyo, Oyun)
+# Digər Səhifələr Üçün Şablon (Vidyo, Oyun)
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -953,6 +1080,35 @@ def istifadeciler():
     header = get_header_template(points)
     return render_template_string(USERS_TEMPLATE, all_users=all_users, header=header)
 
+@app.route('/sekil', methods=['GET', 'POST'])
+def sekil():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+        
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    
+    if request.method == 'POST':
+        file = request.files.get('sekil_file')
+        if file and file.filename != '':
+            file_bytes = file.read()
+            encoded = base64.b64encode(file_bytes).decode('utf-8')
+            mime_type = file.content_type or 'image/jpeg'
+            img_data = f"data:{mime_type};base64,{encoded}"
+            
+            cursor.execute("INSERT INTO photos (uploader, image_data) VALUES (?, ?)", (session['user'], img_data))
+            conn.commit()
+        conn.close()
+        return redirect(url_for('sekil'))
+        
+    cursor.execute("SELECT uploader, image_data FROM photos ORDER BY id DESC")
+    photos = cursor.fetchall()
+    conn.close()
+    
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(SEKIL_TEMPLATE, photos=photos, header=header)
+
 @app.route('/profil', methods=['GET', 'POST'])
 def profil():
     if 'user' not in session:
@@ -985,24 +1141,31 @@ def profil():
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     conn.commit()
                     session['user'] = new_name
                     current_user = new_name
                     message = "Nik adı uğurla dəyişdirildi!"
                     
         elif action == 'change_pic':
-            pic_url = request.form.get('pic_url').strip()
-            if pic_url:
+            file = request.files.get('pic_file')
+            if file and file.filename != '':
+                file_bytes = file.read()
+                encoded = base64.b64encode(file_bytes).decode('utf-8')
+                mime_type = file.content_type or 'image/jpeg'
+                pic_url = f"data:{mime_type};base64,{encoded}"
+                
                 cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
                 conn.commit()
-                message = "Profil şəkli uğurla yadda saxlandı!"
+                message = "Profil şəkli qalereyadan uğurla yeniləndi!"
             else:
-                message = "Şəkil linki boş ola bilməz!"
+                message = "Şəkil seçilmədi!"
                 error = True
                 
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
             cursor.execute("DELETE FROM gifts WHERE receiver = ? OR sender = ?", (current_user, current_user))
+            cursor.execute("DELETE FROM photos WHERE uploader = ?", (current_user,))
             conn.commit()
             conn.close()
             session.pop('user', None)
@@ -1056,14 +1219,6 @@ def magaza():
     points = get_user_points(current_user)
     header = get_header_template(points)
     return render_template_string(MAGAZA_TEMPLATE, header=header, users=users, current_user=current_user, message=message, error=error)
-
-@app.route('/sekil')
-def sekil():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    points = get_user_points(session['user'])
-    header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Şəkillər", header=header)
 
 @app.route('/vidyo')
 def vidyo():
