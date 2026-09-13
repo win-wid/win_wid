@@ -11,9 +11,16 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             nickname TEXT PRIMARY KEY,
-            password TEXT NOT NULL
+            password TEXT NOT NULL,
+            profile_pic TEXT
         )
     ''')
+    # Əgər əvvəlki bazada profile_pic sütunu yoxdursa əlavə etmək üçün
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN profile_pic TEXT")
+    except sqlite3.OperationalError:
+        pass
+        
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -213,7 +220,7 @@ COMMON_STYLE = '''
     </style>
 '''
 
-# Çat Səhifəsi Şablonu (1 və 2 nömrəli yerlərin düzəldilmiş forması)
+# Çat Səhifəsi Şablonu
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -222,7 +229,6 @@ CHAT_TEMPLATE = '''
     <title>WİN_WİD - Çat</title>
     ''' + COMMON_STYLE + '''
     <style>
-        /* 1 Nömrəli Yer: Mesajların oxunduğu qutu (balacalaşdırıldı) */
         .chat-box { 
             background: #172554; 
             height: 52vh; 
@@ -245,7 +251,6 @@ CHAT_TEMPLATE = '''
             word-break: break-all;
             font-size: 14px;
         }
-        /* 2 Nömrəli Yer: Mesaj yazılacaq yer */
         .message-form { 
             display: flex; 
             gap: 10px; 
@@ -280,8 +285,6 @@ CHAT_TEMPLATE = '''
 </head>
 <body>
     ''' + NAV_TEMPLATE + '''
-
-    <!-- 1 Nömrəli Yer -->
     <div class="chat-box">
         {% if messages %}
             {% for msg in messages %}
@@ -291,12 +294,194 @@ CHAT_TEMPLATE = '''
             <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
         {% endif %}
     </div>
-
-    <!-- 2 Nömrəli Yer -->
     <form method="POST" class="message-form">
         <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
         <button type="submit">Göndər</button>
     </form>
+</body>
+</html>
+'''
+
+# Profil Səhifəsi Şablonu (Şəkildəki dizayn və funksiyalar)
+PROFIL_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Profil</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .profile-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .profile-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 8px;
+            margin: 0;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #1e3a8a;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #3b82f6;
+        }
+        .avatar-wrapper {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid #f97316;
+            overflow: hidden;
+            background: #111;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+            flex-shrink: 0;
+        }
+        .avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .crown-icon {
+            position: absolute;
+            bottom: -2px;
+            right: 50%;
+            transform: translateX(50%);
+            font-size: 12px;
+        }
+        .profile-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            color: #ffffff;
+        }
+        .profile-info .status {
+            color: #22c55e;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            background: #1e3a8a;
+            color: #ffffff;
+            font-size: 14px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        input[type="text"]::placeholder { color: #93c5fd; }
+        .btn-blue {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+        }
+        .btn-blue:hover { background: #0369a1; }
+        .btn-gray {
+            background: #334155;
+            color: white;
+            border: 1px solid #475569;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+        }
+        .btn-gray:hover { background: #475569; }
+        .btn-red {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+        }
+        .btn-red:hover { background: #b91c1c; }
+        .msg-alert {
+            font-size: 13px;
+            text-align: center;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    ''' + NAV_TEMPLATE + '''
+
+    <div class="profile-container">
+        <p class="profile-title">Mənim Profilim</p>
+        
+        {% if message %}
+            <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
+        {% endif %}
+
+        <div class="profile-header">
+            <div class="avatar-wrapper">
+                <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
+                <div class="crown-icon">👑</div>
+            </div>
+            <div class="profile-info">
+                <h3>@{{ user }} 👑</h3>
+                <p class="status">● Aktivdir</p>
+            </div>
+        </div>
+
+        <!-- 1. Nik Adını Dəyiş -->
+        <form method="POST">
+            <input type="hidden" name="action" value="change_name">
+            <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
+            <button type="submit" class="btn-blue">Adı Dəyiş</button>
+        </form>
+
+        <!-- 2. Şəkil URL-i Daxil Etmək Üçün Form -->
+        <form method="POST">
+            <input type="hidden" name="action" value="change_pic">
+            <input type="text" name="pic_url" placeholder="Profil şəklinin linkini (URL) bura yapışdır" required>
+            <button type="submit" class="btn-gray">Profil Şəklini Dəyiş</button>
+            <button type="submit" class="btn-blue">Şəkli Yadda Saxla</button>
+        </form>
+
+        <!-- 3. Hesabı Sil -->
+        <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
+            <input type="hidden" name="action" value="delete_account">
+            <button type="submit" class="btn-red">Hesabımı Sil</button>
+        </form>
+
+        <!-- 4. Çıxış Et -->
+        <a href="/logout" class="btn-gray" style="text-decoration: none; box-sizing: border-box; display: block;">Çıxış Et</a>
+    </div>
 </body>
 </html>
 '''
@@ -353,7 +538,7 @@ def index():
                 if cursor.fetchone():
                     error = "Bu nikname artıq istifadədədir!"
                 else:
-                    cursor.execute("INSERT INTO users (nickname, password) VALUES (?, ?)", (nickname, password))
+                    cursor.execute("INSERT INTO users (nickname, password, profile_pic) VALUES (?, ?, ?)", (nickname, password, ''))
                     conn.commit()
                     session['user'] = nickname
                     conn.close()
@@ -395,6 +580,65 @@ def chat():
         
     return render_template_string(CHAT_TEMPLATE, messages=messages, active='chat')
 
+@app.route('/profil', methods=['GET', 'POST'])
+def profil():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+        
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    
+    message = None
+    error = False
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        current_user = session['user']
+        
+        if action == 'change_name':
+            new_name = request.form.get('new_nickname').strip()
+            if len(new_name) > 7:
+                message = "Nik adı maksimum 7 hərf ola bilər!"
+                error = True
+            elif not new_name:
+                message = "Nik adı boş ola bilməz!"
+                error = True
+            else:
+                cursor.execute("SELECT * FROM users WHERE nickname = ?", (new_name,))
+                if cursor.fetchone():
+                    message = "Bu nik adı artıq istifadədədir!"
+                    error = True
+                else:
+                    cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
+                    conn.commit()
+                    session['user'] = new_name
+                    message = "Nik adı uğurla dəyişdirildi!"
+                    
+        elif action == 'change_pic':
+            pic_url = request.form.get('pic_url').strip()
+            if pic_url:
+                cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
+                conn.commit()
+                message = "Profil şəkli uğurla yadda saxlandı!"
+            else:
+                message = "Şəkil linki boş ola bilməz!"
+                error = True
+                
+        elif action == 'delete_account':
+            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            conn.commit()
+            conn.close()
+            session.pop('user', None)
+            return redirect(url_for('index'))
+            
+    # İstifadəçinin cari şəkil məlumatını çəkək
+    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (session['user'],))
+    row = cursor.fetchone()
+    pic = row[0] if row and row[0] else ''
+    
+    conn.close()
+    return render_template_string(PROFIL_TEMPLATE, user=session['user'], pic=pic, message=message, error=error, active='profil')
+
 @app.route('/sekil')
 def sekil():
     if 'user' not in session:
@@ -418,12 +662,6 @@ def magaza():
     if 'user' not in session:
         return redirect(url_for('index'))
     return render_template_string(SUB_TEMPLATE, title="Mağaza", active='magaza')
-
-@app.route('/profil')
-def profil():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Profil", active='profil')
 
 @app.route('/logout')
 def logout():
