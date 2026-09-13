@@ -73,43 +73,45 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 320px; 
-            padding: 30px; 
+            width: 280px; 
+            padding: 20px; 
             background: #172554; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
             text-align: center; 
             border: 1px solid #3b82f6; 
         }
         h1 { 
-            font-size: 20px; 
-            margin-bottom: 20px; 
+            font-size: 16px; 
+            margin-bottom: 15px; 
             color: #ffffff; 
         }
         input { 
             width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
+            padding: 8px 10px; 
+            margin: 6px 0; 
             border: 1px solid #3b82f6; 
-            border-radius: 6px; 
+            border-radius: 5px; 
             background: #1e3a8a; 
             color: #ffffff; 
             box-sizing: border-box; 
+            font-size: 12px;
         }
         input::placeholder { color: #93c5fd; }
         button { 
             width: 100%; 
-            padding: 12px; 
-            margin: 8px 0; 
+            padding: 8px; 
+            margin: 5px 0; 
             background: #2563eb; 
             color: white; 
             border: none; 
-            border-radius: 6px; 
+            border-radius: 5px; 
             cursor: pointer; 
             font-weight: bold; 
+            font-size: 12px;
         }
         button:hover { background: #1d4ed8; }
-        .error { color: #f87171; font-size: 14px; margin-bottom: 10px; }
+        .error { color: #f87171; font-size: 12px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -129,11 +131,11 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst hissə şablonu
+# Üst hissə şablonu (Yığcam)
 def get_header_template(points=500):
     return f'''
     <div class="top-header-bar">
-        <div class="bal-box">BALI<br>{points}</div>
+        <div class="bal-box">BAL: {points}</div>
         <div class="user-box">İSTİFADƏÇİ</div>
         <div class="bell-icon">🔔</div>
         <a href="/logout" class="logout-btn">Çıxış</a>
@@ -170,13 +172,13 @@ def get_header_template(points=500):
     </div>
 '''
 
-# Ümumi CSS Stilleri
+# Ümumi Yığcam CSS Stilleri
 COMMON_STYLE = '''
     <style>
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 12px; 
+            padding: 8px; 
             background: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
@@ -189,29 +191,28 @@ COMMON_STYLE = '''
             align-items: center;
             justify-content: space-between;
             background: #172554;
-            padding: 8px 12px;
-            border-radius: 12px;
+            padding: 5px 8px;
+            border-radius: 8px;
             border: 1px solid #3b82f6;
-            margin-bottom: 8px;
-            gap: 8px;
+            margin-bottom: 6px;
+            gap: 6px;
         }
         .bal-box {
             background: #f97316;
             color: #000;
             font-weight: bold;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
             text-align: center;
-            line-height: 1.1;
         }
         .user-box {
             background: #f97316;
             color: #000;
             font-weight: bold;
-            padding: 9px 15px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 10px;
             text-align: center;
             white-space: nowrap;
             flex: 1;
@@ -219,9 +220,9 @@ COMMON_STYLE = '''
         .bell-icon {
             background: #f97316;
             color: #000;
-            padding: 9px 12px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -230,9 +231,9 @@ COMMON_STYLE = '''
             background: #dc2626;
             color: white;
             text-decoration: none;
-            padding: 9px 12px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 10px;
             font-weight: bold;
             white-space: nowrap;
         }
@@ -240,14 +241,14 @@ COMMON_STYLE = '''
 
         .nav-bar { 
             background: #172554; 
-            border: 2px solid #f97316; 
-            border-radius: 12px; 
-            padding: 8px; 
+            border: 1px solid #f97316; 
+            border-radius: 8px; 
+            padding: 4px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 10px;
-            gap: 4px;
+            margin-bottom: 6px;
+            gap: 2px;
             overflow-x: auto;
         }
         .nav-item {
@@ -256,16 +257,16 @@ COMMON_STYLE = '''
             align-items: center;
             text-decoration: none;
             color: #cbd5e1;
-            padding: 6px 8px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 3px 5px;
+            border-radius: 6px;
+            font-size: 10px;
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 16px;
-            margin-bottom: 2px;
+            font-size: 13px;
+            margin-bottom: 1px;
         }
         .nav-item:hover {
             color: #ffffff;
@@ -285,54 +286,54 @@ CHAT_TEMPLATE = '''
     <style>
         .chat-box { 
             background: #172554; 
-            height: 52vh; 
-            border: 2px solid #f97316; 
+            flex: 1; 
+            border: 1px solid #f97316; 
             border-radius: 8px; 
-            padding: 12px; 
+            padding: 8px; 
             overflow-y: auto; 
             color: #ffffff; 
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .chat-box p {
             background: #1e3a8a;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 6px 8px;
+            border-radius: 5px;
             margin: 0;
-            border-left: 4px solid #3b82f6;
+            border-left: 3px solid #3b82f6;
             word-break: break-all;
-            font-size: 14px;
+            font-size: 12px;
         }
         .message-form { 
             display: flex; 
-            gap: 10px; 
+            gap: 6px; 
             background: #172554;
-            padding: 10px;
-            border: 2px solid #f97316;
+            padding: 6px;
+            border: 1px solid #f97316;
             border-radius: 8px;
             align-items: center;
         }
         input[type="text"] { 
             flex: 1; 
-            padding: 10px 12px; 
+            padding: 7px 10px; 
             border: 1px solid #3b82f6; 
-            border-radius: 6px; 
+            border-radius: 5px; 
             background: #1e3a8a; 
             color: #ffffff; 
-            font-size: 14px;
+            font-size: 12px;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
-            padding: 10px 20px; 
+            padding: 7px 14px; 
             background: #22c55e; 
             color: white; 
             border: none; 
-            border-radius: 6px; 
+            border-radius: 5px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 14px;
+            font-size: 12px;
         }
         button[type="submit"]:hover { background: #16a34a; }
     </style>
@@ -345,7 +346,7 @@ CHAT_TEMPLATE = '''
                 <p>{{ msg }}</p>
             {% endfor %}
         {% else %}
-            <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+            <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 11px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
         {% endif %}
     </div>
     <form method="POST" class="message-form">
@@ -368,21 +369,21 @@ USERS_TEMPLATE = '''
         .users-container {
             background: #172554;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
         .users-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 8px;
-            margin: 0 0 5px 0;
+            padding-bottom: 5px;
+            margin: 0 0 4px 0;
             text-align: center;
         }
         .user-card {
@@ -390,31 +391,31 @@ USERS_TEMPLATE = '''
             align-items: center;
             justify-content: space-between;
             background: #1e3a8a;
-            padding: 10px 14px;
-            border-radius: 10px;
+            padding: 6px 10px;
+            border-radius: 6px;
             border: 1px solid #3b82f6;
         }
         .user-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
         .user-avatar {
-            width: 45px;
-            height: 45px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            border: 2px solid #f97316;
+            border: 1px solid #f97316;
             object-fit: cover;
             background: #111;
         }
         .user-name {
-            font-size: 15px;
+            font-size: 12px;
             font-weight: bold;
             color: #ffffff;
-            margin: 0 0 3px 0;
+            margin: 0 0 2px 0;
         }
         .user-status {
-            font-size: 11px;
+            font-size: 10px;
             color: #22c55e;
             font-weight: bold;
             margin: 0;
@@ -440,7 +441,7 @@ USERS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #93c5fd; font-size: 13px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            <p style="text-align: center; color: #93c5fd; font-size: 11px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
 </body>
@@ -459,70 +460,70 @@ SEKIL_TEMPLATE = '''
         .sekil-container {
             background: #172554;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
         }
         .sekil-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 8px;
+            padding-bottom: 5px;
             margin: 0;
             text-align: center;
         }
         .upload-box {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 6px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
         }
         input[type="file"] {
             color: #93c5fd;
-            font-size: 12px;
+            font-size: 11px;
         }
         .btn-upload {
             background: #22c55e;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
         }
         .btn-upload:hover { background: #16a34a; }
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 6px;
         }
         .gallery-item {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
         .gallery-item img {
             width: 100%;
-            height: 100px;
+            height: 80px;
             object-fit: cover;
         }
         .gallery-user {
-            font-size: 10px;
+            font-size: 9px;
             color: #93c5fd;
-            padding: 4px;
+            padding: 3px;
             text-align: center;
             background: #172554;
             margin: 0;
@@ -539,7 +540,7 @@ SEKIL_TEMPLATE = '''
         <p class="sekil-title">📷 QALEREYA VƏ ŞƏKİLLƏR</p>
 
         <form method="POST" enctype="multipart/form-data" class="upload-box">
-            <label style="font-size: 13px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç və yüklə:</label>
+            <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç:</label>
             <input type="file" name="sekil_file" accept="image/*" required>
             <button type="submit" class="btn-upload">Şəkli Yüklə</button>
         </form>
@@ -553,7 +554,7 @@ SEKIL_TEMPLATE = '''
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="grid-column: 1 / -1; text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki şəkil yüklənməyib.</p>
+                <p style="grid-column: 1 / -1; text-align: center; color: #93c5fd; font-size: 11px;">Hələ ki şəkil yüklənməyib.</p>
             {% endif %}
         </div>
     </div>
@@ -573,40 +574,39 @@ PROFIL_TEMPLATE = '''
         .profile-container {
             background: #172554;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
         .profile-title {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
             margin: 0;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: #1e3a8a;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px;
+            border-radius: 6px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 60px;
-            height: 60px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            border: 3px solid #f97316;
+            border: 2px solid #f97316;
             overflow: hidden;
             background: #111;
-            box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
             flex-shrink: 0;
         }
         .avatar-wrapper img {
@@ -619,67 +619,67 @@ PROFIL_TEMPLATE = '''
             bottom: -2px;
             right: 50%;
             transform: translateX(50%);
-            font-size: 10px;
+            font-size: 8px;
         }
         .profile-info h3 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
+            margin: 0 0 2px 0;
+            font-size: 13px;
             color: #ffffff;
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
             margin: 0;
         }
         .gifts-box {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 6px;
+            padding: 6px;
             display: flex;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
-            min-height: 40px;
+            min-height: 30px;
             align-items: center;
         }
         .gift-item {
-            font-size: 20px;
+            font-size: 16px;
             background: #172554;
-            padding: 4px 6px;
-            border-radius: 6px;
+            padding: 2px 4px;
+            border-radius: 4px;
             border: 1px solid #f97316;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 6px 8px;
             border: 1px solid #3b82f6;
-            border-radius: 8px;
+            border-radius: 5px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 13px;
+            font-size: 11px;
             box-sizing: border-box;
             text-align: center;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         input[type="file"] {
             color: #93c5fd;
-            font-size: 12px;
+            font-size: 10px;
         }
         .btn-blue {
             background: #0284c7;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -689,10 +689,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -702,17 +702,17 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             width: 100%;
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             margin: 0;
         }
@@ -740,29 +740,28 @@ PROFIL_TEMPLATE = '''
         </div>
 
         <div>
-            <p style="font-size: 13px; margin: 0 0 5px 0; color: #93c5fd;">Gələn Hədiyyələr / Stikerlər:</p>
+            <p style="font-size: 11px; margin: 0 0 3px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
             <div class="gifts-box">
                 {% if gifts %}
                     {% for g in gifts %}
                         <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                     {% endfor %}
                 {% else %}
-                    <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                    <span style="font-size: 11px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
                 {% endif %}
             </div>
         </div>
 
         <form method="POST">
             <input type="hidden" name="action" value="change_name">
-            <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
+            <input type="text" name="new_nickname" placeholder="Yeni nik (max 7 hərf)" maxlength="7" required>
             <button type="submit" class="btn-blue">Adı Dəyiş</button>
         </form>
 
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="action" value="change_pic">
-            <label style="font-size: 12px; color: #93c5fd;">Qalereyadan profil şəkli seç:</label>
             <input type="file" name="pic_file" accept="image/*" required>
-            <button type="submit" class="btn-blue">Profil Şəklini Yüklə və Yadda Saxla</button>
+            <button type="submit" class="btn-blue">Profil Şəklini Yüklə</button>
         </form>
 
         <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
@@ -788,50 +787,50 @@ MAGAZA_TEMPLATE = '''
         .magaza-container {
             background: #172554;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
         }
         .magaza-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 8px;
+            padding-bottom: 5px;
             margin: 0;
             text-align: center;
         }
         .product-section {
             background: #1e3a8a;
             border: 1px solid #3b82f6;
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 6px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
         }
         .product-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             color: #f97316;
             margin: 0;
         }
         .color-list {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             border: none;
             font-weight: bold;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
         }
         .btn-yellow { background: #eab308; color: #000; }
         .btn-red { background: #ef4444; color: #fff; }
@@ -840,46 +839,45 @@ MAGAZA_TEMPLATE = '''
         .btn-green { background: #22c55e; color: #fff; }
         
         .price-tag {
-            font-size: 12px;
+            font-size: 11px;
             color: #93c5fd;
             font-weight: bold;
         }
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            max-height: 110px;
+            gap: 4px;
+            max-height: 85px;
             overflow-y: auto;
             background: #172554;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 6px;
             border: 1px solid #3b82f6;
         }
         .emoji-btn {
-            font-size: 18px;
+            font-size: 15px;
             cursor: pointer;
-            padding: 4px;
+            padding: 2px;
             background: #1e3a8a;
             border-radius: 4px;
             border: 1px solid transparent;
-            transition: 0.1s;
         }
         .emoji-btn:hover {
-            transform: scale(1.15);
+            transform: scale(1.1);
             border-color: #f97316;
             background: #2563eb;
         }
         select {
             width: 100%;
-            padding: 8px;
+            padding: 6px;
             background: #172554;
             color: #fff;
             border: 1px solid #3b82f6;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 5px;
+            font-size: 11px;
         }
         .msg-alert {
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             margin: 0;
         }
@@ -897,8 +895,7 @@ MAGAZA_TEMPLATE = '''
 
         <!-- 1. Rəngli Nik -->
         <div class="product-section">
-            <p class="product-title">🎨 RƏNGLİ NİK</p>
-            <p class="price-tag">Qiyməti: 30 Bal</p>
+            <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
             <div class="color-list">
                 <button class="color-btn btn-yellow">Sarı</button>
                 <button class="color-btn btn-red">Qırmızı</button>
@@ -910,8 +907,7 @@ MAGAZA_TEMPLATE = '''
 
         <!-- 2. Rəngli Mesaj -->
         <div class="product-section">
-            <p class="product-title">💬 RƏNGLİ MESAJ</p>
-            <p class="price-tag">Qiyməti: 30 Bal</p>
+            <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
             <div class="color-list">
                 <button class="color-btn btn-yellow">Sarı</button>
                 <button class="color-btn btn-red">Qırmızı</button>
@@ -926,7 +922,6 @@ MAGAZA_TEMPLATE = '''
             <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
             <form method="POST">
                 <input type="hidden" name="action" value="send_gift">
-                <label style="font-size: 12px; color: #93c5fd;">İstifadəçi seç:</label>
                 <select name="receiver" required>
                     <option value="" disabled selected>İstifadəçini seçin</option>
                     {% for u in users %}
@@ -935,9 +930,8 @@ MAGAZA_TEMPLATE = '''
                         {% endif %}
                     {% endfor %}
                 </select>
-                <label style="font-size: 12px; color: #93c5fd; margin-top: 4px;">Hədiyyə stikeri seç və göndər:</label>
-                <div class="emoji-grid">
-                    {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '🫪', '☠️', '👻', '😸', '😹', '🙀', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🫰', '🐻', '🐹', '🐼', '🐸', '🌹', '🍻', '🗽', '✈️', '✨', '🧨', '🎉', '🎖️', '💰'] %}
+                <div class="emoji-grid" style="margin-top: 4px;">
+                    {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                     {% for emo in emojis %}
                         <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
                     {% endfor %}
@@ -972,14 +966,14 @@ SUB_TEMPLATE = '''
         .content-box { 
             background: #172554; 
             flex: 1; 
-            border: 2px solid #f97316; 
-            border-radius: 12px; 
-            padding: 20px; 
+            border: 1px solid #f97316; 
+            border-radius: 8px; 
+            padding: 15px; 
             text-align: center;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 16px;
+            font-size: 13px;
             color: #93c5fd;
         }
     </style>
@@ -1157,7 +1151,7 @@ def profil():
                 
                 cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
                 conn.commit()
-                message = "Profil şəkli qalereyadan uğurla yeniləndi!"
+                message = "Profil şəkli yeniləndi!"
             else:
                 message = "Şəkil seçilmədi!"
                 error = True
@@ -1207,7 +1201,7 @@ def magaza():
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
-                message = f"{receiver} istifadəçisinə uğurla hədiyyə göndərildi!"
+                message = f"{receiver} istifadəçisinə hədiyyə göndərildi!"
             else:
                 message = "Balınız kifayət etmir (20 bal lazımdır)!"
                 error = True
