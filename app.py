@@ -136,7 +136,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst Menyu
+# Üst Menyu (Oyun əlavə olundu)
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -155,6 +155,10 @@ def get_header_template(points=500):
         <a href="/vidyo" class="nav-item">
             <span class="icon">📹</span>
             <span>Vidyo</span>
+        </a>
+        <a href="/oyun" class="nav-item">
+            <span class="icon">🎮</span>
+            <span>Oyun</span>
         </a>
         <a href="/magaza" class="nav-item">
             <span class="icon">🛍️</span>
@@ -917,6 +921,91 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
+OYUN_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Oyun</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .oyun-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+        }
+        .oyun-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+        }
+        .oyun-box {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+        .btn-oyna {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-oyna:hover { background: #16a34a; }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+    <div class="oyun-container">
+        <div class="oyun-box">
+            <p class="oyun-title">🎮 Mini Bəxt Oyunu</p>
+            <p style="font-size: 12px; color: #93c5fd; margin: 0;">1 ilə 10 arasında rəqəm tut və yoxla!</p>
+            <input type="number" id="userGuess" min="1" max="10" placeholder="1-10 arası rəqəm" style="padding: 6px; border-radius: 6px; border: 1px solid #3b82f6; background: #172554; color: #fff; text-align: center; font-size: 12px;">
+            <button class="btn-oyna" onclick="playGame()">Yoxla</button>
+            <p id="gameResult" style="font-size: 12px; font-weight: bold; margin: 0; color: #f97316;"></p>
+        </div>
+    </div>
+    <script>
+        function playGame() {
+            let val = document.getElementById('userGuess').value;
+            let res = document.getElementById('gameResult');
+            if(!val) {
+                res.innerText = "Zəhmət olmasa rəqəm daxil edin!";
+                return;
+            }
+            let rand = Math.floor(Math.random() * 10) + 1;
+            if(parseInt(val) === rand) {
+                res.style.color = "#22c55e";
+                res.innerText = "Təbriklər! Tapdın (Gizli rəqəm: " + rand + ")";
+            } else {
+                res.style.color = "#f87171";
+                res.innerText = "Təəssüf, tapmadın. Gizli rəqəm: " + rand;
+            }
+        }
+    </script>
+</body>
+</html>
+'''
+
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1183,6 +1272,14 @@ def vidyo():
     points = get_user_points(session['user'])
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Vidyo", header=header)
+
+@app.route('/oyun')
+def oyun():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(OYUN_TEMPLATE, header=header)
 
 @app.route('/bildiris')
 def bildiris():
