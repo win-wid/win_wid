@@ -136,7 +136,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Böyük və səliqəli dizayn edilmiş Üst Meny (Navigasiya)
+# Böyük və səliqəli dizayn edilmiş Üst Menyu
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -146,7 +146,7 @@ def get_header_template(points=500):
         </a>
         <a href="/istifadeciler" class="nav-item">
             <span class="icon">👥</span>
-            <span>İstifadəçilər</span>
+            <span>İstifadəçi</span>
         </a>
         <a href="/sekil" class="nav-item">
             <span class="icon">📷</span>
@@ -154,17 +154,17 @@ def get_header_template(points=500):
         </a>
         <a href="/vidyo" class="nav-item">
             <span class="icon">📹</span>
-            <span>Videolar</span>
+            <span>Vidyo</span>
         </a>
         <a href="/magaza" class="nav-item">
-            <span class="icon">🪙</span>
-            <span>{points} Bal</span>
+            <span class="icon">🛍️</span>
+            <span>Maqazin</span>
         </a>
         <a href="/profil" class="nav-item">
             <span class="icon">👤</span>
             <span>Profil</span>
         </a>
-        <a href="/bildirisler" class="nav-item">
+        <a href="/bildiris" class="nav-item">
             <span class="icon">🔔</span>
             <span>Bildiriş</span>
         </a>
@@ -187,15 +187,15 @@ COMMON_STYLE = '''
         .nav-bar { 
             background: #172554; 
             border: 2px solid #f97316; 
-            border-radius: 10px; 
-            padding: 10px 8px; 
+            border-radius: 12px; 
+            padding: 12px 8px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
             margin-bottom: 10px;
             gap: 4px;
             overflow-x: auto;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         .nav-item {
             display: flex;
@@ -209,9 +209,6 @@ COMMON_STYLE = '''
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            min-width: 45px;
         }
         .nav-item .icon {
             font-size: 18px;
@@ -219,8 +216,8 @@ COMMON_STYLE = '''
         }
         .nav-item:hover {
             color: #ffffff;
-            background: #2563eb;
-            border-color: #f97316;
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
         }
     </style>
 '''
@@ -251,7 +248,7 @@ CHAT_TEMPLATE = '''
             padding: 8px 10px;
             border-radius: 6px;
             margin: 0;
-            border-left: 4px solid #3b82f6;
+            border-left: 3px solid #3b82f6;
             word-break: break-all;
             font-size: 13px;
         }
@@ -311,7 +308,7 @@ USERS_TEMPLATE = '''
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - İstifadəçilər</title>
+    <title>WİN_WİD - İstifadəçi</title>
     ''' + COMMON_STYLE + '''
     <style>
         .users-container {
@@ -484,7 +481,7 @@ SEKIL_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="sekil-container">
-        <p class="sekil-title">📷 ŞƏKİL QALEREYASI</p>
+        <p class="sekil-title">📷 QALEREYA VƏ ŞƏKİLLƏR</p>
 
         <form method="POST" enctype="multipart/form-data" class="upload-box">
             <label style="font-size: 12px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç:</label>
@@ -727,7 +724,7 @@ MAGAZA_TEMPLATE = '''
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Mağaza</title>
+    <title>WİN_WİD - Maqazin</title>
     ''' + COMMON_STYLE + '''
     <style>
         .magaza-container {
@@ -792,13 +789,13 @@ MAGAZA_TEMPLATE = '''
             overflow-y: auto;
             background: #172554;
             padding: 8px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .emoji-btn {
             font-size: 18px;
             cursor: pointer;
-            padding: 4px;
+            padding: 3px;
             background: #1e3a8a;
             border-radius: 6px;
             border: 1px solid transparent;
@@ -828,12 +825,13 @@ MAGAZA_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="magaza-container">
-        <p class="magaza-title">🛍️ MAĞAZA VƏ BAL (Balın: {{ points }})</p>
+        <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (Balın: {{ points }})</p>
 
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
         {% endif %}
 
+        <!-- 1. Rəngli Nik -->
         <div class="product-section">
             <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
             <div class="color-list">
@@ -845,6 +843,19 @@ MAGAZA_TEMPLATE = '''
             </div>
         </div>
 
+        <!-- 2. Rəngli Mesaj -->
+        <div class="product-section">
+            <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
+            <div class="color-list">
+                <button class="color-btn btn-yellow">Sarı</button>
+                <button class="color-btn btn-red">Qırmızı</button>
+                <button class="color-btn btn-blue">Göy</button>
+                <button class="color-btn btn-purple">Bənövşəyi</button>
+                <button class="color-btn btn-green">Yaşıl</button>
+            </div>
+        </div>
+
+        <!-- 3. Hədiyyə Atmaq -->
         <div class="product-section">
             <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
             <form method="POST">
@@ -865,6 +876,17 @@ MAGAZA_TEMPLATE = '''
                 </div>
             </form>
         </div>
+
+        <!-- 4. Profil Stikerləri -->
+        <div class="product-section">
+            <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
+            <div class="emoji-grid">
+                {% for emo in emojis %}
+                    <span class="emoji-btn" style="cursor: default;">{{ emo }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
     </div>
 </body>
 </html>
@@ -1135,15 +1157,15 @@ def vidyo():
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Videolar", header=header)
+    return render_template_string(SUB_TEMPLATE, title="Vidyo", header=header)
 
-@app.route('/bildirisler')
-def bildirisler():
+@app.route('/bildiris')
+def bildiris():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Bildirişlər", header=header)
+    return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
 
 @app.route('/logout')
 def logout():
