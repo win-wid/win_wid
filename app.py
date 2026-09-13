@@ -111,7 +111,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst hissə şablonu (Bal dinamik gəlir)
+# Üst hissə şablonu
 def get_header_template(points=500):
     return f'''
     <div class="top-header-bar">
@@ -587,28 +587,48 @@ MAGAZA_TEMPLATE = '''
             color: #93c5fd;
             font-weight: bold;
         }
+        .gift-form {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 5px;
+        }
+        .target-input {
+            padding: 8px;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            background: #172554;
+            color: white;
+            font-size: 12px;
+        }
+        .target-input::placeholder { color: #93c5fd; }
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            max-height: 100px;
+            gap: 5px;
+            max-height: 90px;
             overflow-y: auto;
             background: #172554;
-            padding: 8px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 6px;
             border: 1px solid #3b82f6;
         }
-        .emoji-item {
-            font-size: 18px;
+        .emoji-btn {
+            font-size: 16px;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 3px 6px;
             background: #1e3a8a;
+            border: 1px solid transparent;
             border-radius: 4px;
-            transition: 0.1s;
         }
-        .emoji-item:hover {
-            transform: scale(1.2);
+        .emoji-btn:hover {
+            border-color: #f97316;
             background: #2563eb;
+        }
+        .msg-alert {
+            font-size: 12px;
+            text-align: center;
+            margin: 0;
         }
     </style>
 </head>
@@ -618,10 +638,13 @@ MAGAZA_TEMPLATE = '''
     <div class="magaza-container">
         <p class="magaza-title">🛍️ MAĞAZA BÖLMƏSİ</p>
 
+        {% if message %}
+            <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
+        {% endif %}
+
         <!-- 1. Rəngli Nik -->
         <div class="product-section">
-            <p class="product-title">🎨 RƏNGLİ NİK</p>
-            <p class="price-tag">Qiyməti: 30 Bal</p>
+            <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
             <div class="color-list">
                 <button class="color-btn btn-yellow">Sarı</button>
                 <button class="color-btn btn-red">Qırmızı</button>
@@ -633,8 +656,7 @@ MAGAZA_TEMPLATE = '''
 
         <!-- 2. Rəngli Mesaj -->
         <div class="product-section">
-            <p class="product-title">💬 RƏNGLİ MESAJ</p>
-            <p class="price-tag">Qiyməti: 30 Bal</p>
+            <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
             <div class="color-list">
                 <button class="color-btn btn-yellow">Sarı</button>
                 <button class="color-btn btn-red">Qırmızı</button>
@@ -646,19 +668,33 @@ MAGAZA_TEMPLATE = '''
 
         <!-- 3. Hədiyyə Atmaq -->
         <div class="product-section">
-            <p class="product-title">🎁 HƏDİYƏ ATMAQ</p>
-            <p class="price-tag">Hədiyyənin Qiyməti: 20 Bal</p>
-            <div class="emoji-grid">
-                <span class="emoji-item">😇</span><span class="emoji-item">🤣</span><span class="emoji-item">🫠</span><span class="emoji-item">🤩</span><span class="emoji-item">🤗</span><span class="emoji-item">🤭</span><span class="emoji-item">😜</span><span class="emoji-item">🤔</span><span class="emoji-item">🤤</span><span class="emoji-item">🤠</span><span class="emoji-item">🤒</span><span class="emoji-item">😎</span><span class="emoji-item">😱</span><span class="emoji-item">🥺</span><span class="emoji-item">🥳</span><span class="emoji-item">🫪</span><span class="emoji-item">☠️</span><span class="emoji-item">👻</span><span class="emoji-item">😸</span><span class="emoji-item">😹</span><span class="emoji-item">🙀</span><span class="emoji-item">🙊</span><span class="emoji-item">🙈</span><span class="emoji-item">💌</span><span class="emoji-item">❤️‍🔥</span><span class="emoji-item">💬</span><span class="emoji-item">👋</span><span class="emoji-item">🤘</span><span class="emoji-item">🫶</span><span class="emoji-item">🙏</span><span class="emoji-item">🫰</span><span class="emoji-item">🐻</span><span class="emoji-item">🐹</span><span class="emoji-item">🐼</span><span class="emoji-item">🐸</span><span class="emoji-item">🌹</span><span class="emoji-item">🍻</span><span class="emoji-item">🗽</span><span class="emoji-item">✈️</span><span class="emoji-item">✨</span><span class="emoji-item">🧨</span><span class="emoji-item">🎉</span><span class="emoji-item">🎖️</span><span class="emoji-item">💰</span>
-            </div>
+            <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
+            <form method="POST" class="gift-form">
+                <input type="hidden" name="item_type" value="gift">
+                <input type="text" name="target_user" class="target-input" placeholder="Hədiyyə atılacaq istifadəçi adı..." required>
+                <p class="price-tag" style="margin:0;">Hədiyyə seç:</p>
+                <div class="emoji-grid">
+                    {% set emojis = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','😎','😱','🥺','🥳','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰'] %}
+                    {% for emoji in emojis %}
+                        <button type="submit" name="emoji" value="{{ emoji }}" class="emoji-btn">{{ emoji }}</button>
+                    {% endfor %}
+                </div>
+            </form>
         </div>
 
-        <!-- 4. Profili Stikeri Hədiyyələrlə -->
+        <!-- 4. Profil Stikerləri -->
         <div class="product-section">
-            <p class="product-title">⭐ PROFİLƏ STİKƏRİ HƏDİYƏRLƏ</p>
-            <div class="emoji-grid">
-                <span class="emoji-item">😇</span><span class="emoji-item">🤣</span><span class="emoji-item">🫠</span><span class="emoji-item">🤩</span><span class="emoji-item">🤗</span><span class="emoji-item">🤭</span><span class="emoji-item">😜</span><span class="emoji-item">🤔</span><span class="emoji-item">🤤</span><span class="emoji-item">🤠</span><span class="emoji-item">🤒</span><span class="emoji-item">😎</span><span class="emoji-item">😱</span><span class="emoji-item">🥺</span><span class="emoji-item">🥳</span><span class="emoji-item">🫪</span><span class="emoji-item">☠️</span><span class="emoji-item">👻</span><span class="emoji-item">😸</span><span class="emoji-item">😹</span><span class="emoji-item">🙀</span><span class="emoji-item">🙊</span><span class="emoji-item">🙈</span><span class="emoji-item">💌</span><span class="emoji-item">❤️‍🔥</span><span class="emoji-item">💬</span><span class="emoji-item">👋</span><span class="emoji-item">🤘</span><span class="emoji-item">🫶</span><span class="emoji-item">🙏</span><span class="emoji-item">🫰</span><span class="emoji-item">🐻</span><span class="emoji-item">🐹</span><span class="emoji-item">🐼</span><span class="emoji-item">🐸</span><span class="emoji-item">🌹</span><span class="emoji-item">🍻</span><span class="emoji-item">🗽</span><span class="emoji-item">✈️</span><span class="emoji-item">✨</span><span class="emoji-item">🧨</span><span class="emoji-item">🎉</span><span class="emoji-item">🎖️</span><span class="emoji-item">💰</span>
-            </div>
+            <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
+            <form method="POST" class="gift-form">
+                <input type="hidden" name="item_type" value="profile_sticker">
+                <input type="text" name="target_user" class="target-input" placeholder="Stiker göndəriləcək istifadəçi adı..." required>
+                <p class="price-tag" style="margin:0;">Stiker seç:</p>
+                <div class="emoji-grid">
+                    {% for emoji in emojis %}
+                        <button type="submit" name="emoji" value="{{ emoji }}" class="emoji-btn">{{ emoji }}</button>
+                    {% endfor %}
+                </div>
+            </form>
         </div>
 
     </div>
@@ -666,7 +702,7 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-# Digər Səhifələr Üçün Şablon (Şəkil, Vidyo, Oyun)
+# Digər Səhifələr Üçün Şablon
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -832,13 +868,50 @@ def profil():
     
     return render_template_string(PROFIL_TEMPLATE, user=session['user'], pic=pic, message=message, error=error, header=header)
 
-@app.route('/magaza')
+@app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
     if 'user' not in session:
         return redirect(url_for('index'))
-    points = get_user_points(session['user'])
+        
+    message = None
+    error = False
+    current_user = session['user']
+    
+    if request.method == 'POST':
+        item_type = request.form.get('item_type')
+        target_user = request.form.get('target_user').strip()
+        emoji = request.form.get('emoji')
+        
+        conn = sqlite3.connect('win_wid.db')
+        cursor = conn.cursor()
+        
+        # Hədəf istifadəçinin mövcudluğunu yoxlayaq
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (target_user,))
+        target_row = cursor.fetchone()
+        
+        # Alıcının (cari istifadəçinin) balını yoxlayaq
+        current_points = get_user_points(current_user)
+        
+        cost = 20 if item_type == 'gift' else 25 if item_type == 'profile_sticker' else 0
+        
+        if not target_row:
+            message = f"'{target_user}' adlı istifadəçi tapılmadı!"
+            error = True
+        elif current_points < cost:
+            message = "Balınız kifayət etmir!"
+            error = True
+        else:
+            # Balı çıxırıq
+            new_points = current_points - cost
+            cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
+            conn.commit()
+            message = f"Uğurla göndərildi! -{cost} bal."
+            
+        conn.close()
+
+    points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, header=header)
+    return render_template_string(MAGAZA_TEMPLATE, header=header, message=message, error=error)
 
 @app.route('/sekil')
 def sekil():
