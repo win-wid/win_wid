@@ -437,6 +437,7 @@ CHAT_TEMPLATE = '''
                     <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
                 {% endif %}
             </div>
+            <!-- Mesaj göndərmə yeri çərçivənin (chat-main-wrapper) içərisinə səliqəli yerləşdirildi -->
             <form method="POST" class="message-form">
                 <input type="text" name="message" placeholder="Mesaj yaz..." autocomplete="off" required>
                 <button type="submit">Göndər</button>
@@ -444,7 +445,6 @@ CHAT_TEMPLATE = '''
         </div>
     </div>
     <script>
-        // Səhifə açıldıqda və ya yeni mesaj gəldikdə avtomatik aşağıya (ən son mesaja) sürüşdür
         window.onload = function() {
             let chatBox = document.getElementById('chatBox');
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -2687,13 +2687,11 @@ def profil():
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    # Şəkil cədvəlləri yenilənmələri
                     cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE photo_likes SET username = ? WHERE username = ?", (new_name, current_user))
                     cursor.execute("UPDATE photo_comments SET username = ? WHERE username = ?", (new_name, current_user))
                     cursor.execute("UPDATE photo_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE photo_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
-                    # Video cədvəlləri yenilənmələri
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
@@ -2712,23 +2710,35 @@ def profil():
                 encoded = base64.b64encode(file_bytes).decode('utf-8')
                 mime_type = file.content_type or 'image/jpeg'
                 pic_url = f"data:{mime_type};base64,{encoded}"
-                
                 cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
                 conn.commit()
                 message = "Profil şəkli yeniləndi!"
-
-    # Digər profil məlumatlarının çəkilməsi
-    cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
-    user_row = cursor.fetchone()
-    pic = user_row[0] if user_row else ''
-    points = user_row[1] if user_row and user_row[1] is not None else 500
-
+                
+        elif action == 'delete_account':
+            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
+            conn.commit()
+            conn.close()
+            session.pop('user', None)
+            return redirect(url_for('index'))
+            
+    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (current_user,))
+    pic_row = cursor.fetchone()
+    pic = pic_row[0] if pic_row else ''
+    
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
+    
     conn.close()
-
+    
+    points = get_user_points(current_user)
     header = get_header_template(points)
     return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -2747,15 +2757,15 @@ def magaza():
         if action == 'send_gift':
             receiver = request.form.get('receiver')
             gift = request.form.get('gift')
-            points = get_user_points(current_user)
             
+            points = get_user_points(current_user)
             if points >= 20:
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
                 message = f"Hədiyyə @{receiver} istifadəçisinə uğurla göndərildi!"
             else:
-                message = "Balınız kifayət etmir (20 bal tələb olunur)!"
+                message = "Balınız kifayət etmir! (Minimum 20 bal lazımdır)"
                 error = True
                 
     cursor.execute("SELECT nickname FROM users")
@@ -2767,7 +2777,7 @@ def magaza():
     return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, message=message, error=error, header=header, points=points)
 
 @app.route('/oyun')
-def oyun():
+def oyun_panel():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
@@ -2797,11 +2807,6 @@ def bildiris():
     points = get_user_points(session['user'])
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
-
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
