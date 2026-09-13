@@ -565,26 +565,27 @@ PROFIL_TEMPLATE = '''
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             overflow-y: auto;
-            padding: 10px;
+            padding: 2px 10px;
             box-sizing: border-box;
         }
         .profile-container {
             background: #172554;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 14px 16px;
+            padding: 16px 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
-            max-width: 520px;
+            max-width: 720px;
+            min-height: 72vh;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .profile-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
@@ -595,16 +596,16 @@ PROFIL_TEMPLATE = '''
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             background: #1e3a8a;
-            padding: 10px 14px;
+            padding: 12px 16px;
             border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 52px;
-            height: 52px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: 2px solid #ef4444;
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
@@ -629,8 +630,8 @@ PROFIL_TEMPLATE = '''
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 3px 0;
-            font-size: 15px;
+            margin: 0 0 4px 0;
+            font-size: 16px;
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -646,34 +647,34 @@ PROFIL_TEMPLATE = '''
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 6px;
-            padding: 8px;
+            padding: 10px;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
-            min-height: 32px;
+            min-height: 40px;
             align-items: center;
         }
         .gift-item {
-            font-size: 16px;
+            font-size: 18px;
             background: #172554;
-            padding: 3px 6px;
+            padding: 4px 8px;
             border-radius: 4px;
             border: 1px solid #f97316;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 9px 12px;
+            padding: 11px 14px;
             border: 1px solid #3b82f6;
             border-radius: 6px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 12px;
+            font-size: 13px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -685,10 +686,10 @@ PROFIL_TEMPLATE = '''
             background: #0284c7;
             color: white;
             border: none;
-            padding: 9px;
+            padding: 11px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -699,10 +700,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 9px;
+            padding: 11px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -713,10 +714,10 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 9px;
+            padding: 11px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-align: center;
             width: 100%;
