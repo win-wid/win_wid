@@ -567,45 +567,45 @@ PROFIL_TEMPLATE = '''
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
-            padding: 2px 10px;
+            padding: 0 10px;
             box-sizing: border-box;
         }
         .profile-container {
             background: #172554;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 16px 20px;
+            padding: 10px 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             width: 100%;
             max-width: 720px;
-            min-height: 72vh;
+            min-height: auto;
             box-sizing: border-box;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .profile-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             color: #ffffff;
             border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             background: #1e3a8a;
-            padding: 12px 16px;
+            padding: 8px 12px;
             border-radius: 8px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: 2px solid #ef4444;
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
@@ -623,15 +623,15 @@ PROFIL_TEMPLATE = '''
             position: absolute;
             bottom: -4px;
             right: -4px;
-            font-size: 12px;
+            font-size: 10px;
             background: #1e3a8a;
             border-radius: 50%;
             padding: 1px;
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
+            margin: 0 0 2px 0;
+            font-size: 14px;
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -639,7 +639,7 @@ PROFIL_TEMPLATE = '''
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             margin: 0;
         }
@@ -647,34 +647,34 @@ PROFIL_TEMPLATE = '''
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 6px;
-            padding: 10px;
+            padding: 6px 10px;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
-            min-height: 40px;
+            min-height: 30px;
             align-items: center;
         }
         .gift-item {
-            font-size: 18px;
+            font-size: 16px;
             background: #172554;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             border: 1px solid #f97316;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 11px 14px;
+            padding: 8px 12px;
             border: 1px solid #3b82f6;
             border-radius: 6px;
             background: #1e3a8a;
             color: #ffffff;
-            font-size: 13px;
+            font-size: 12px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -686,10 +686,10 @@ PROFIL_TEMPLATE = '''
             background: #0284c7;
             color: white;
             border: none;
-            padding: 11px;
+            padding: 8px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -700,10 +700,10 @@ PROFIL_TEMPLATE = '''
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 11px;
+            padding: 8px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -714,10 +714,10 @@ PROFIL_TEMPLATE = '''
             background: #dc2626;
             color: white;
             border: none;
-            padding: 11px;
+            padding: 8px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -725,7 +725,7 @@ PROFIL_TEMPLATE = '''
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             margin: 0;
         }
@@ -754,14 +754,14 @@ PROFIL_TEMPLATE = '''
             </div>
 
             <div>
-                <p style="font-size: 12px; margin: 0 0 4px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
+                <p style="font-size: 11px; margin: 0 0 2px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
                 <div class="gifts-box">
                     {% if gifts %}
                         {% for g in gifts %}
                             <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                         {% endfor %}
                     {% else %}
-                        <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                        <span style="font-size: 11px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
                     {% endif %}
                 </div>
             </div>
