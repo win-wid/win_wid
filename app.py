@@ -121,7 +121,7 @@ def init_db():
 
 init_db()
 
-# Giriş və Qeydiyyat Səhifəsi (Narıncı çərçivə qutu ilə birləşdirildi və yazılar böyıldildi)
+# Giriş və Qeydiyyat Səhifəsi (Eni və uzunluğu artırıldı)
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -140,8 +140,8 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 360px; 
-            padding: 30px 25px; 
+            width: 420px; 
+            padding: 40px 30px; 
             background: #172554; 
             border-radius: 14px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); 
@@ -149,16 +149,16 @@ INDEX_TEMPLATE = '''
             border: 3px solid #f97316; 
         }
         h1 { 
-            font-size: 18px; 
-            margin-bottom: 22px; 
+            font-size: 20px; 
+            margin-bottom: 25px; 
             color: #ffffff; 
             letter-spacing: 0.5px;
             font-weight: bold;
         }
         input { 
             width: 100%; 
-            padding: 12px 14px; 
-            margin: 10px 0; 
+            padding: 14px 16px; 
+            margin: 12px 0; 
             border: 1px solid #3b82f6; 
             border-radius: 8px; 
             background: #1e3a8a; 
@@ -173,8 +173,8 @@ INDEX_TEMPLATE = '''
         input::placeholder { color: #93c5fd; }
         button { 
             width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
+            padding: 14px; 
+            margin: 12px 0; 
             background: #2563eb; 
             color: white; 
             border: none; 
