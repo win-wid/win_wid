@@ -241,9 +241,9 @@ CHAT_TEMPLATE = '''
             overflow: hidden;
         }
         .chat-main-wrapper {
-            width: 90%;
-            max-width: 450px;
-            height: 82vh;
+            width: 96%;
+            max-width: 600px;
+            height: 68vh;
             display: flex;
             flex-direction: column;
             background: #172554;
