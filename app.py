@@ -176,7 +176,7 @@ COMMON_STYLE = '''
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 10px; 
+            padding: 8px; 
             background: #1e3a8a; 
             color: #ffffff; 
             display: flex; 
@@ -188,11 +188,11 @@ COMMON_STYLE = '''
             background: #172554; 
             border: 2px solid #f97316; 
             border-radius: 12px; 
-            padding: 12px 8px; 
+            padding: 8px 6px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             gap: 4px;
             overflow-x: auto;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -204,16 +204,16 @@ COMMON_STYLE = '''
             align-items: center;
             text-decoration: none;
             color: #cbd5e1;
-            padding: 6px 8px;
+            padding: 4px 6px;
             border-radius: 8px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 18px;
-            margin-bottom: 3px;
+            font-size: 16px;
+            margin-bottom: 2px;
         }
         .nav-item:hover {
             color: #ffffff;
@@ -231,14 +231,25 @@ CHAT_TEMPLATE = '''
     <title>WİN_WİD - Çat</title>
     ''' + COMMON_STYLE + '''
     <style>
-        .chat-main-wrapper {
+        .chat-outer-container {
             flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .chat-main-wrapper {
+            width: 90%;
+            max-width: 450px;
+            height: 82vh;
             display: flex;
             flex-direction: column;
             background: #172554;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 12px;
+            padding: 10px;
             box-sizing: border-box;
             overflow: hidden;
         }
@@ -246,26 +257,26 @@ CHAT_TEMPLATE = '''
             flex: 1; 
             overflow-y: auto; 
             color: #ffffff; 
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             padding-right: 4px;
         }
         .chat-box p {
             background: #1e3a8a;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
             margin: 0;
             border-left: 3px solid #3b82f6;
             word-break: break-all;
-            font-size: 13px;
+            font-size: 12px;
         }
         .message-form { 
             display: flex; 
-            gap: 8px; 
+            gap: 6px; 
             background: #1e3a8a;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #3b82f6;
             border-radius: 8px;
             align-items: center;
@@ -273,43 +284,45 @@ CHAT_TEMPLATE = '''
         }
         input[type="text"] { 
             flex: 1; 
-            padding: 9px 12px; 
+            padding: 7px 10px; 
             border: 1px solid #f97316; 
             border-radius: 6px; 
             background: #172554; 
             color: #ffffff; 
-            font-size: 13px;
+            font-size: 12px;
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
-            padding: 9px 16px; 
+            padding: 7px 12px; 
             background: #22c55e; 
             color: white; 
             border: none; 
             border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 13px;
+            font-size: 12px;
         }
         button[type="submit"]:hover { background: #16a34a; }
     </style>
 </head>
 <body>
     {{ header|safe }}
-    <div class="chat-main-wrapper">
-        <div class="chat-box">
-            {% if messages %}
-                {% for msg in messages %}
-                    <p>{{ msg }}</p>
-                {% endfor %}
-            {% else %}
-                <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 12px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
-            {% endif %}
+    <div class="chat-outer-container">
+        <div class="chat-main-wrapper">
+            <div class="chat-box">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <p>{{ msg }}</p>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #93c5fd; text-align: center; border-left: none; background: transparent; font-size: 11px;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+                {% endif %}
+            </div>
+            <form method="POST" class="message-form">
+                <input type="text" name="message" placeholder="Mesaj yaz..." autocomplete="off" required>
+                <button type="submit">Göndər</button>
+            </form>
         </div>
-        <form method="POST" class="message-form">
-            <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
-            <button type="submit">Göndər</button>
-        </form>
     </div>
 </body>
 </html>
