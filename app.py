@@ -54,7 +54,7 @@ def init_db():
 
 init_db()
 
-# Giriş və Qeydiyyat Səhifəsi
+# Giriş və Qeydiyyat Səhifəsi (Şəkildəki kimi yeniləndi)
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -73,45 +73,50 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 280px; 
-            padding: 20px; 
+            width: 320px; 
+            padding: 25px 20px; 
             background: #172554; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); 
             text-align: center; 
             border: 1px solid #3b82f6; 
         }
         h1 { 
-            font-size: 16px; 
-            margin-bottom: 15px; 
+            font-size: 15px; 
+            margin-bottom: 20px; 
             color: #ffffff; 
+            letter-spacing: 0.5px;
         }
         input { 
             width: 100%; 
-            padding: 8px 10px; 
-            margin: 6px 0; 
+            padding: 10px 12px; 
+            margin: 8px 0; 
             border: 1px solid #3b82f6; 
-            border-radius: 5px; 
+            border-radius: 6px; 
             background: #1e3a8a; 
             color: #ffffff; 
             box-sizing: border-box; 
-            font-size: 12px;
+            font-size: 13px;
+        }
+        input:focus {
+            border-color: #60a5fa;
+            outline: none;
         }
         input::placeholder { color: #93c5fd; }
         button { 
             width: 100%; 
-            padding: 8px; 
-            margin: 5px 0; 
+            padding: 10px; 
+            margin: 8px 0; 
             background: #2563eb; 
             color: white; 
             border: none; 
-            border-radius: 5px; 
+            border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 12px;
+            font-size: 13px;
         }
         button:hover { background: #1d4ed8; }
-        .error { color: #f87171; font-size: 12px; margin-bottom: 8px; }
+        .error { color: #f87171; font-size: 12px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -131,7 +136,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst menyu şablonu (Yuxarıdakı silinən hissələr çıxarıldı, yalnız naviqasiya qaldı)
+# Üst menyu şablonu
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -166,7 +171,6 @@ def get_header_template(points=500):
     </div>
 '''
 
-# Ümumi Yığcam CSS Stilleri
 COMMON_STYLE = '''
     <style>
         body { 
@@ -216,7 +220,6 @@ COMMON_STYLE = '''
     </style>
 '''
 
-# Çat Səhifəsi Şablonu
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -298,7 +301,6 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-# İstifadəçilər Səhifəsi Şablonu
 USERS_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -389,7 +391,6 @@ USERS_TEMPLATE = '''
 </html>
 '''
 
-# Şəkillər Səhifəsi Şablonu
 SEKIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -503,7 +504,6 @@ SEKIL_TEMPLATE = '''
 </html>
 '''
 
-# Profil Səhifəsi Şablonu
 PROFIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -716,7 +716,6 @@ PROFIL_TEMPLATE = '''
 </html>
 '''
 
-# Mağaza Səhifəsi Şablonu
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -779,11 +778,6 @@ MAGAZA_TEMPLATE = '''
         .btn-purple { background: #a855f7; color: #fff; }
         .btn-green { background: #22c55e; color: #fff; }
         
-        .price-tag {
-            font-size: 11px;
-            color: #93c5fd;
-            font-weight: bold;
-        }
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
@@ -895,7 +889,6 @@ MAGAZA_TEMPLATE = '''
 </html>
 '''
 
-# Digər Səhifələr Üçün Şablon (Vidyo, Oyun)
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
