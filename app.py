@@ -571,6 +571,10 @@ PROFIL_TEMPLATE = '''
             display: flex;
             flex-direction: column;
             gap: 10px;
+            max-width: 420px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
         .profile-title {
             font-size: 14px;
@@ -586,17 +590,18 @@ PROFIL_TEMPLATE = '''
             align-items: center;
             gap: 12px;
             background: #1e3a8a;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 10px;
             border: 1px solid #3b82f6;
         }
         .avatar-wrapper {
             position: relative;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            border: 2px solid #f97316;
-            overflow: hidden;
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+            overflow: visible;
             background: #111;
             flex-shrink: 0;
         }
@@ -604,22 +609,29 @@ PROFIL_TEMPLATE = '''
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 50%;
         }
         .crown-icon {
             position: absolute;
-            bottom: -2px;
-            right: 50%;
-            transform: translateX(50%);
-            font-size: 9px;
+            bottom: -6px;
+            right: -4px;
+            font-size: 13px;
+            background: #1e3a8a;
+            border-radius: 50%;
+            padding: 1px;
+            border: 1px solid #f97316;
         }
         .profile-info h3 {
             margin: 0 0 3px 0;
-            font-size: 14px;
+            font-size: 15px;
             color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
             margin: 0;
         }
@@ -649,9 +661,9 @@ PROFIL_TEMPLATE = '''
         }
         input[type="text"] {
             width: 100%;
-            padding: 8px 10px;
+            padding: 10px 12px;
             border: 1px solid #3b82f6;
-            border-radius: 6px;
+            border-radius: 8px;
             background: #1e3a8a;
             color: #ffffff;
             font-size: 12px;
@@ -660,46 +672,48 @@ PROFIL_TEMPLATE = '''
         }
         input[type="text"]::placeholder { color: #93c5fd; }
         input[type="file"] {
-            color: #93c5fd;
-            font-size: 11px;
+            display: none;
         }
         .btn-blue {
             background: #0284c7;
             color: white;
             border: none;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .btn-blue:hover { background: #0369a1; }
         .btn-gray {
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .btn-gray:hover { background: #475569; }
         .btn-red {
             background: #dc2626;
             color: white;
             border: none;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .btn-red:hover { background: #b91c1c; }
         .msg-alert {
@@ -713,7 +727,7 @@ PROFIL_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="profile-container">
-        <p class="profile-title">Mənim Profilim (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
+        <p class="profile-title">Mənim Profilim</p>
         
         {% if message %}
             <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
@@ -745,15 +759,17 @@ PROFIL_TEMPLATE = '''
 
         <form method="POST">
             <input type="hidden" name="action" value="change_name">
-            <input type="text" name="new_nickname" placeholder="Yeni nik (max 7 hərf)" maxlength="7" required>
+            <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
             <button type="submit" class="btn-blue">Adı Dəyiş</button>
         </form>
 
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="picForm">
             <input type="hidden" name="action" value="change_pic">
-            <input type="file" name="pic_file" accept="image/*" required>
-            <button type="submit" class="btn-blue">Profil Şəklini Yüklə</button>
+            <input type="file" name="pic_file" id="picInput" accept="image/*" onchange="document.getElementById('picForm').submit();">
+            <button type="button" class="btn-gray" onclick="document.getElementById('picInput').click();">Profil Şəklini Dəyiş</button>
         </form>
+
+        <button type="button" class="btn-blue" onclick="alert('Şəkil yadda saxlanıldı!');">Şəkli Yadda Saxla</button>
 
         <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
             <input type="hidden" name="action" value="delete_account">
