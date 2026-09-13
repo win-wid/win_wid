@@ -1,6 +1,5 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session
 import sqlite3
-import os
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -9,14 +8,12 @@ app.secret_key = 'win_wid_gizli_kalit'
 def init_db():
     conn = sqlite3.connect('win_wid.db')
     cursor = conn.cursor()
-    # İstifadəçilər cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             nickname TEXT PRIMARY KEY,
             password TEXT NOT NULL
         )
     ''')
-    # Mesajlar cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -103,13 +100,13 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Mesajlaşma Paneli (Daimi yaddaşlı baza ilə)
-CHAT_TEMPLATE = '''
+# Əsas Menyu və Narıncı Çərçivə daxilində bölmələr
+MENU_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Çat Paneli</title>
+    <title>WİN_WİD - Menyu</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -136,6 +133,92 @@ CHAT_TEMPLATE = '''
         .header h2 {
             font-size: 16px;
             margin: 0;
+        }
+        /* Narıncı Çərçivə - Menyu bölmələri */
+        .menu-box { 
+            background: #172554; 
+            border: 2px solid #f97316; 
+            border-radius: 8px; 
+            padding: 20px; 
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .menu-btn {
+            background: #1e3a8a;
+            color: white;
+            border: 1px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        .menu-btn:hover {
+            background: #2563eb;
+            border-color: #f97316;
+        }
+        a.logout { 
+            color: white; 
+            text-decoration: none; 
+            background: #dc2626; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 13px; 
+        }
+        a.logout:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>WİN_WİD'Ə XOŞ GƏLMİSİZ, {{ user }}!</h2>
+        <a href="/logout" class="logout">Çıxış</a>
+    </div>
+
+    <!-- Narıncı Çərçivə və 6 Bölmə -->
+    <div class="menu-box">
+        <a href="/chat" class="menu-btn">1. ÇAT</a>
+        <a href="/sekil" class="menu-btn">2. ŞƏKİL</a>
+        <a href="/vidyo" class="menu-btn">3. VİDYO</a>
+        <a href="/oyun" class="menu-btn">4. OYUN</a>
+        <a href="/magaza" class="menu-btn">5. MAGAZA</a>
+        <a href="/profil" class="menu-btn">6. PROFİL</a>
+    </div>
+</body>
+</html>
+'''
+
+# Çat Səhifəsi
+CHAT_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Çat</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            background: #1e3a8a; 
+            color: #ffffff; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            box-sizing: border-box; 
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #172554; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            border: 1px solid #3b82f6; 
+            margin-bottom: 15px;
         }
         .chat-box { 
             background: #172554; 
@@ -175,7 +258,6 @@ CHAT_TEMPLATE = '''
             color: #ffffff; 
             font-size: 14px;
         }
-        input[type="text"]::placeholder { color: #93c5fd; }
         button[type="submit"] { 
             padding: 12px 22px; 
             background: #22c55e; 
@@ -185,22 +267,20 @@ CHAT_TEMPLATE = '''
             cursor: pointer; 
             font-weight: bold; 
         }
-        button[type="submit"]:hover { background: #16a34a; }
-        a.logout { 
+        a.back { 
             color: white; 
             text-decoration: none; 
-            background: #dc2626; 
+            background: #2563eb; 
             padding: 6px 12px; 
             border-radius: 6px; 
             font-size: 13px; 
         }
-        a.logout:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2>WİN_WİD'Ə XOŞ GƏLMİSİZ, {{ user }}!</h2>
-        <a href="/logout" class="logout">Çıxış</a>
+        <h2>Çat Bölməsi</h2>
+        <a href="/menu" class="back">Geri Qayıt</a>
     </div>
 
     <div class="chat-box">
@@ -217,6 +297,71 @@ CHAT_TEMPLATE = '''
         <input type="text" name="message" placeholder="Mesajınızı yazın..." autocomplete="off" required>
         <button type="submit">Göndər</button>
     </form>
+</body>
+</html>
+'''
+
+# Digər səhifələr üçün ümumi şablon
+SUB_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - {{ title }}</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            background: #1e3a8a; 
+            color: #ffffff; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            box-sizing: border-box; 
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #172554; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            border: 1px solid #3b82f6; 
+            margin-bottom: 15px;
+        }
+        .content-box { 
+            background: #172554; 
+            flex: 1; 
+            border: 2px solid #f97316; 
+            border-radius: 8px; 
+            padding: 20px; 
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #93c5fd;
+        }
+        a.back { 
+            color: white; 
+            text-decoration: none; 
+            background: #2563eb; 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            font-size: 13px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>{{ title }} Bölməsi</h2>
+        <a href="/menu" class="back">Geri Qayıt</a>
+    </div>
+    <div class="content-box">
+        <p>{{ title }} bölməsi tezliklə aktiv olacaq!</p>
+    </div>
 </body>
 </html>
 '''
@@ -244,7 +389,7 @@ def index():
                     conn.commit()
                     session['user'] = nickname
                     conn.close()
-                    return redirect(url_for('chat'))
+                    return redirect(url_for('menu'))
                     
             elif action == 'login':
                 cursor.execute("SELECT password FROM users WHERE nickname = ?", (nickname,))
@@ -252,12 +397,18 @@ def index():
                 if row and row[0] == password:
                     session['user'] = nickname
                     conn.close()
-                    return redirect(url_for('chat'))
+                    return redirect(url_for('menu'))
                 else:
                     error = "Yanlış nikname və ya kod!"
             conn.close()
                 
     return render_template_string(INDEX_TEMPLATE, error=error)
+
+@app.route('/menu')
+def menu():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template_string(MENU_TEMPLATE, user=session['user'])
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -280,7 +431,37 @@ def chat():
     messages = [row[0] for row in cursor.fetchall()]
     conn.close()
         
-    return render_template_string(CHAT_TEMPLATE, user=session['user'], messages=messages)
+    return render_template_string(CHAT_TEMPLATE, messages=messages)
+
+@app.route('/sekil')
+def sekil():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template_string(SUB_TEMPLATE, title="ŞƏKİL")
+
+@app.route('/vidyo')
+def vidyo():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template_string(SUB_TEMPLATE, title="VİDYO")
+
+@app.route('/oyun')
+def oyun():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template_string(SUB_TEMPLATE, title="OYUN")
+
+@app.route('/magaza')
+def magaza():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template_string(SUB_TEMPLATE, title="MAGAZA")
+
+@app.route('/profil')
+def profil():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return render_template_string(SUB_TEMPLATE, title="PROFİL")
 
 @app.route('/logout')
 def logout():
