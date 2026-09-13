@@ -12,11 +12,16 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (
             nickname TEXT PRIMARY KEY,
             password TEXT NOT NULL,
-            profile_pic TEXT
+            profile_pic TEXT,
+            points INTEGER DEFAULT 500
         )
     ''')
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN profile_pic TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 500")
     except sqlite3.OperationalError:
         pass
         
@@ -106,36 +111,37 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Dil seçimi olmadan yığcam üst hissə
-HEADER_TEMPLATE = '''
+# Üst hissə şablonu (Bal dinamik gəlir)
+def get_header_template(points=500):
+    return f'''
     <div class="top-header-bar">
-        <div class="bal-box">BALI<br>500</div>
+        <div class="bal-box">BALI<br>{points}</div>
         <div class="user-box">İSTİFADƏÇİ</div>
         <div class="bell-icon">🔔</div>
         <a href="/logout" class="logout-btn">Çıxış</a>
     </div>
     <div class="nav-bar">
-        <a href="/chat" class="nav-item {% if active == 'chat' %}active{% endif %}">
+        <a href="/chat" class="nav-item">
             <span class="icon">💬</span>
             <span>Çat</span>
         </a>
-        <a href="/sekil" class="nav-item {% if active == 'sekil' %}active{% endif %}">
+        <a href="/sekil" class="nav-item">
             <span class="icon">📷</span>
             <span>Şəkillər</span>
         </a>
-        <a href="/vidyo" class="nav-item {% if active == 'vidyo' %}active{% endif %}">
+        <a href="/vidyo" class="nav-item">
             <span class="icon">📹</span>
             <span>Videolar</span>
         </a>
-        <a href="/oyun" class="nav-item {% if active == 'oyun' %}active{% endif %}">
+        <a href="/oyun" class="nav-item">
             <span class="icon">🎮</span>
             <span>Oyunlar</span>
         </a>
-        <a href="/magaza" class="nav-item {% if active == 'magaza' %}active{% endif %}">
+        <a href="/magaza" class="nav-item">
             <span class="icon">🛍️</span>
             <span>Mağaza</span>
         </a>
-        <a href="/profil" class="nav-item {% if active == 'profil' %}active{% endif %}">
+        <a href="/profil" class="nav-item">
             <span class="icon">👤</span>
             <span>Profil</span>
         </a>
@@ -315,7 +321,7 @@ CHAT_TEMPLATE = '''
     </style>
 </head>
 <body>
-    ''' + HEADER_TEMPLATE + '''
+    {{ header|safe }}
     <div class="chat-box">
         {% if messages %}
             {% for msg in messages %}
@@ -469,7 +475,7 @@ PROFIL_TEMPLATE = '''
     </style>
 </head>
 <body>
-    ''' + HEADER_TEMPLATE + '''
+    {{ header|safe }}
 
     <div class="profile-container">
         <p class="profile-title">Mənim Profilim</p>
@@ -513,7 +519,154 @@ PROFIL_TEMPLATE = '''
 </html>
 '''
 
-# Digər Səhifələr Üçün Şablon (Şəkil, Vidyo, Oyun, Mağaza)
+# Mağaza Səhifəsi Şablonu
+MAGAZA_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Mağaza</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .magaza-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .magaza-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 8px;
+            margin: 0;
+            text-align: center;
+        }
+        .product-section {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .product-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #f97316;
+            margin: 0;
+        }
+        .color-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .color-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-yellow { background: #eab308; color: #000; }
+        .btn-red { background: #ef4444; color: #fff; }
+        .btn-blue { background: #3b82f6; color: #fff; }
+        .btn-purple { background: #a855f7; color: #fff; }
+        .btn-green { background: #22c55e; color: #fff; }
+        
+        .price-tag {
+            font-size: 12px;
+            color: #93c5fd;
+            font-weight: bold;
+        }
+        .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-height: 100px;
+            overflow-y: auto;
+            background: #172554;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #3b82f6;
+        }
+        .emoji-item {
+            font-size: 18px;
+            cursor: pointer;
+            padding: 2px 4px;
+            background: #1e3a8a;
+            border-radius: 4px;
+            transition: 0.1s;
+        }
+        .emoji-item:hover {
+            transform: scale(1.2);
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="magaza-container">
+        <p class="magaza-title">🛍️ MAĞAZA BÖLMƏSİ</p>
+
+        <!-- 1. Rəngli Nik -->
+        <div class="product-section">
+            <p class="product-title">🎨 RƏNGLİ NİK</p>
+            <p class="price-tag">Qiyməti: 30 Bal</p>
+            <div class="color-list">
+                <button class="color-btn btn-yellow">Sarı</button>
+                <button class="color-btn btn-red">Qırmızı</button>
+                <button class="color-btn btn-blue">Göy</button>
+                <button class="color-btn btn-purple">Bənövşəyi</button>
+                <button class="color-btn btn-green">Yaşıl</button>
+            </div>
+        </div>
+
+        <!-- 2. Rəngli Mesaj -->
+        <div class="product-section">
+            <p class="product-title">💬 RƏNGLİ MESAJ</p>
+            <p class="price-tag">Qiyməti: 30 Bal</p>
+            <div class="color-list">
+                <button class="color-btn btn-yellow">Sarı</button>
+                <button class="color-btn btn-red">Qırmızı</button>
+                <button class="color-btn btn-blue">Göy</button>
+                <button class="color-btn btn-purple">Bənövşəyi</button>
+                <button class="color-btn btn-green">Yaşıl</button>
+            </div>
+        </div>
+
+        <!-- 3. Hədiyyə Atmaq -->
+        <div class="product-section">
+            <p class="product-title">🎁 HƏDİYƏ ATMAQ</p>
+            <p class="price-tag">Hədiyyənin Qiyməti: 20 Bal</p>
+            <div class="emoji-grid">
+                <span class="emoji-item">😇</span><span class="emoji-item">🤣</span><span class="emoji-item">🫠</span><span class="emoji-item">🤩</span><span class="emoji-item">🤗</span><span class="emoji-item">🤭</span><span class="emoji-item">😜</span><span class="emoji-item">🤔</span><span class="emoji-item">🤤</span><span class="emoji-item">🤠</span><span class="emoji-item">🤒</span><span class="emoji-item">😎</span><span class="emoji-item">😱</span><span class="emoji-item">🥺</span><span class="emoji-item">🥳</span><span class="emoji-item">🫪</span><span class="emoji-item">☠️</span><span class="emoji-item">👻</span><span class="emoji-item">😸</span><span class="emoji-item">😹</span><span class="emoji-item">🙀</span><span class="emoji-item">🙊</span><span class="emoji-item">🙈</span><span class="emoji-item">💌</span><span class="emoji-item">❤️‍🔥</span><span class="emoji-item">💬</span><span class="emoji-item">👋</span><span class="emoji-item">🤘</span><span class="emoji-item">🫶</span><span class="emoji-item">🙏</span><span class="emoji-item">🫰</span><span class="emoji-item">🐻</span><span class="emoji-item">🐹</span><span class="emoji-item">🐼</span><span class="emoji-item">🐸</span><span class="emoji-item">🌹</span><span class="emoji-item">🍻</span><span class="emoji-item">🗽</span><span class="emoji-item">✈️</span><span class="emoji-item">✨</span><span class="emoji-item">🧨</span><span class="emoji-item">🎉</span><span class="emoji-item">🎖️</span><span class="emoji-item">💰</span>
+            </div>
+        </div>
+
+        <!-- 4. Profili Stikeri Hədiyyələrlə -->
+        <div class="product-section">
+            <p class="product-title">⭐ PROFİLƏ STİKƏRİ HƏDİYƏRLƏ</p>
+            <div class="emoji-grid">
+                <span class="emoji-item">😇</span><span class="emoji-item">🤣</span><span class="emoji-item">🫠</span><span class="emoji-item">🤩</span><span class="emoji-item">🤗</span><span class="emoji-item">🤭</span><span class="emoji-item">😜</span><span class="emoji-item">🤔</span><span class="emoji-item">🤤</span><span class="emoji-item">🤠</span><span class="emoji-item">🤒</span><span class="emoji-item">😎</span><span class="emoji-item">😱</span><span class="emoji-item">🥺</span><span class="emoji-item">🥳</span><span class="emoji-item">🫪</span><span class="emoji-item">☠️</span><span class="emoji-item">👻</span><span class="emoji-item">😸</span><span class="emoji-item">😹</span><span class="emoji-item">🙀</span><span class="emoji-item">🙊</span><span class="emoji-item">🙈</span><span class="emoji-item">💌</span><span class="emoji-item">❤️‍🔥</span><span class="emoji-item">💬</span><span class="emoji-item">👋</span><span class="emoji-item">🤘</span><span class="emoji-item">🫶</span><span class="emoji-item">🙏</span><span class="emoji-item">🫰</span><span class="emoji-item">🐻</span><span class="emoji-item">🐹</span><span class="emoji-item">🐼</span><span class="emoji-item">🐸</span><span class="emoji-item">🌹</span><span class="emoji-item">🍻</span><span class="emoji-item">🗽</span><span class="emoji-item">✈️</span><span class="emoji-item">✨</span><span class="emoji-item">🧨</span><span class="emoji-item">🎉</span><span class="emoji-item">🎖️</span><span class="emoji-item">💰</span>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+'''
+
+# Digər Səhifələr Üçün Şablon (Şəkil, Vidyo, Oyun)
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -538,7 +691,7 @@ SUB_TEMPLATE = '''
     </style>
 </head>
 <body>
-    ''' + HEADER_TEMPLATE + '''
+    {{ header|safe }}
     <div class="content-box">
         <p>{{ title }} bölməsi tezliklə aktiv olacaq!</p>
     </div>
@@ -565,7 +718,7 @@ def index():
                 if cursor.fetchone():
                     error = "Bu nikname artıq istifadədədir!"
                 else:
-                    cursor.execute("INSERT INTO users (nickname, password, profile_pic) VALUES (?, ?, ?)", (nickname, password, ''))
+                    cursor.execute("INSERT INTO users (nickname, password, profile_pic, points) VALUES (?, ?, ?, ?)", (nickname, password, '', 500))
                     conn.commit()
                     session['user'] = nickname
                     conn.close()
@@ -583,6 +736,14 @@ def index():
             conn.close()
                 
     return render_template_string(INDEX_TEMPLATE, error=error)
+
+def get_user_points(username):
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (username,))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row and row[0] is not None else 500
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -604,8 +765,11 @@ def chat():
     cursor.execute("SELECT content FROM messages")
     messages = [row[0] for row in cursor.fetchall()]
     conn.close()
+    
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
         
-    return render_template_string(CHAT_TEMPLATE, messages=messages, active='chat')
+    return render_template_string(CHAT_TEMPLATE, messages=messages, header=header)
 
 @app.route('/profil', methods=['GET', 'POST'])
 def profil():
@@ -663,31 +827,42 @@ def profil():
     pic = row[0] if row and row[0] else ''
     
     conn.close()
-    return render_template_string(PROFIL_TEMPLATE, user=session['user'], pic=pic, message=message, error=error, active='profil')
-
-@app.route('/sekil')
-def sekil():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Şəkillər", active='sekil')
-
-@app.route('/vidyo')
-def vidyo():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Videolar", active='vidyo')
-
-@app.route('/oyun')
-def oyun():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Oyunlar", active='oyun')
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    
+    return render_template_string(PROFIL_TEMPLATE, user=session['user'], pic=pic, message=message, error=error, header=header)
 
 @app.route('/magaza')
 def magaza():
     if 'user' not in session:
         return redirect(url_for('index'))
-    return render_template_string(SUB_TEMPLATE, title="Mağaza", active='magaza')
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(MAGAZA_TEMPLATE, header=header)
+
+@app.route('/sekil')
+def sekil():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(SUB_TEMPLATE, title="Şəkillər", header=header)
+
+@app.route('/vidyo')
+def vidyo():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(SUB_TEMPLATE, title="Videolar", header=header)
+
+@app.route('/oyun')
+def oyun():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    points = get_user_points(session['user'])
+    header = get_header_template(points)
+    return render_template_string(SUB_TEMPLATE, title="Oyunlar", header=header)
 
 @app.route('/logout')
 def logout():
