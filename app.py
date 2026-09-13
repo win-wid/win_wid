@@ -47,11 +47,35 @@ def init_db():
         )
     ''')
 
+    # ŞƏKİL BÖLMƏSİ ÜÇÜN CƏDVƏLLƏR (Shorts formatına uyğunlaşdırıldı)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS photos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             uploader TEXT NOT NULL,
             image_data TEXT NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS photo_likes (
+            photo_id INTEGER,
+            username TEXT,
+            PRIMARY KEY (photo_id, username)
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS photo_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            photo_id INTEGER,
+            username TEXT,
+            comment TEXT
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS photo_shares (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            photo_id INTEGER,
+            sender TEXT,
+            receiver TEXT
         )
     ''')
 
@@ -174,7 +198,7 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst Menyu (İstədiyin ardıcıllıqla yeniləndi)
+# Üst Menyu
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -542,115 +566,388 @@ USERS_TEMPLATE = '''
 </html>
 '''
 
+# ŞƏKİL BÖLMƏSİ (ŞƏKİLLƏR ÜÇÜN SHORTS/REELS FORMATI - SEKIL_TEMPLATE)
 SEKIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Şəkil</title>
+    <title>WİN_WİD - Şəkil Şortları</title>
     ''' + COMMON_STYLE + '''
     <style>
-        .sekil-container {
-            background: #172554;
+        .shorts-container {
+            background: #000;
             flex: 1;
             border: 2px solid #f97316;
             border-radius: 12px;
-            padding: 12px;
-            overflow-y: auto;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            align-items: center;
         }
-        .sekil-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
-            margin: 0;
-            text-align: center;
-        }
-        .upload-box {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 10px;
+        .short-card {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            scroll-snap-align: start;
+            position: relative;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            background: #111;
         }
-        input[type="file"] {
-            color: #93c5fd;
-            font-size: 12px;
+        .short-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
-        .btn-upload {
+        .upload-trigger-bar {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            z-index: 20;
+            width: 110px;
+            height: 32px;
+        }
+        .btn-open-upload {
             background: #22c55e;
             color: white;
             border: none;
-            padding: 8px;
+            width: 100%;
+            height: 100%;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
-            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .btn-upload:hover { background: #16a34a; }
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-            gap: 8px;
+        .btn-open-upload:hover { background: #16a34a; }
+
+        .upload-modal {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #172554;
+            border: 2px solid #f97316;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 30;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
         }
-        .gallery-item {
+        
+        .shorts-actions {
+            position: absolute;
+            right: 15px;
+            bottom: 140px; 
+            width: 60px;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            z-index: 10;
+            border: none;
+            background: transparent;
+        }
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 56px;  
+            height: 56px; 
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .action-item:hover {
+            background: rgba(59, 130, 246, 0.6);
+        }
+        .action-item span {
+            font-size: 26px; 
+        }
+        .action-count {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 4px;
+            color: #fff;
+            text-shadow: 0 1px 2px #000;
+        }
+
+        .shorts-info {
+            position: absolute;
+            left: 15px;
+            bottom: 30px; 
+            z-index: 10;
+            color: #fff;
+            text-shadow: 0 1px 3px #000;
+        }
+        .shorts-username {
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .delete-short-btn {
+            background: #dc2626;
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .comments-drawer {
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #172554;
+            border-top: 2px solid #f97316;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            transition: 0.3s ease-in-out;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .comments-drawer.active {
+            bottom: 0;
+        }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 6px;
+            color: #f97316;
+        }
+        .close-drawer {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .drawer-list {
+            flex: 1;
+            overflow-y: auto;
+            margin: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 11px;
+        }
+        .drawer-comment-item {
+            background: #1e3a8a;
+            padding: 5px 8px;
+            border-radius: 6px;
+            word-break: break-all;
+        }
+        .drawer-form {
+            display: flex;
+            gap: 6px;
+        }
+        .drawer-input {
+            flex: 1;
+            padding: 6px;
             background: #1e3a8a;
             border: 1px solid #3b82f6;
             border-radius: 6px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            color: #fff;
+            font-size: 11px;
         }
-        .gallery-item img {
-            width: 100%;
-            height: 90px;
-            object-fit: cover;
-        }
-        .gallery-user {
-            font-size: 10px;
-            color: #93c5fd;
-            padding: 4px;
-            text-align: center;
-            background: #172554;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .drawer-submit {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     {{ header|safe }}
 
-    <div class="sekil-container">
-        <p class="sekil-title">📷 QALEREYA VƏ ŞƏKİLLƏR</p>
-
-        <form method="POST" enctype="multipart/form-data" class="upload-box">
-            <label style="font-size: 12px; color: #93c5fd; font-weight: bold;">Qalereyadan şəkil seç:</label>
-            <input type="file" name="sekil_file" accept="image/*" required>
-            <button type="submit" class="btn-upload">Şəkli Yüklə</button>
-        </form>
-
-        <div class="gallery-grid">
-            {% if photos %}
-                {% for p in photos %}
-                    <div class="gallery-item">
-                        <img src="{{ p[1] }}" alt="Şəkil">
-                        <p class="gallery-user">@{{ p[0] }}</p>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p style="grid-column: 1 / -1; text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki şəkil yüklənməyib.</p>
-            {% endif %}
+    <div class="shorts-container" id="shortsContainer">
+        <div class="upload-trigger-bar">
+            <button class="btn-open-upload" onclick="toggleUploadModal()">➕ Şəkil Yüklə</button>
         </div>
+
+        <div class="upload-modal" id="uploadModal">
+            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:8px;">
+                <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Şəkil Seç:</label>
+                <input type="file" name="sekil_file" accept="image/*" required style="font-size:10px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#dc2626; color:#fff; border:none; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">Bağla</button>
+            </form>
+        </div>
+
+        {% if photos %}
+            {% for p in photos %}
+                <div class="short-card" id="photo-card-{{ p[0] }}">
+                    <img src="{{ p[2] }}" alt="Şəkil">
+
+                    <div class="shorts-info">
+                        <div class="shorts-username">@{{ p[1] }}</div>
+                        {% if p[1] == current_user %}
+                            <button class="delete-short-btn" onclick="deletePhoto('{{ p[0] }}')">Sil 🗑️</button>
+                        {% endif %}
+                    </div>
+
+                    <div class="shorts-actions">
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="toggleLike('{{ p[0] }}')">
+                                <span id="like-icon-{{ p[0] }}">{{ '❤️' if p[3] else '🤍' }}</span>
+                            </button>
+                            <span class="action-count" id="like-count-{{ p[0] }}">{{ p[4] }}</span>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="openComments('{{ p[0] }}')">
+                                <span>💬</span>
+                            </button>
+                            <span class="action-count" id="comm-count-{{ p[0] }}">{{ p[5]|length }}</span>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="sharePhoto('{{ p[0] }}')">
+                                <span>↗️</span>
+                            </button>
+                            <span class="action-count">Paylaş</span>
+                        </div>
+                    </div>
+
+                    <div class="comments-drawer" id="drawer-{{ p[0] }}">
+                        <div class="drawer-header">
+                            <span>Şərhlər</span>
+                            <button class="close-drawer" onclick="closeComments('{{ p[0] }}')">✕</button>
+                        </div>
+                        <div class="drawer-list" id="comment-list-{{ p[0] }}">
+                            {% for c in p[5] %}
+                                <div class="drawer-comment-item"><b>@{{ c[1] }}</b>: {{ c[2] }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="drawer-form">
+                            <input type="text" class="drawer-input" id="comment-input-{{ p[0] }}" placeholder="Şərh yaz...">
+                            <button class="drawer-submit" onclick="addComment('{{ p[0] }}')">Yaz</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#93c5fd; font-size:13px; text-align:center; padding:20px;">
+                Hələ ki şəkil yoxdur. Yuxarıdakı düymədən ilk şəkli sən yüklə!
+            </div>
+        {% endif %}
     </div>
+
+    <script>
+        function toggleUploadModal() {
+            let modal = document.getElementById('uploadModal');
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleLike(photoId) {
+            fetch('/sekil/like/' + photoId, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById('like-count-' + photoId).innerText = data.count;
+                    document.getElementById('like-icon-' + photoId).innerText = data.liked ? '❤️' : '🤍';
+                }
+            });
+        }
+
+        function openComments(photoId) {
+            document.getElementById('drawer-' + photoId).classList.add('active');
+        }
+
+        function closeComments(photoId) {
+            document.getElementById('drawer-' + photoId).classList.remove('active');
+        }
+
+        function addComment(photoId) {
+            let input = document.getElementById('comment-input-' + photoId);
+            let text = input.value.trim();
+            if(!text) return;
+
+            fetch('/sekil/comment/' + photoId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment: text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    let list = document.getElementById('comment-list-' + photoId);
+                    list.innerHTML += `<div class="drawer-comment-item"><b>@${data.user}</b>: ${data.comment}</div>`;
+                    input.value = '';
+                    list.scrollTop = list.scrollHeight;
+                    
+                    let cCount = document.getElementById('comm-count-' + photoId);
+                    cCount.innerText = parseInt(cCount.innerText) + 1;
+                }
+            });
+        }
+
+        function sharePhoto(photoId) {
+            let user = prompt("Şəkli hansı istifadəçiyə göndərmək istəyirsiniz? (Nik növünü qeyd edin)");
+            if(user && user.trim() !== "") {
+                fetch('/sekil/share/' + photoId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ receiver: user.trim() })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        alert("Şəkil istifadəçiyə göndərildi!");
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+
+        function deletePhoto(photoId) {
+            if(confirm("Bu şəkli silmək istədiyinizə əminsinizmi?")) {
+                fetch('/sekil/delete/' + photoId, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('photo-card-' + photoId).remove();
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
 '''
@@ -2061,35 +2358,150 @@ def istifadeciler():
     header = get_header_template(points)
     return render_template_string(USERS_TEMPLATE, all_users=all_users, header=header)
 
-@app.route('/sekil', methods=['GET', 'POST'])
+# ŞƏKİL BÖLMƏSİ ROUTELARI (SHORTS FORMATINA UYĞUN)
+@app.route('/sekil')
 def sekil():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
+    
+    current_user = session['user']
     conn = sqlite3.connect('win_wid.db')
     cursor = conn.cursor()
     
-    if request.method == 'POST':
-        file = request.files.get('sekil_file')
-        if file and file.filename != '':
-            file_bytes = file.read()
-            encoded = base64.b64encode(file_bytes).decode('utf-8')
-            mime_type = file.content_type or 'image/jpeg'
-            img_data = f"data:{mime_type};base64,{encoded}"
-            
-            cursor.execute("INSERT INTO photos (uploader, image_data) VALUES (?, ?)", (session['user'], img_data))
-            conn.commit()
-        conn.close()
-        return redirect(url_for('sekil'))
+    cursor.execute("SELECT id, uploader, image_data FROM photos ORDER BY id DESC")
+    raw_photos = cursor.fetchall()
+    
+    photos = []
+    for p in raw_photos:
+        p_id = p[0]
+        uploader = p[1]
+        img_data = p[2]
         
-    cursor.execute("SELECT uploader, image_data FROM photos ORDER BY id DESC")
-    photos = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) FROM photo_likes WHERE photo_id = ?", (p_id,))
+        like_count = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM photo_likes WHERE photo_id = ? AND username = ?", (p_id, current_user))
+        is_liked = cursor.fetchone()[0] > 0
+        
+        cursor.execute("SELECT id, username, comment FROM photo_comments WHERE photo_id = ?", (p_id,))
+        comments = cursor.fetchall()
+        
+        photos.append((p_id, uploader, img_data, is_liked, like_count, comments))
+        
+    conn.close()
+    points = get_user_points(current_user)
+    header = get_header_template(points)
+    return render_template_string(SEKIL_TEMPLATE, photos=photos, header=header, current_user=current_user)
+
+@app.route('/sekil/upload', methods=['POST'])
+def sekil_upload():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    file = request.files.get('sekil_file')
+    if file and file.filename != '':
+        file_bytes = file.read()
+        encoded = base64.b64encode(file_bytes).decode('utf-8')
+        mime_type = file.content_type or 'image/jpeg'
+        img_data = f"data:{mime_type};base64,{encoded}"
+        
+        conn = sqlite3.connect('win_wid.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO photos (uploader, image_data) VALUES (?, ?)", (session['user'], img_data))
+        conn.commit()
+        conn.close()
+        
+    return redirect(url_for('sekil'))
+
+@app.route('/sekil/like/<int:photo_id>', methods=['POST'])
+def sekil_like(photo_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+    
+    current_user = session['user']
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM photo_likes WHERE photo_id = ? AND username = ?", (photo_id, current_user))
+    if cursor.fetchone():
+        cursor.execute("DELETE FROM photo_likes WHERE photo_id = ? AND username = ?", (photo_id, current_user))
+        liked = False
+    else:
+        cursor.execute("INSERT INTO photo_likes (photo_id, username) VALUES (?, ?)", (photo_id, current_user))
+        liked = True
+        
+    conn.commit()
+    cursor.execute("SELECT COUNT(*) FROM photo_likes WHERE photo_id = ?", (photo_id,))
+    count = cursor.fetchone()[0]
     conn.close()
     
-    points = get_user_points(session['user'])
-    header = get_header_template(points)
-    return render_template_string(SEKIL_TEMPLATE, photos=photos, header=header)
+    return jsonify({"success": True, "liked": liked, "count": count})
 
+@app.route('/sekil/comment/<int:photo_id>', methods=['POST'])
+def sekil_comment(photo_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+        
+    data = request.get_json()
+    comment = data.get('comment', '').strip()
+    if not comment:
+        return jsonify({"success": False})
+        
+    current_user = session['user']
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO photo_comments (photo_id, username, comment) VALUES (?, ?, ?)", (photo_id, current_user, comment))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"success": True, "user": current_user, "comment": comment})
+
+@app.route('/sekil/share/<int:photo_id>', methods=['POST'])
+def sekil_share(photo_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+        
+    data = request.get_json()
+    receiver = data.get('receiver', '').strip()
+    current_user = session['user']
+    
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE nickname = ?", (receiver,))
+    if not cursor.fetchone():
+        conn.close()
+        return jsonify({"success": False, "error": "İstifadəçi tapılmadı!"})
+        
+    cursor.execute("INSERT INTO photo_shares (photo_id, sender, receiver) VALUES (?, ?, ?)", (photo_id, current_user, receiver))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"success": True})
+
+@app.route('/sekil/delete/<int:photo_id>', methods=['POST'])
+def sekil_delete(photo_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+        
+    current_user = session['user']
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT uploader FROM photos WHERE id = ?", (photo_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == current_user:
+        cursor.execute("DELETE FROM photos WHERE id = ?", (photo_id,))
+        cursor.execute("DELETE FROM photo_likes WHERE photo_id = ?", (photo_id,))
+        cursor.execute("DELETE FROM photo_comments WHERE photo_id = ?", (photo_id,))
+        cursor.execute("DELETE FROM photo_shares WHERE photo_id = ?", (photo_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+        
+    conn.close()
+    return jsonify({"success": False, "error": "Bu şəkli silməyə icazəniz yoxdur"})
+
+# VİDEO BÖLMƏSİ ROUTELARI
 @app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
@@ -2264,7 +2676,13 @@ def profil():
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    # Şəkil cədvəlləri yenilənmələri
                     cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photo_likes SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photo_comments SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photo_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photo_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
+                    # Video cədvəlləri yenilənmələri
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
@@ -2295,6 +2713,9 @@ def profil():
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
             cursor.execute("DELETE FROM gifts WHERE receiver = ? OR sender = ?", (current_user, current_user))
             cursor.execute("DELETE FROM photos WHERE uploader = ?", (current_user,))
+            cursor.execute("DELETE FROM photo_likes WHERE username = ?", (current_user,))
+            cursor.execute("DELETE FROM photo_comments WHERE username = ?", (current_user,))
+            cursor.execute("DELETE FROM photo_shares WHERE sender = ? OR receiver = ?", (current_user, current_user))
             cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
             cursor.execute("DELETE FROM videos WHERE uploader = ?", (current_user,))
             cursor.execute("DELETE FROM video_likes WHERE username = ?", (current_user,))
