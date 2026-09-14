@@ -29,16 +29,21 @@ def init_db():
     except sqlite3.OperationalError:
         pass
         
-    # Mesajlar cədvəli
+    # Mesajlar cədvəli (Şəxsi mesajlar üçün receiver sütunu əlavə olundu)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sender TEXT NOT NULL,
+            receiver TEXT,
             content TEXT NOT NULL
         )
     ''')
     try:
         cursor.execute("ALTER TABLE messages ADD COLUMN sender TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE messages ADD COLUMN receiver TEXT")
     except sqlite3.OperationalError:
         pass
     
@@ -121,7 +126,7 @@ def init_db():
 
 init_db()
 
-# Giriş və Qeydiyyat Səhifəsi (Eni və uzunluğu artırıldı)
+# Giriş və Qeydiyyat Səhifəsi
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -385,7 +390,7 @@ USERS_TEMPLATE = '''
 </html>
 '''
 
-# ŞƏKİL BÖLMƏSİ (ŞƏKİLLƏR ÜÇÜN SHORTS/REELS FORMATI - SEKIL_TEMPLATE)
+# ŞƏKİL BÖLMƏSİ (SEKIL_TEMPLATE)
 SEKIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1691,6 +1696,77 @@ OYUN_PANEL_TEMPLATE = '''
 </html>
 '''
 
+# BİLDİRİŞ SƏHİFƏSİNİN ŞABLONU
+BILDIRIS_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Bildirişlər</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .bildiris-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bildiris-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 6px;
+            margin: 0 0 6px 0;
+            text-align: center;
+        }
+        .notif-card {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+        .notif-icon {
+            font-size: 20px;
+        }
+        .notif-text {
+            color: #fff;
+            margin: 0;
+        }
+        .notif-text b {
+            color: #f97316;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+    <div class="bildiris-container">
+        <p class="bildiris-title">🔔 BİLDİRİŞLƏR</p>
+        
+        {% if notifications %}
+            {% for n in notifications %}
+                <div class="notif-card">
+                    <span class="notif-icon">{{ n.icon }}</span>
+                    <p class="notif-text">{{ n.text|safe }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki heç bir bildirişiniz yoxdur.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+'''
+
 SUB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1811,7 +1887,7 @@ def istifadeciler():
     header = get_header_template(points)
     return render_template_string(USERS_TEMPLATE, all_users=all_users, header=header)
 
-# ŞƏKİL BÖLMƏSİ ROUTELARI (SHORTS FORMATINA UYĞUN)
+# ŞƏKİL BÖLMƏSİ ROUTELARI
 @app.route('/sekil')
 def sekil():
     if 'user' not in session:
@@ -2135,6 +2211,7 @@ def profil():
                     cursor.execute("UPDATE photo_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE photo_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE messages SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_comments SET username = ? WHERE username = ?", (new_name, current_user))
@@ -2238,13 +2315,87 @@ def sual_cavab():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Sual-Cavab", header=header)
 
+# BİLDİRİŞ ROUTE (YENİLƏNDİ)
 @app.route('/bildiris')
 def bildiris():
     if 'user' not in session:
         return redirect(url_for('index'))
-    points = get_user_points(session['user'])
+    
+    current_user = session['user']
+    conn = sqlite3.connect('win_wid.db')
+    cursor = conn.cursor()
+    
+    notifications = []
+    
+    # 1. Şəxsi mesajlar (Əgər mesajlar cədvəlində receiver varsa)
+    cursor.execute("SELECT sender, content FROM messages WHERE receiver = ?", (current_user,))
+    for row in cursor.fetchall():
+        notifications.append({
+            "icon": "💬",
+            "text": f"<b>@{row[0]}</b> sizə şəxsi mesaj yazdı: \"{row[1]}\""
+        })
+        
+    # 2. Şəkil bəyənmələri (İstifadəçinin şəkillərinə gələn bəyənmələr)
+    cursor.execute('''
+        SELECT pl.username, p.id FROM photo_likes pl
+        JOIN photos p ON pl.photo_id = p.id
+        WHERE p.uploader = ? AND pl.username != ?
+    ''', (current_user, current_user))
+    for row in cursor.fetchall():
+        notifications.append({
+            "icon": "❤️",
+            "text": f"<b>@{row[0]}</b> şəklinizi bəyəndi."
+        })
+        
+    # 3. Şəkil şərhləri
+    cursor.execute('''
+        SELECT pc.username, pc.comment FROM photo_comments pc
+        JOIN photos p ON pc.photo_id = p.id
+        WHERE p.uploader = ? AND pc.username != ?
+    ''', (current_user, current_user))
+    for row in cursor.fetchall():
+        notifications.append({
+            "icon": "✍️",
+            "text": f"<b>@{row[0]}</b> şəklinizə şərh yazdı: \"{row[1]}\""
+        })
+        
+    # 4. Video bəyənmələri
+    cursor.execute('''
+        SELECT vl.username, v.id FROM video_likes vl
+        JOIN videos v ON vl.video_id = v.id
+        WHERE v.uploader = ? AND vl.username != ?
+    ''', (current_user, current_user))
+    for row in cursor.fetchall():
+        notifications.append({
+            "icon": "❤️",
+            "text": f"<b>@{row[0]}</b> videonuzu bəyəndi."
+        })
+        
+    # 5. Video şərhləri
+    cursor.execute('''
+        SELECT vc.username, vc.comment FROM video_comments vc
+        JOIN videos v ON vc.video_id = v.id
+        WHERE v.uploader = ? AND vc.username != ?
+    ''', (current_user, current_user))
+    for row in cursor.fetchall():
+        notifications.append({
+            "icon": "✍️",
+            "text": f"<b>@{row[0]}</b> videonuza şərh yazdı: \"{row[1]}\""
+        })
+
+    # 6. Hədiyyələr
+    cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
+    for row in cursor.fetchall():
+        notifications.append({
+            "icon": "🎁",
+            "text": f"<b>@{row[0]}</b> sizə hədiyyə göndərdi: {row[1]}"
+        })
+
+    conn.close()
+    
+    points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Bildiriş", header=header)
+    return render_template_string(BILDIRIS_TEMPLATE, notifications=notifications, header=header)
 
 @app.route('/logout')
 def logout():
