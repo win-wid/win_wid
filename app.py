@@ -6,9 +6,12 @@ import os
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
+# Bazanın həmişə eyni yerdə və təhlükəsiz qalması üçün tam yol təyini
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'win_wid.db')
+
 # Bazanın yaradılması və cədvəllərin qurulması (Məlumatların silinməməsi üçün qoruyucu yoxlamalar ilə)
 def init_db():
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     # İstifadəçilər cədvəli
@@ -1810,7 +1813,7 @@ def index():
         if not nickname or not password:
             error = "Xanalar boş ola bilməz!"
         else:
-            conn = sqlite3.connect('win_wid.db')
+            conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
             
             if action == 'register':
@@ -1838,7 +1841,7 @@ def index():
     return render_template_string(INDEX_TEMPLATE, error=error)
 
 def get_user_points(username):
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (username,))
     row = cursor.fetchone()
@@ -1853,7 +1856,7 @@ def add_points():
     added_pts = data.get('points', 0)
     current_user = session['user']
     
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET points = points + ? WHERE nickname = ?", (added_pts, current_user))
     conn.commit()
@@ -1877,7 +1880,7 @@ def istifadeciler():
     if 'user' not in session:
         return redirect(url_for('index'))
         
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT nickname, profile_pic FROM users")
     all_users = cursor.fetchall()
@@ -1894,7 +1897,7 @@ def sekil():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("SELECT id, uploader, image_data FROM photos ORDER BY id DESC")
@@ -1934,7 +1937,7 @@ def sekil_upload():
         mime_type = file.content_type or 'image/jpeg'
         img_data = f"data:{mime_type};base64,{encoded}"
         
-        conn = sqlite3.connect('win_wid.db')
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO photos (uploader, image_data) VALUES (?, ?)", (session['user'], img_data))
         conn.commit()
@@ -1948,7 +1951,7 @@ def sekil_like(photo_id):
         return jsonify({"success": False}), 401
     
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("SELECT * FROM photo_likes WHERE photo_id = ? AND username = ?", (photo_id, current_user))
@@ -1977,7 +1980,7 @@ def sekil_comment(photo_id):
         return jsonify({"success": False})
         
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO photo_comments (photo_id, username, comment) VALUES (?, ?, ?)", (photo_id, current_user, comment))
     conn.commit()
@@ -1994,7 +1997,7 @@ def sekil_share(photo_id):
     receiver = data.get('receiver', '').strip()
     current_user = session['user']
     
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE nickname = ?", (receiver,))
     if not cursor.fetchone():
@@ -2013,7 +2016,7 @@ def sekil_delete(photo_id):
         return jsonify({"success": False}), 401
         
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT uploader FROM photos WHERE id = ?", (photo_id,))
     row = cursor.fetchone()
@@ -2037,7 +2040,7 @@ def vidyo():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("SELECT id, uploader, video_data FROM videos ORDER BY id DESC")
@@ -2077,7 +2080,7 @@ def vidyo_upload():
         mime_type = file.content_type or 'video/mp4'
         video_data = f"data:{mime_type};base64,{encoded}"
         
-        conn = sqlite3.connect('win_wid.db')
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO videos (uploader, video_data) VALUES (?, ?)", (session['user'], video_data))
         conn.commit()
@@ -2091,7 +2094,7 @@ def vidyo_like(video_id):
         return jsonify({"success": False}), 401
     
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("SELECT * FROM video_likes WHERE video_id = ? AND username = ?", (video_id, current_user))
@@ -2120,7 +2123,7 @@ def vidyo_comment(video_id):
         return jsonify({"success": False})
         
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (?, ?, ?)", (video_id, current_user, comment))
     conn.commit()
@@ -2137,7 +2140,7 @@ def vidyo_share(video_id):
     receiver = data.get('receiver', '').strip()
     current_user = session['user']
     
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE nickname = ?", (receiver,))
     if not cursor.fetchone():
@@ -2156,7 +2159,7 @@ def vidyo_delete(video_id):
         return jsonify({"success": False}), 401
         
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
     row = cursor.fetchone()
@@ -2178,7 +2181,7 @@ def profil():
     if 'user' not in session:
         return redirect(url_for('index'))
         
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     message = None
@@ -2258,7 +2261,7 @@ def magaza():
         return redirect(url_for('index'))
         
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     message = None
@@ -2322,7 +2325,7 @@ def bildiris():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    conn = sqlite3.connect('win_wid.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     notifications = []
@@ -2384,6 +2387,9 @@ def bildiris():
         })
 
     # 6. Hədiyyələr
+    cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
+    for row in keyword_rows if 'keyword_rows' in locals() else cursor.fetchall(): # təhlükəsizlik üçün sadəcə fetchall
+        # yuxarıdakı sətri orijinal halına qaytaraq:
     cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
     for row in cursor.fetchall():
         notifications.append({
