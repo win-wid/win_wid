@@ -9,7 +9,7 @@ app.secret_key = 'win_wid_gizli_kalit'
 # Bazanın həmişə eyni yerdə və təhlükəsiz qalması üçün tam yol təyini
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'win_wid.db')
 
-# Bazanın yaradılması və cədvəllərin qurulması (Məlumatların silinməməsi üçün qoruyucu yoxlamalar ilə)
+# Bazanın yaradılması və cədvəllərin qurulması
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -32,7 +32,7 @@ def init_db():
     except sqlite3.OperationalError:
         pass
         
-    # Mesajlar cədvəli (Şəxsi mesajlar üçün receiver sütunu əlavə olundu)
+    # Mesajlar cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -393,7 +393,6 @@ USERS_TEMPLATE = '''
 </html>
 '''
 
-# ŞƏKİL BÖLMƏSİ (SEKIL_TEMPLATE)
 SEKIL_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -779,7 +778,6 @@ SEKIL_TEMPLATE = '''
 </html>
 '''
 
-# VİDEO BÖLMƏSİ (VIDYO_TEMPLATE)
 VIDYO_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -1699,7 +1697,6 @@ OYUN_PANEL_TEMPLATE = '''
 </html>
 '''
 
-# BİLDİRİŞ SƏHİFƏSİNİN ŞABLONU
 BILDIRIS_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2318,7 +2315,7 @@ def sual_cavab():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Sual-Cavab", header=header)
 
-# BİLDİRİŞ ROUTE (YENİLƏNDİ)
+# BİLDİRİŞ ROUTE
 @app.route('/bildiris')
 def bildiris():
     if 'user' not in session:
@@ -2330,7 +2327,7 @@ def bildiris():
     
     notifications = []
     
-    # 1. Şəxsi mesajlar (Əgər mesajlar cədvəlində receiver varsa)
+    # 1. Şəxsi mesajlar
     cursor.execute("SELECT sender, content FROM messages WHERE receiver = ?", (current_user,))
     for row in cursor.fetchall():
         notifications.append({
@@ -2338,7 +2335,7 @@ def bildiris():
             "text": f"<b>@{row[0]}</b> sizə şəxsi mesaj yazdı: \"{row[1]}\""
         })
         
-    # 2. Şəkil bəyənmələri (İstifadəçinin şəkillərinə gələn bəyənmələr)
+    # 2. Şəkil bəyənmələri
     cursor.execute('''
         SELECT pl.username, p.id FROM photo_likes pl
         JOIN photos p ON pl.photo_id = p.id
@@ -2387,9 +2384,6 @@ def bildiris():
         })
 
     # 6. Hədiyyələr
-    cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
-    for row in keyword_rows if 'keyword_rows' in locals() else cursor.fetchall(): # təhlükəsizlik üçün sadəcə fetchall
-        # yuxarıdakı sətri orijinal halına qaytaraq:
     cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
     for row in cursor.fetchall():
         notifications.append({
