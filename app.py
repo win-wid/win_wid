@@ -2,6 +2,7 @@ from flask import Flask, render_template_string, request, redirect, url_for, ses
 import sqlite3
 import base64
 import os
+import random
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -1678,10 +1679,166 @@ OYUN_PANEL_TEMPLATE = '''
             <a href="/oyun/sual_cavab" class="game-card">
                 <span class="game-icon">❓</span>
                 <p class="game-name">Sual-Cavab</p>
-                <p class="game-desc">1 dəqiqə ərzində cavabla, 8 bal qazan!</p>
+                <p class="game-desc">1 dəqiqə ərzində cavabla, 6 bal qazan!</p>
             </a>
         </div>
     </div>
+</body>
+</html>
+'''
+
+SUAL_CAVAB_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Sual-Cavab Oyunu</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .game-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .timer-box {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f97316;
+            background: #1e3a8a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #3b82f6;
+        }
+        .question-box {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            background: #1e3a8a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3b82f6;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .submit-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .submit-btn:hover { background: #16a34a; }
+        .info-msg {
+            font-size: 13px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+    <div class="game-container">
+        <h3>❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
+        <div class="timer-box">⏱️ Qalan vaxt: <span id="timer">60</span> san</div>
+        
+        <div class="question-box" id="questionText">Sual yüklənir...</div>
+        
+        <input type="text" id="answerInput" class="answer-input" placeholder="Cavabınızı yazın...">
+        <button class="submit-btn" onclick="checkAnswer()">Cavabla</button>
+        
+        <div class="info-msg" id="infoMsg"></div>
+        <a href="/oyun" style="color: #93c5fd; font-size: 12px; text-decoration: none; margin-top: 10px;">⬅️ Oyunlar Panelinə Qayıt</a>
+    </div>
+
+    <script>
+        let currentQuestion = null;
+        let timeLeft = 60;
+        let timerInterval = null;
+
+        function loadNewQuestion() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            document.getElementById('timer').innerText = timeLeft;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('infoMsg').innerText = '';
+
+            fetch('/oyun/sual_getir')
+            .then(res => res.json())
+            .then(data => {
+                currentQuestion = data;
+                document.getElementById('questionText').innerText = data.question;
+                startTimer();
+            });
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('infoMsg.style.color = '#f87171';
+                    document.getElementById('infoMsg').innerText = 'Vaxt bitdi! Başqa suala keçilir...';
+                    setTimeout(loadNewQuestion, 1500);
+                }
+            }, 1000);
+        }
+
+        function checkAnswer() {
+            let userAns = document.getElementById('answerInput').value.trim();
+            if(!userAns) return;
+
+            fetch('/oyun/sual_yoxla', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ q_id: currentQuestion.id, answer: userAns })
+            })
+            .then(res => res.json())
+            .then(data => {
+                let msgEl = document.getElementById('infoMsg');
+                if(data.correct) {
+                    msgEl.style.color = '#22c55e';
+                    msgEl.innerText = '🎉 Düzdür! +6 bal qazandınız!';
+                    let ptsDisp = document.getElementById('userPointsDisplay');
+                    if(ptsDisp) ptsDisp.innerText = data.new_points;
+                    setTimeout(loadNewQuestion, 1500);
+                } else {
+                    msgEl.style.color = '#f87171';
+                    msgEl.innerText = '❌ Səhvdir, yenidən sınayın!';
+                }
+            });
+        }
+
+        // Səhifə açılan kimi ilk sualı gətir
+        loadNewQuestion();
+    </script>
 </body>
 </html>
 '''
@@ -2294,13 +2451,57 @@ def wow_oyunu():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="WOW Oyunu", header=header)
 
+# Sual-Cavab Oyunu Məlumat Bazası (Bura istədiyiniz qədər sual əlavə edə bilərsiniz)
+QUESTIONS_DB = [
+    {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "a": "baki"},
+    {"id": 2, "q": "2 + 2 * 2 nəyə bərabərdir?", "a": "6"},
+    {"id": 3, "q": "Dünyanın ən böyük okeanı hansıdır?", "a": "sakit okean"},
+    {"id": 4, "q": "Azərbaycan Respublikasının müstəqillik ili?", "a": "1991"},
+    {"id": 5, "q": "Kompüterin beyni sayılan əsas hissə necə adlanır?", "a": "prosessor"},
+    {"id": 6, "q": "Su hansı temperaturda qaynayır (°C)?", "a": "100"},
+    {"id": 7, "q": "İlin neçə ayı var?", "a": "12"},
+    {"id": 8, "q": "Günəş sistemində neçə planet var?", "a": "8"}
+]
+
 @app.route('/oyun/sual_cavab')
 def sual_cavab():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
     header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Sual-Cavab", header=header)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header)
+
+@app.route('/oyun/sual_getir')
+def sual_getir():
+    if 'user' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    q = random.choice(QUESTIONS_DB)
+    # Cavabı JavaScript-ə göndərmirik ki, hiylə işlətmək olmasın :)
+    return jsonify({"id": q["id"], "question": q["q"]})
+
+@app.route('/oyun/sual_yoxla', methods=['POST'])
+def sual_yoxla():
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+    
+    data = request.get_json()
+    q_id = data.get('q_id')
+    user_ans = data.get('answer', '').strip().lower()
+    
+    target_q = next((q for q in QUESTIONS_DB if q["id"] == q_id), None)
+    
+    if target_q and target_q["a"] == user_ans:
+        current_user = session['user']
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (current_user,))
+        conn.commit()
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+        new_pts = cursor.fetchone()[0]
+        conn.close()
+        return jsonify({"correct": True, "new_points": new_pts})
+    else:
+        return jsonify({"correct": False})
 
 @app.route('/bildiris')
 def bildiris():
