@@ -40,7 +40,6 @@ def init_db():
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sender TEXT NOT NULL,
-            receiver TEXT,
             content TEXT NOT NULL
         )
     ''')
@@ -291,6 +290,188 @@ COMMON_STYLE = '''
             transform: translateY(-2px);
         }
     </style>
+'''
+
+CHAT_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Ümumi Çat</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .chat-container {
+            background: #172554;
+            flex: 1;
+            border: 2px solid #f97316;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .chat-header-title {
+            background: #1e3a8a;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #3b82f6;
+            color: #f97316;
+        }
+        .messages-box {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message-bubble {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 75%;
+            word-break: break-all;
+            position: relative;
+        }
+        .message-bubble.my-message {
+            background: #1d4ed8;
+            align-self: flex-end;
+            border-color: #60a5fa;
+        }
+        .msg-user {
+            font-size: 11px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 3px;
+        }
+        .msg-text {
+            font-size: 13px;
+            margin: 0;
+        }
+        .msg-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+            font-size: 10px;
+        }
+        .msg-actions button {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            padding: 0;
+            font-weight: bold;
+        }
+        .msg-actions button:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .chat-form {
+            display: flex;
+            padding: 10px;
+            background: #1e3a8a;
+            border-top: 1px solid #3b82f6;
+            gap: 8px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            background: #172554;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+        }
+        .chat-submit {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .chat-submit:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="chat-container">
+        <div class="chat-header-title">💬 ÜMUMİ ÇAT BÖLMƏSİ</div>
+        
+        <div class="messages-box" id="messagesBox">
+            {% if messages %}
+                {% for m in messages %}
+                    <div class="message-bubble {% if m[1] == current_user %}my-message{% endif %}" id="msg-{{ m[0] }}">
+                        <div class="msg-user">@{{ m[1] }}</div>
+                        <p class="msg-text" id="msg-text-{{ m[0] }}">{{ m[2] }}</p>
+                        
+                        {% if m[1] == current_user %}
+                            <div class="msg-actions">
+                                <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
+                                <button onclick="deleteMessage('{{ m[0] }}')" style="color: #f87171;">Sil</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #93c5fd; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+            {% endif %}
+        </div>
+
+        <form class="chat-form" method="POST" action="/chat/send">
+            <input type="text" name="content" class="chat-input" placeholder="Mesajınızı yazın..." required autocomplete="off">
+            <button type="submit" class="chat-submit">Göndər</button>
+        </form>
+    </div>
+
+    <script>
+        // Mesajlar pəncərəsini həmişə aşağıda saxla
+        let msgBox = document.getElementById('messagesBox');
+        msgBox.scrollTop = msgBox.scrollHeight;
+
+        function deleteMessage(msgId) {
+            if(confirm("Bu mesajı silmək istədiyinizə əminsinizmi?")) {
+                fetch('/chat/delete/' + msgId, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('msg-' + msgId).remove();
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+
+        function editMessage(msgId) {
+            let textEl = document.getElementById('msg-text-' + msgId);
+            let currentText = textEl.innerText;
+            let newText = prompt("Mesajınızı redaktə edin:", currentText);
+            
+            if(newText !== null && newText.trim() !== "") {
+                fetch('/chat/edit/' + msgId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newText.trim() })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        textEl.innerText = data.content;
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
 '''
 
 USERS_TEMPLATE = '''
@@ -1838,7 +2019,6 @@ SUAL_CAVAB_TEMPLATE = '''
             });
         }
 
-        // Səhifə açılan kimi ilk sualı gətir
         loadNewQuestion();
     </script>
 </body>
@@ -1915,38 +2095,6 @@ BILDIRIS_TEMPLATE = '''
 </html>
 '''
 
-SUB_TEMPLATE = '''
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <title>WİN_WİD - {{ title }}</title>
-    ''' + COMMON_STYLE + '''
-    <style>
-        .content-box { 
-            background: #172554; 
-            flex: 1; 
-            border: 2px solid #f97316; 
-            border-radius: 12px; 
-            padding: 15px; 
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            color: #93c5fd;
-        }
-    </style>
-</head>
-<body>
-    {{ header|safe }}
-    <div class="content-box">
-        <p>{{ title }} bölməsi tezliklə aktiv olacaqdır</p>
-    </div>
-</body>
-</html>
-'''
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     error = None
@@ -2016,9 +2164,78 @@ def add_points():
 def chat():
     if 'user' not in session:
         return redirect(url_for('index'))
-    points = get_user_points(session['user'])
+    
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, sender, content FROM messages ORDER BY id ASC")
+    messages = cursor.fetchall()
+    conn.close()
+    
+    points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="Çat", header=header)
+    return render_template_string(CHAT_TEMPLATE, messages=messages, current_user=current_user, header=header)
+
+@app.route('/chat/send', methods=['POST'])
+def chat_send():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    content = request.form.get('content', '').strip()
+    if content:
+        current_user = session['user']
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (current_user, content))
+        conn.commit()
+        conn.close()
+        
+    return redirect(url_for('chat'))
+
+@app.route('/chat/delete/<int:msg_id>', methods=['POST'])
+def chat_delete(msg_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+        
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == current_user:
+        cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+        
+    conn.close()
+    return jsonify({"success": False, "error": "Bu mesajı silməyə icazəniz yoxdur!"})
+
+@app.route('/chat/edit/<int:msg_id>', methods=['POST'])
+def chat_edit(msg_id):
+    if 'user' not in session:
+        return jsonify({"success": False}), 401
+        
+    data = request.get_json()
+    new_content = data.get('content', '').strip()
+    if not new_content:
+        return jsonify({"success": False, "error": "Mesaj boş ola bilməz!"})
+        
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == current_user:
+        cursor.execute("UPDATE messages SET content = ? WHERE id = ?", (new_content, msg_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "content": new_content})
+        
+    conn.close()
+    return jsonify({"success": False, "error": "Bu mesajı redaktə etməyə icazəniz yoxdur!"})
 
 @app.route('/istifadeciler')
 def istifadeciler():
@@ -2357,7 +2574,6 @@ def profil():
                     cursor.execute("UPDATE photo_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
                     cursor.execute("UPDATE photo_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE messages SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
                     cursor.execute("UPDATE video_comments SET username = ? WHERE username = ?", (new_name, current_user))
@@ -2453,7 +2669,6 @@ def wow_oyunu():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="WOW Oyunu", header=header)
 
-# 30 ƏDƏD MÜXTƏLİF VƏ ZƏNGİN SUAL BAZASI
 QUESTIONS_DB = [
     {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "a": "baki"},
     {"id": 2, "q": "2 + 2 * 2 nəyə bərabərdir?", "a": "6"},
@@ -2472,7 +2687,7 @@ QUESTIONS_DB = [
     {"id": 15, "q": "DNT-nin açması olan molekulun tam adı (Azərbaycan dilində qısa: dezoksirbonuklein turşusu əvəzinə qısa olaraq nə yazılır)?", "a": "dnt"},
     {"id": 16, "q": "1 Kilobayt neçə Baytdır?", "a": "1024"},
     {"id": 17, "q": "Türkiyənin paytaxtı hansı şəhərdir?", "a": "ankara"},
-    {"id": 18, "q": "H鉱 (Su) formulasında hidrogen atomunun sayı neçədir?", "a": "2"},
+    {"id": 18, "q": "H2O (Su) formulasında hidrogen atomunun sayı neçədir?", "a": "2"},
     {"id": 19, "q": "Dünyanın ən hündür dağ zirvəsi hansıdır?", "a": "everest"},
     {"id": 20, "q": "Futbol oyununda bir komandada meydanda neçə oyunçu olur?", "a": "11"},
     {"id": 21, "q": "Şahmat taxtasındakı xanaların ümumi sayı neçədir?", "a": "64"},
@@ -2481,7 +2696,7 @@ QUESTIONS_DB = [
     {"id": 24, "q": "Bir ildə neçə həftə var?", "a": "52"},
     {"id": 25, "q": "Qızılın kimyəvi elementi simvolu necədir?", "a": "au"},
     {"id": 26, "q": "Kosmosa gedən ilk insan kimdir? (Soyadını yazın)", "a": "qaqarin"},
-    {"id": 27, "q": "Azərbaycanın ən böyük gölü hansıdır?", "a": "göyçə"}, # və ya Xəzər dəniz olaraq da bilinir, gəlin Xəzər yazaq
+    {"id": 27, "q": "Azərbaycanın ən böyük gölü hansıdır?", "a": "göyçə"},
     {"id": 28, "q": "Dünyanın ən böyük səhrası hansıdır?", "a": "sahara"},
     {"id": 29, "q": "İnsan neçə əsas hissədən ibarət duyğu orqanına sahibdir?", "a": "5"},
     {"id": 30, "q": "1 saat neçə saniyədir?", "a": "3600"}
@@ -2500,7 +2715,6 @@ def sual_getir():
     if 'user' not in session:
         return jsonify({"error": "Unauthorized"}), 401
     q = random.choice(QUESTIONS_DB)
-    # Cavabı JavaScript-ə göndərmirik ki, hiylə işlətmək olmasın :)
     return jsonify({"id": q["id"], "question": q["q"]})
 
 @app.route('/oyun/sual_yoxla', methods=['POST'])
@@ -2538,13 +2752,6 @@ def bildiris():
     
     notifications = []
     
-    cursor.execute("SELECT sender, content FROM messages WHERE receiver = ?", (current_user,))
-    for row in cursor.fetchall():
-        notifications.append({
-            "icon": "💬",
-            "text": f"<b>@{row[0]}</b> sizə şəxsi mesaj yazdı: \"{row[1]}\""
-        })
-        
     cursor.execute('''
         SELECT pl.username, p.id FROM photo_likes pl
         JOIN photos p ON pl.photo_id = p.id
