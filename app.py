@@ -7,10 +7,15 @@ app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
 # Bazanın həmişə eyni yerdə və təhlükəsiz qalması üçün tam yol təyini
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'win_wid.db')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'win_wid.db')
 
 # Bazanın yaradılması və cədvəllərin qurulması
 def init_db():
+    # Qovluğun mövcud olduğundan əmin oluruq
+    if not os.path.exists(BASE_DIR):
+        os.makedirs(BASE_DIR)
+        
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
@@ -2344,7 +2349,7 @@ def bildiris():
     for row in cursor.fetchall():
         notifications.append({
             "icon": "❤️",
-            "text": f"<b>@{row[0]}</b> şəklinizi bəyəndi."
+            "text": f"<b>@{row[0]}</b> شəklinizi bəyəndi."
         })
         
     # 3. Şəkil şərhləri
@@ -2397,6 +2402,7 @@ def bildiris():
     header = get_header_template(points)
     return render_template_string(BILDIRIS_TEMPLATE, notifications=notifications, header=header)
 
+@app.route/logout
 @app.route('/logout')
 def logout():
     session.pop('user', None)
