@@ -1770,7 +1770,7 @@ SUAL_CAVAB_TEMPLATE = '''
         
         <div class="question-box" id="questionText">Sual yüklənir...</div>
         
-        <input type="text" id="answerInput" class="answer-input" placeholder="Cavabınızı yazın...">
+        <input type="text" id="answerInput" class="answer-input" placeholder="Cavabınızı yazın..." onkeydown="if(event.key === 'Enter') checkAnswer()">
         <button class="submit-btn" onclick="checkAnswer()">Cavabla</button>
         
         <div class="info-msg" id="infoMsg"></div>
@@ -1804,8 +1804,9 @@ SUAL_CAVAB_TEMPLATE = '''
                 document.getElementById('timer').innerText = timeLeft;
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    document.getElementById('infoMsg.style.color = '#f87171';
-                    document.getElementById('infoMsg').innerText = 'Vaxt bitdi! Başqa suala keçilir...';
+                    let msgEl = document.getElementById('infoMsg');
+                    msgEl.style.color = '#f87171';
+                    msgEl.innerText = '⏱️ Vaxt bitdi! Başqa suala keçilir...';
                     setTimeout(loadNewQuestion, 1500);
                 }
             }, 1000);
@@ -1824,6 +1825,7 @@ SUAL_CAVAB_TEMPLATE = '''
             .then(data => {
                 let msgEl = document.getElementById('infoMsg');
                 if(data.correct) {
+                    clearInterval(timerInterval);
                     msgEl.style.color = '#22c55e';
                     msgEl.innerText = '🎉 Düzdür! +6 bal qazandınız!';
                     let ptsDisp = document.getElementById('userPointsDisplay');
@@ -2451,7 +2453,7 @@ def wow_oyunu():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="WOW Oyunu", header=header)
 
-# Sual-Cavab Oyunu Məlumat Bazası (Bura istədiyiniz qədər sual əlavə edə bilərsiniz)
+# 30 ƏDƏD MÜXTƏLİF VƏ ZƏNGİN SUAL BAZASI
 QUESTIONS_DB = [
     {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "a": "baki"},
     {"id": 2, "q": "2 + 2 * 2 nəyə bərabərdir?", "a": "6"},
@@ -2460,7 +2462,29 @@ QUESTIONS_DB = [
     {"id": 5, "q": "Kompüterin beyni sayılan əsas hissə necə adlanır?", "a": "prosessor"},
     {"id": 6, "q": "Su hansı temperaturda qaynayır (°C)?", "a": "100"},
     {"id": 7, "q": "İlin neçə ayı var?", "a": "12"},
-    {"id": 8, "q": "Günəş sistemində neçə planet var?", "a": "8"}
+    {"id": 8, "q": "Günəş sistemində neçə planet var?", "a": "8"},
+    {"id": 9, "q": "Fransanın paytaxtı hansı şəhərdir?", "a": "paris"},
+    {"id": 10, "q": "Dünyanın ən uzun çayı hansıdır?", "a": "nil"},
+    {"id": 11, "q": "İnsan bədənində neçə əsas qrup qan var?", "a": "4"},
+    {"id": 12, "q": "Azərbaycanın Dövlət Bayrağındakı rənglərin sayı neçədir?", "a": "3"},
+    {"id": 13, "q": "Yer kürəsinin təbii peyki necə adlanır?", "a": "ay"},
+    {"id": 14, "q": "İşığın sürəti təqribən saniyədə neçə kilometrdir? (Yalnız rəqəm yazın)", "a": "300000"},
+    {"id": 15, "q": "DNT-nin açması olan molekulun tam adı (Azərbaycan dilində qısa: dezoksirbonuklein turşusu əvəzinə qısa olaraq nə yazılır)?", "a": "dnt"},
+    {"id": 16, "q": "1 Kilobayt neçə Baytdır?", "a": "1024"},
+    {"id": 17, "q": "Türkiyənin paytaxtı hansı şəhərdir?", "a": "ankara"},
+    {"id": 18, "q": "H鉱 (Su) formulasında hidrogen atomunun sayı neçədir?", "a": "2"},
+    {"id": 19, "q": "Dünyanın ən hündür dağ zirvəsi hansıdır?", "a": "everest"},
+    {"id": 20, "q": "Futbol oyununda bir komandada meydanda neçə oyunçu olur?", "a": "11"},
+    {"id": 21, "q": "Şahmat taxtasındakı xanaların ümumi sayı neçədir?", "a": "64"},
+    {"id": 22, "q": "İtalyanın paytaxtı hansı şəhərdir?", "a": "roma"},
+    {"id": 23, "q": "Dəmirin kimyəvi işarəsi necədir?", "a": "fe"},
+    {"id": 24, "q": "Bir ildə neçə həftə var?", "a": "52"},
+    {"id": 25, "q": "Qızılın kimyəvi elementi simvolu necədir?", "a": "au"},
+    {"id": 26, "q": "Kosmosa gedən ilk insan kimdir? (Soyadını yazın)", "a": "qaqarin"},
+    {"id": 27, "q": "Azərbaycanın ən böyük gölü hansıdır?", "a": "göyçə"}, # və ya Xəzər dəniz olaraq da bilinir, gəlin Xəzər yazaq
+    {"id": 28, "q": "Dünyanın ən böyük səhrası hansıdır?", "a": "sahara"},
+    {"id": 29, "q": "İnsan neçə əsas hissədən ibarət duyğu orqanına sahibdir?", "a": "5"},
+    {"id": 30, "q": "1 saat neçə saniyədir?", "a": "3600"}
 ]
 
 @app.route('/oyun/sual_cavab')
