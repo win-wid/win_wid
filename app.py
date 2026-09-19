@@ -12,14 +12,12 @@ DB_PATH = os.path.join(BASE_DIR, 'win_wid.db')
 
 # Bazanın yaradılması və cədvəllərin qurulması
 def init_db():
-    # Qovluğun mövcud olduğundan əmin oluruq
     if not os.path.exists(BASE_DIR):
         os.makedirs(BASE_DIR)
         
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # İstifadəçilər cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             nickname TEXT PRIMARY KEY,
@@ -37,7 +35,6 @@ def init_db():
     except sqlite3.OperationalError:
         pass
         
-    # Mesajlar cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,16 +43,7 @@ def init_db():
             content TEXT NOT NULL
         )
     ''')
-    try:
-        cursor.execute("ALTER TABLE messages ADD COLUMN sender TEXT")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE messages ADD COLUMN receiver TEXT")
-    except sqlite3.OperationalError:
-        pass
     
-    # Hədiyyələr cədvəli
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gifts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,7 +53,6 @@ def init_db():
         )
     ''')
 
-    # ŞƏKİL BÖLMƏSİ ÜÇÜN CƏDVƏLLƏR
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS photos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -97,7 +84,6 @@ def init_db():
         )
     ''')
 
-    # VİDEO BÖLMƏSİ ÜÇÜN CƏDVƏLLƏR
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS videos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,7 +120,6 @@ def init_db():
 
 init_db()
 
-# Giriş və Qeydiyyat Səhifəsi
 INDEX_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -217,7 +202,6 @@ INDEX_TEMPLATE = '''
 </html>
 '''
 
-# Üst Menyu
 def get_header_template(points=500):
     return f'''
     <div class="nav-bar">
@@ -1892,7 +1876,6 @@ def istifadeciler():
     header = get_header_template(points)
     return render_template_string(USERS_TEMPLATE, all_users=all_users, header=header)
 
-# ŞƏKİL BÖLMƏSİ ROUTELARI
 @app.route('/sekil')
 def sekil():
     if 'user' not in session:
@@ -2035,7 +2018,6 @@ def sekil_delete(photo_id):
     conn.close()
     return jsonify({"success": False, "error": "Bu şəkli silməyə icazəniz yoxdur"})
 
-# VİDEO BÖLMƏSİ ROUTELARI
 @app.route('/vidyo')
 def vidyo():
     if 'user' not in session:
@@ -2320,7 +2302,6 @@ def sual_cavab():
     header = get_header_template(points)
     return render_template_string(SUB_TEMPLATE, title="Sual-Cavab", header=header)
 
-# BİLDİRİŞ ROUTE
 @app.route('/bildiris')
 def bildiris():
     if 'user' not in session:
@@ -2332,7 +2313,6 @@ def bildiris():
     
     notifications = []
     
-    # 1. Şəxsi mesajlar
     cursor.execute("SELECT sender, content FROM messages WHERE receiver = ?", (current_user,))
     for row in cursor.fetchall():
         notifications.append({
@@ -2340,7 +2320,6 @@ def bildiris():
             "text": f"<b>@{row[0]}</b> sizə şəxsi mesaj yazdı: \"{row[1]}\""
         })
         
-    # 2. Şəkil bəyənmələri
     cursor.execute('''
         SELECT pl.username, p.id FROM photo_likes pl
         JOIN photos p ON pl.photo_id = p.id
@@ -2349,10 +2328,9 @@ def bildiris():
     for row in cursor.fetchall():
         notifications.append({
             "icon": "❤️",
-            "text": f"<b>@{row[0]}</b> شəklinizi bəyəndi."
+            "text": f"<b>@{row[0]}</b> şəklinizi bəyəndi."
         })
         
-    # 3. Şəkil şərhləri
     cursor.execute('''
         SELECT pc.username, pc.comment FROM photo_comments pc
         JOIN photos p ON pc.photo_id = p.id
@@ -2364,7 +2342,6 @@ def bildiris():
             "text": f"<b>@{row[0]}</b> şəklinizə şərh yazdı: \"{row[1]}\""
         })
         
-    # 4. Video bəyənmələri
     cursor.execute('''
         SELECT vl.username, v.id FROM video_likes vl
         JOIN videos v ON vl.video_id = v.id
@@ -2376,7 +2353,6 @@ def bildiris():
             "text": f"<b>@{row[0]}</b> videonuzu bəyəndi."
         })
         
-    # 5. Video şərhləri
     cursor.execute('''
         SELECT vc.username, vc.comment FROM video_comments vc
         JOIN videos v ON vc.video_id = v.id
@@ -2388,7 +2364,6 @@ def bildiris():
             "text": f"<b>@{row[0]}</b> videonuza şərh yazdı: \"{row[1]}\""
         })
 
-    # 6. Hədiyyələr
     cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
     for row in cursor.fetchall():
         notifications.append({
@@ -2402,7 +2377,6 @@ def bildiris():
     header = get_header_template(points)
     return render_template_string(BILDIRIS_TEMPLATE, notifications=notifications, header=header)
 
-@app.route/logout
 @app.route('/logout')
 def logout():
     session.pop('user', None)
