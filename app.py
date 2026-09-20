@@ -129,8 +129,8 @@ INDEX_TEMPLATE = '''
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            background-color: #1e3a8a; 
-            color: #ffffff; 
+            background-color: #0f172a; 
+            color: #f8fafc; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -138,51 +138,51 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 420px; 
-            padding: 40px 30px; 
-            background: #172554; 
-            border-radius: 14px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); 
+            width: 360px; 
+            padding: 24px 20px; 
+            background: #1e293b; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
             text-align: center; 
-            border: 3px solid #f97316; 
+            border: 2px solid #f97316; 
         }
         h1 { 
-            font-size: 20px; 
-            margin-bottom: 25px; 
-            color: #ffffff; 
-            letter-spacing: 0.5px;
+            font-size: 16px; 
+            margin-bottom: 18px; 
+            color: #f8fafc; 
+            letter-spacing: 0.3px;
             font-weight: bold;
         }
         input { 
             width: 100%; 
-            padding: 14px 16px; 
-            margin: 12px 0; 
-            border: 1px solid #3b82f6; 
-            border-radius: 8px; 
-            background: #1e3a8a; 
-            color: #ffffff; 
+            padding: 10px 12px; 
+            margin: 8px 0; 
+            border: 1px solid #475569; 
+            border-radius: 6px; 
+            background: #0f172a; 
+            color: #f8fafc; 
             box-sizing: border-box; 
-            font-size: 15px;
+            font-size: 13px;
         }
         input:focus {
-            border-color: #60a5fa;
+            border-color: #f97316;
             outline: none;
         }
-        input::placeholder { color: #93c5fd; }
+        input::placeholder { color: #94a3b8; }
         button { 
             width: 100%; 
-            padding: 14px; 
-            margin: 12px 0; 
+            padding: 10px; 
+            margin: 8px 0; 
             background: #2563eb; 
             color: white; 
             border: none; 
-            border-radius: 8px; 
+            border-radius: 6px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 15px;
+            font-size: 13px;
         }
         button:hover { background: #1d4ed8; }
-        .error { color: #f87171; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
+        .error { color: #ef4444; font-size: 12px; margin-bottom: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -245,26 +245,26 @@ COMMON_STYLE = '''
         body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 8px; 
-            background: #1e3a8a; 
-            color: #ffffff; 
+            padding: 6px; 
+            background: #0f172a; 
+            color: #f8fafc; 
             display: flex; 
             flex-direction: column; 
             height: 100vh; 
             box-sizing: border-box; 
         }
         .nav-bar { 
-            background: #172554; 
-            border: 2px solid #f97316; 
-            border-radius: 12px; 
-            padding: 8px 6px; 
+            background: #1e293b; 
+            border: 1px solid #f97316; 
+            border-radius: 8px; 
+            padding: 5px 4px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 8px;
-            gap: 4px;
+            margin-bottom: 6px;
+            gap: 2px;
             overflow-x: auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             flex-shrink: 0;
         }
         .nav-item {
@@ -272,22 +272,21 @@ COMMON_STYLE = '''
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: #cbd5e1;
-            padding: 4px 6px;
-            border-radius: 8px;
-            font-size: 10px;
+            color: #94a3b8;
+            padding: 3px 5px;
+            border-radius: 6px;
+            font-size: 9px;
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 16px;
-            margin-bottom: 2px;
+            font-size: 14px;
+            margin-bottom: 1px;
         }
         .nav-item:hover {
             color: #ffffff;
-            background: rgba(59, 130, 246, 0.3);
-            transform: translateY(-2px);
+            background: rgba(249, 115, 22, 0.2);
         }
     </style>
 '''
@@ -301,66 +300,67 @@ CHAT_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .chat-container {
-            background: #172554;
+            background: #1e293b;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .chat-header-title {
-            background: #1e3a8a;
-            padding: 10px;
-            font-size: 14px;
+            background: #0f172a;
+            padding: 8px;
+            font-size: 12px;
             font-weight: bold;
             text-align: center;
-            border-bottom: 1px solid #3b82f6;
+            border-bottom: 1px solid #334155;
             color: #f97316;
         }
         .messages-box {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         .message-bubble {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            padding: 8px 12px;
-            border-radius: 8px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 6px 10px;
+            border-radius: 6px;
             max-width: 75%;
             word-break: break-all;
             position: relative;
         }
         .message-bubble.my-message {
-            background: #1d4ed8;
+            background: #1e3a8a;
             align-self: flex-end;
-            border-color: #60a5fa;
+            border-color: #2563eb;
         }
         .msg-user {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
-            color: #93c5fd;
-            margin-bottom: 3px;
+            color: #cbd5e1;
+            margin-bottom: 2px;
         }
         .msg-text {
-            font-size: 13px;
+            font-size: 12px;
             margin: 0;
+            color: #f8fafc;
         }
         .msg-actions {
             display: flex;
-            gap: 8px;
-            margin-top: 5px;
-            font-size: 10px;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: 9px;
         }
         .msg-actions button {
             background: transparent;
             border: none;
-            color: #cbd5e1;
+            color: #94a3b8;
             cursor: pointer;
             padding: 0;
             font-weight: bold;
@@ -371,28 +371,30 @@ CHAT_TEMPLATE = '''
         }
         .chat-form {
             display: flex;
-            padding: 10px;
-            background: #1e3a8a;
-            border-top: 1px solid #3b82f6;
-            gap: 8px;
+            padding: 8px;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            gap: 6px;
         }
         .chat-input {
             flex: 1;
-            padding: 10px;
-            background: #172554;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
+            padding: 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
             color: #fff;
-            font-size: 13px;
+            font-size: 12px;
         }
+        .chat-input:focus { border-color: #f97316; outline: none; }
         .chat-submit {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
+            padding: 8px 14px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 12px;
         }
         .chat-submit:hover { background: #1d4ed8; }
     </style>
@@ -413,13 +415,13 @@ CHAT_TEMPLATE = '''
                         {% if m[1] == current_user %}
                             <div class="msg-actions">
                                 <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
-                                <button onclick="deleteMessage('{{ m[0] }}')" style="color: #f87171;">Sil</button>
+                                <button onclick="deleteMessage('{{ m[0] }}')" style="color: #ef4444;">Sil</button>
                             </div>
                         {% endif %}
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="text-align: center; color: #93c5fd; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+                <p style="text-align: center; color: #94a3b8; font-size: 11px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
             {% endif %}
         </div>
 
@@ -430,7 +432,6 @@ CHAT_TEMPLATE = '''
     </div>
 
     <script>
-        // Mesajlar pəncərəsini həmişə aşağıda saxla
         let msgBox = document.getElementById('messagesBox');
         msgBox.scrollTop = msgBox.scrollHeight;
 
@@ -483,55 +484,55 @@ USERS_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .users-container {
-            background: #172554;
+            background: #1e293b;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 12px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .users-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
-            margin: 0 0 6px 0;
+            color: #f8fafc;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+            margin: 0 0 5px 0;
             text-align: center;
         }
         .user-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #1e3a8a;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid #3b82f6;
+            background: #0f172a;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
         }
         .user-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             border: 1px solid #f97316;
             object-fit: cover;
             background: #111;
         }
         .user-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            color: #ffffff;
-            margin: 0 0 2px 0;
+            color: #f8fafc;
+            margin: 0 0 1px 0;
         }
         .user-status {
-            font-size: 11px;
+            font-size: 10px;
             color: #22c55e;
             font-weight: bold;
             margin: 0;
@@ -557,7 +558,7 @@ USERS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            <p style="text-align: center; color: #94a3b8; font-size: 11px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
 </body>
@@ -575,8 +576,8 @@ SEKIL_TEMPLATE = '''
         .shorts-container {
             background: #000;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
@@ -602,11 +603,11 @@ SEKIL_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 10px;
-            right: 15px;
+            top: 8px;
+            right: 12px;
             z-index: 20;
-            width: 110px;
-            height: 32px;
+            width: 100px;
+            height: 28px;
         }
         .btn-open-upload {
             background: #22c55e;
@@ -614,11 +615,11 @@ SEKIL_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 6px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -628,30 +629,30 @@ SEKIL_TEMPLATE = '''
         .upload-modal {
             display: none;
             position: absolute;
-            top: 50px;
+            top: 42px;
             left: 50%;
             transform: translateX(-50%);
-            background: #172554;
-            border: 2px solid #f97316;
-            padding: 15px;
-            border-radius: 10px;
+            background: #1e293b;
+            border: 1px solid #f97316;
+            padding: 12px;
+            border-radius: 8px;
             z-index: 30;
-            width: 80%;
-            max-width: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+            width: 75%;
+            max-width: 260px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 15px;
-            bottom: 140px; 
-            width: 60px;
-            height: 250px;
+            right: 12px;
+            bottom: 120px; 
+            width: 50px;
+            height: 220px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-end;
-            gap: 15px;
+            gap: 12px;
             z-index: 10;
             border: none;
             background: transparent;
@@ -660,54 +661,54 @@ SEKIL_TEMPLATE = '''
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px;
             border-radius: 50%;
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            width: 56px;  
-            height: 56px; 
+            width: 44px;  
+            height: 44px; 
             justify-content: center;
             transition: 0.2s;
         }
         .action-item:hover {
-            background: rgba(59, 130, 246, 0.6);
+            background: rgba(37, 99, 235, 0.6);
         }
         .action-item span {
-            font-size: 26px; 
+            font-size: 20px; 
         }
         .action-count {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 3px;
             color: #fff;
             text-shadow: 0 1px 2px #000;
         }
 
         .shorts-info {
             position: absolute;
-            left: 15px;
-            bottom: 30px; 
+            left: 12px;
+            bottom: 24px; 
             z-index: 10;
             color: #fff;
             text-shadow: 0 1px 3px #000;
         }
         .shorts-username {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: bold;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .delete-short-btn {
-            background: #dc2626;
+            background: #ef4444;
             border: none;
             color: white;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .comments-drawer {
@@ -715,16 +716,16 @@ SEKIL_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 50%;
-            background: #172554;
-            border-top: 2px solid #f97316;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
+            height: 45%;
+            background: #1e293b;
+            border-top: 1px solid #f97316;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
             transition: 0.3s ease-in-out;
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
         }
         .comments-drawer.active {
@@ -734,55 +735,57 @@ SEKIL_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 8px 0;
+            margin: 6px 0;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            font-size: 11px;
+            gap: 5px;
+            font-size: 10px;
         }
         .drawer-comment-item {
-            background: #1e3a8a;
-            padding: 5px 8px;
-            border-radius: 6px;
+            background: #0f172a;
+            padding: 4px 6px;
+            border-radius: 5px;
             word-break: break-all;
+            color: #f8fafc;
         }
         .drawer-form {
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
         .drawer-input {
             flex: 1;
-            padding: 6px;
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
+            padding: 5px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 5px;
             color: #fff;
-            font-size: 11px;
+            font-size: 10px;
         }
+        .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
         }
     </style>
@@ -796,11 +799,11 @@ SEKIL_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:8px;">
-                <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Şəkil Seç:</label>
-                <input type="file" name="sekil_file" accept="image/*" required style="font-size:10px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#dc2626; color:#fff; border:none; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size: 10px; color: #94a3b8; font-weight: bold;">Şəkil Seç:</label>
+                <input type="file" name="sekil_file" accept="image/*" required style="font-size:9px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:5px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:10px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:3px; border-radius:4px; cursor:pointer; font-size:9px;">Bağla</button>
             </form>
         </div>
 
@@ -857,7 +860,7 @@ SEKIL_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#93c5fd; font-size:13px; text-align:center; padding:20px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#94a3b8; font-size:11px; text-align:center; padding:15px;">
                 Hələ ki şəkil yoxdur. Yuxarıdakı düymədən ilk şəkli sən yüklə!
             </div>
         {% endif %}
@@ -960,8 +963,8 @@ VIDYO_TEMPLATE = '''
         .shorts-container {
             background: #000;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
@@ -987,11 +990,11 @@ VIDYO_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 10px;
-            right: 15px;
+            top: 8px;
+            right: 12px;
             z-index: 20;
-            width: 110px;
-            height: 32px;
+            width: 100px;
+            height: 28px;
         }
         .btn-open-upload {
             background: #22c55e;
@@ -999,11 +1002,11 @@ VIDYO_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 6px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1013,30 +1016,30 @@ VIDYO_TEMPLATE = '''
         .upload-modal {
             display: none;
             position: absolute;
-            top: 50px;
+            top: 42px;
             left: 50%;
             transform: translateX(-50%);
-            background: #172554;
-            border: 2px solid #f97316;
-            padding: 15px;
-            border-radius: 10px;
+            background: #1e293b;
+            border: 1px solid #f97316;
+            padding: 12px;
+            border-radius: 8px;
             z-index: 30;
-            width: 80%;
-            max-width: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+            width: 75%;
+            max-width: 260px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 15px;
-            bottom: 140px; 
-            width: 60px;
-            height: 250px;
+            right: 12px;
+            bottom: 120px; 
+            width: 50px;
+            height: 220px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-end;
-            gap: 15px;
+            gap: 12px;
             z-index: 10;
             border: none;
             background: transparent;
@@ -1045,54 +1048,54 @@ VIDYO_TEMPLATE = '''
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px;
             border-radius: 50%;
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            width: 56px;  
-            height: 56px; 
+            width: 44px;  
+            height: 44px; 
             justify-content: center;
             transition: 0.2s;
         }
         .action-item:hover {
-            background: rgba(59, 130, 246, 0.6);
+            background: rgba(37, 99, 235, 0.6);
         }
         .action-item span {
-            font-size: 26px; 
+            font-size: 20px; 
         }
         .action-count {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 3px;
             color: #fff;
             text-shadow: 0 1px 2px #000;
         }
 
         .shorts-info {
             position: absolute;
-            left: 15px;
-            bottom: 30px; 
+            left: 12px;
+            bottom: 24px; 
             z-index: 10;
             color: #fff;
             text-shadow: 0 1px 3px #000;
         }
         .shorts-username {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: bold;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .delete-short-btn {
-            background: #dc2626;
+            background: #ef4444;
             border: none;
             color: white;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         .comments-drawer {
@@ -1100,16 +1103,16 @@ VIDYO_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 50%;
-            background: #172554;
-            border-top: 2px solid #f97316;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
+            height: 45%;
+            background: #1e293b;
+            border-top: 1px solid #f97316;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
             transition: 0.3s ease-in-out;
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
         }
         .comments-drawer.active {
@@ -1119,55 +1122,57 @@ VIDYO_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 8px 0;
+            margin: 6px 0;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            font-size: 11px;
+            gap: 5px;
+            font-size: 10px;
         }
         .drawer-comment-item {
-            background: #1e3a8a;
-            padding: 5px 8px;
-            border-radius: 6px;
+            background: #0f172a;
+            padding: 4px 6px;
+            border-radius: 5px;
             word-break: break-all;
+            color: #f8fafc;
         }
         .drawer-form {
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
         .drawer-input {
             flex: 1;
-            padding: 6px;
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
+            padding: 5px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 5px;
             color: #fff;
-            font-size: 11px;
+            font-size: 10px;
         }
+        .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             cursor: pointer;
         }
     </style>
@@ -1181,11 +1186,11 @@ VIDYO_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:8px;">
-                <label style="font-size: 11px; color: #93c5fd; font-weight: bold;">Shorts Videosu Seç:</label>
-                <input type="file" name="video_file" accept="video/*" required style="font-size:10px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#dc2626; color:#fff; border:none; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size: 10px; color: #94a3b8; font-weight: bold;">Shorts Videosu Seç:</label>
+                <input type="file" name="video_file" accept="video/*" required style="font-size:9px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:5px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:10px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:3px; border-radius:4px; cursor:pointer; font-size:9px;">Bağla</button>
             </form>
         </div>
 
@@ -1242,7 +1247,7 @@ VIDYO_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#93c5fd; font-size:13px; text-align:center; padding:20px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#94a3b8; font-size:11px; text-align:center; padding:15px;">
                 Hələ ki Shorts videosu yoxdur. Yuxarıdakı düymədən ilk videonu sən yüklə!
             </div>
         {% endif %}
@@ -1373,47 +1378,47 @@ PROFIL_TEMPLATE = '''
             justify-content: center;
             align-items: center;
             overflow-y: auto;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
         }
         .profile-container {
-            background: #172554;
-            border: 2px solid #f97316;
-            border-radius: 14px;
-            padding: 21px 27px;
+            background: #1e293b;
+            border: 1px solid #f97316;
+            border-radius: 10px;
+            padding: 14px 18px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             width: 100%;
-            max-width: 830px;
+            max-width: 600px;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .profile-title {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
+            color: #f8fafc;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 14px;
-            background: #1e3a8a;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid #3b82f6;
+            gap: 10px;
+            background: #0f172a;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
         }
         .avatar-wrapper {
             position: relative;
-            width: 56px;
-            height: 56px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            border: 2px solid #ef4444;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+            border: 1px solid #ef4444;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
             overflow: visible;
             background: #111;
             flex-shrink: 0;
@@ -1426,64 +1431,65 @@ PROFIL_TEMPLATE = '''
         }
         .crown-icon {
             position: absolute;
-            bottom: -4px;
-            right: -4px;
-            font-size: 11px;
-            background: #1e3a8a;
+            bottom: -3px;
+            right: -3px;
+            font-size: 9px;
+            background: #0f172a;
             border-radius: 50%;
             padding: 1px;
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 2px 0;
-            font-size: 15px;
-            color: #ffffff;
+            margin: 0 0 1px 0;
+            font-size: 13px;
+            color: #f8fafc;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
         .profile-info .status {
             color: #22c55e;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
             margin: 0;
         }
         .gifts-box {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
-            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 5px;
+            padding: 6px 8px;
             display: flex;
-            gap: 6px;
+            gap: 5px;
             flex-wrap: wrap;
-            min-height: 36px;
+            min-height: 28px;
             align-items: center;
         }
         .gift-item {
-            font-size: 16px;
-            background: #172554;
-            padding: 2px 6px;
+            font-size: 14px;
+            background: #1e293b;
+            padding: 1px 5px;
             border-radius: 4px;
             border: 1px solid #f97316;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 9px 12px;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
-            background: #1e3a8a;
-            color: #ffffff;
-            font-size: 13px;
+            padding: 7px 10px;
+            border: 1px solid #334155;
+            border-radius: 5px;
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 11px;
             box-sizing: border-box;
             text-align: center;
         }
-        input[type="text"]::placeholder { color: #93c5fd; }
+        input[type="text"]:focus { border-color: #f97316; outline: none; }
+        input[type="text"]::placeholder { color: #94a3b8; }
         input[type="file"] {
             display: none;
         }
@@ -1491,46 +1497,43 @@ PROFIL_TEMPLATE = '''
             background: #0284c7;
             color: white;
             border: none;
-            padding: 9px;
-            border-radius: 6px;
+            padding: 7px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             width: 100%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .btn-blue:hover { background: #0369a1; }
         .btn-gray {
             background: #334155;
             color: white;
             border: 1px solid #475569;
-            padding: 9px;
-            border-radius: 6px;
+            padding: 7px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             width: 100%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .btn-gray:hover { background: #475569; }
         .btn-red {
-            background: #dc2626;
+            background: #ef4444;
             color: white;
             border: none;
-            padding: 9px;
-            border-radius: 6px;
+            padding: 7px;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px;
             cursor: pointer;
             text-align: center;
             width: 100%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .btn-red:hover { background: #b91c1c; }
+        .btn-red:hover { background: #dc2626; }
         .msg-alert {
-            font-size: 12px;
+            font-size: 10px;
             text-align: center;
             margin: 0;
         }
@@ -1544,7 +1547,7 @@ PROFIL_TEMPLATE = '''
             <p class="profile-title">Mənim Profilim</p>
             
             {% if message %}
-                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
+                <p class="msg-alert" style="color: {% if error %}#ef4444{% else %}#22c55e{% endif %};">{{ message }}</p>
             {% endif %}
 
             <div class="profile-header">
@@ -1559,14 +1562,14 @@ PROFIL_TEMPLATE = '''
             </div>
 
             <div>
-                <p style="font-size: 12px; margin: 0 0 3px 0; color: #93c5fd;">Hədiyyələr / Stikerlər:</p>
+                <p style="font-size: 10px; margin: 0 0 2px 0; color: #94a3b8;">Hədiyyələr / Stikerlər:</p>
                 <div class="gifts-box">
                     {% if gifts %}
                         {% for g in gifts %}
                             <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                         {% endfor %}
                     {% else %}
-                        <span style="font-size: 12px; color: #93c5fd;">Hələ ki hədiyyə yoxdur.</span>
+                        <span style="font-size: 10px; color: #94a3b8;">Hələ ki hədiyyə yoxdur.</span>
                     {% endif %}
                 </div>
             </div>
@@ -1611,58 +1614,58 @@ MAGAZA_TEMPLATE = '''
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
         }
         .magaza-container {
-            background: #172554;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 14px;
+            background: #1e293b;
+            border: 1px solid #f97316;
+            border-radius: 10px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             width: 100%;
-            max-width: 680px;
+            max-width: 560px;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .magaza-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
+            color: #f8fafc;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
             margin: 0;
             text-align: center;
         }
         .product-section {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .product-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
             color: #f97316;
             margin: 0;
         }
         .color-list {
             display: flex;
-            gap: 6px;
+            gap: 5px;
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             border: none;
             font-weight: bold;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 10px;
         }
         .btn-yellow { background: #eab308; color: #000; }
         .btn-red { background: #ef4444; color: #fff; }
@@ -1673,20 +1676,20 @@ MAGAZA_TEMPLATE = '''
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            max-height: 120px;
+            gap: 4px;
+            max-height: 90px;
             overflow-y: auto;
-            background: #172554;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #3b82f6;
+            background: #1e293b;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #334155;
         }
         .emoji-btn {
-            font-size: 18px;
+            font-size: 15px;
             cursor: pointer;
-            padding: 4px 6px;
-            background: #1e3a8a;
-            border-radius: 6px;
+            padding: 3px 5px;
+            background: #0f172a;
+            border-radius: 4px;
             border: 1px solid transparent;
         }
         .emoji-btn:hover {
@@ -1696,16 +1699,17 @@ MAGAZA_TEMPLATE = '''
         }
         select {
             width: 100%;
-            padding: 9px 12px;
-            background: #172554;
+            padding: 6px 8px;
+            background: #1e293b;
             color: #fff;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
-            font-size: 12px;
+            border: 1px solid #334155;
+            border-radius: 5px;
+            font-size: 11px;
             box-sizing: border-box;
         }
+        select:focus { border-color: #f97316; outline: none; }
         .msg-alert {
-            font-size: 12px;
+            font-size: 10px;
             text-align: center;
             margin: 0;
         }
@@ -1719,7 +1723,7 @@ MAGAZA_TEMPLATE = '''
             <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
 
             {% if message %}
-                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#22c55e{% endif %};">{{ message }}</p>
+                <p class="msg-alert" style="color: {% if error %}#ef4444{% else %}#22c55e{% endif %};">{{ message }}</p>
             {% endif %}
 
             <div class="product-section">
@@ -1756,7 +1760,7 @@ MAGAZA_TEMPLATE = '''
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <div class="emoji-grid" style="margin-top: 6px;">
+                    <div class="emoji-grid" style="margin-top: 5px;">
                         {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                         {% for emo in emojis %}
                             <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
@@ -1789,60 +1793,60 @@ OYUN_PANEL_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .panel-container {
-            background: #172554;
+            background: #1e293b;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             text-align: center;
         }
         .panel-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
-            color: #ffffff;
+            color: #f8fafc;
             margin: 0;
         }
         .games-grid {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
         }
         .game-card {
-            background: #1e3a8a;
-            border: 2px solid #3b82f6;
-            border-radius: 10px;
-            padding: 20px;
-            width: 180px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 14px;
+            width: 140px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
             text-decoration: none;
             color: #fff;
             transition: 0.2s;
         }
         .game-card:hover {
             border-color: #f97316;
-            transform: translateY(-3px);
-            background: #1d4ed8;
+            transform: translateY(-2px);
+            background: #1e3a8a;
         }
         .game-icon {
-            font-size: 32px;
+            font-size: 24px;
         }
         .game-name {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: bold;
             margin: 0;
         }
         .game-desc {
-            font-size: 11px;
-            color: #93c5fd;
+            font-size: 9px;
+            color: #94a3b8;
             margin: 0;
         }
     </style>
@@ -1877,76 +1881,77 @@ SUAL_CAVAB_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .game-container {
-            background: #172554;
+            background: #1e293b;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 20px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
             text-align: center;
-            max-width: 500px;
+            max-width: 420px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
         }
         .timer-box {
-            font-size: 16px;
+            font-size: 12px;
             font-weight: bold;
             color: #f97316;
-            background: #1e3a8a;
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid #3b82f6;
+            background: #0f172a;
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: 1px solid #334155;
         }
         .question-box {
-            font-size: 18px;
+            font-size: 13px;
             font-weight: bold;
-            color: #ffffff;
-            background: #1e3a8a;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #3b82f6;
+            color: #f8fafc;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
             width: 100%;
             box-sizing: border-box;
         }
         .answer-input {
             width: 100%;
-            padding: 12px;
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
+            padding: 9px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
             color: #fff;
-            font-size: 14px;
+            font-size: 11px;
             text-align: center;
             box-sizing: border-box;
         }
+        .answer-input:focus { border-color: #f97316; outline: none; }
         .submit-btn {
             background: #22c55e;
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 9px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 11px;
             cursor: pointer;
             width: 100%;
         }
         .submit-btn:hover { background: #16a34a; }
         .info-msg {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
-            min-height: 20px;
+            min-height: 16px;
         }
     </style>
 </head>
 <body>
     {{ header|safe }}
     <div class="game-container">
-        <h3>❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
+        <h3 style="font-size: 12px; margin: 0;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
         <div class="timer-box">⏱️ Qalan vaxt: <span id="timer">60</span> san</div>
         
         <div class="question-box" id="questionText">Sual yüklənir...</div>
@@ -1955,7 +1960,7 @@ SUAL_CAVAB_TEMPLATE = '''
         <button class="submit-btn" onclick="checkAnswer()">Cavabla</button>
         
         <div class="info-msg" id="infoMsg"></div>
-        <a href="/oyun" style="color: #93c5fd; font-size: 12px; text-decoration: none; margin-top: 10px;">⬅️ Oyunlar Panelinə Qayıt</a>
+        <a href="/oyun" style="color: #94a3b8; font-size: 10px; text-decoration: none; margin-top: 5px;">⬅️ Oyunlar Panelinə Qayıt</a>
     </div>
 
     <script>
@@ -1986,7 +1991,7 @@ SUAL_CAVAB_TEMPLATE = '''
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
                     let msgEl = document.getElementById('infoMsg');
-                    msgEl.style.color = '#f87171';
+                    msgEl.style.color = '#ef4444';
                     msgEl.innerText = '⏱️ Vaxt bitdi! Başqa suala keçilir...';
                     setTimeout(loadNewQuestion, 1500);
                 }
@@ -2013,7 +2018,7 @@ SUAL_CAVAB_TEMPLATE = '''
                     if(ptsDisp) ptsDisp.innerText = data.new_points;
                     setTimeout(loadNewQuestion, 1500);
                 } else {
-                    msgEl.style.color = '#f87171';
+                    msgEl.style.color = '#ef4444';
                     msgEl.innerText = '❌ Səhvdir, yenidən sınayın!';
                 }
             });
@@ -2034,40 +2039,40 @@ BILDIRIS_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .bildiris-container {
-            background: #172554;
+            background: #1e293b;
             flex: 1;
-            border: 2px solid #f97316;
-            border-radius: 12px;
-            padding: 14px;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
         .bildiris-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #3b82f6;
-            padding-bottom: 6px;
-            margin: 0 0 6px 0;
+            color: #f8fafc;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+            margin: 0 0 5px 0;
             text-align: center;
         }
         .notif-card {
-            background: #1e3a8a;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 10px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 13px;
+            gap: 8px;
+            font-size: 11px;
         }
         .notif-icon {
-            font-size: 20px;
+            font-size: 16px;
         }
         .notif-text {
-            color: #fff;
+            color: #f8fafc;
             margin: 0;
         }
         .notif-text b {
@@ -2088,7 +2093,7 @@ BILDIRIS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #93c5fd; font-size: 12px;">Hələ ki heç bir bildirişiniz yoxdur.</p>
+            <p style="text-align: center; color: #94a3b8; font-size: 11px;">Hələ ki heç bir bildirişiniz yoxdur.</p>
         {% endif %}
     </div>
 </body>
