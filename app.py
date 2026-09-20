@@ -255,38 +255,40 @@ COMMON_STYLE = '''
         }
         .nav-bar { 
             background: #1e293b; 
-            border: 1px solid #f97316; 
+            border: 2px solid #f97316; 
             border-radius: 8px; 
-            padding: 5px 4px; 
+            padding: 8px 6px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 6px;
-            gap: 2px;
-            overflow-x: auto;
+            margin-bottom: 8px;
+            gap: 4px;
+            overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             flex-shrink: 0;
+            box-sizing: border-box;
+            width: 100%;
         }
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: #94a3b8;
-            padding: 3px 5px;
+            color: #cbd5e1;
+            padding: 4px 6px;
             border-radius: 6px;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: bold;
             transition: 0.2s;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 14px;
-            margin-bottom: 1px;
+            font-size: 18px;
+            margin-bottom: 2px;
         }
         .nav-item:hover {
             color: #ffffff;
-            background: rgba(249, 115, 22, 0.2);
+            background: rgba(249, 115, 22, 0.3);
         }
     </style>
 '''
@@ -2808,6 +2810,7 @@ def bildiris():
             "text": f"<b>@{row[0]}</b> sizə hədiyyə göndərdi: {row[1]}"
         })
 
+    conn.context = None # type: ignore
     conn.close()
     
     points = get_user_points(current_user)
