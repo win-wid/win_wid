@@ -2032,6 +2032,7 @@ SUAL_CAVAB_TEMPLATE = '''
 </html>
 '''
 
+# BİLDİRİŞ ÜÇÜN YENİLƏNMİŞ ŞABLON VƏ FUNKSİYA
 BILDIRIS_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2045,40 +2046,31 @@ BILDIRIS_TEMPLATE = '''
             flex: 1;
             border: 1px solid #f97316;
             border-radius: 8px;
-            padding: 10px;
-            overflow-y: auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
         .bildiris-title {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             color: #f8fafc;
             border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
-            margin: 0 0 5px 0;
-            text-align: center;
+            padding-bottom: 8px;
+            margin: 0 0 15px 0;
+            width: 100%;
         }
-        .notif-card {
+        .warning-box {
             background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 8px 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-        }
-        .notif-icon {
-            font-size: 16px;
-        }
-        .notif-text {
-            color: #f8fafc;
-            margin: 0;
-        }
-        .notif-text b {
+            border: 2px dashed #f97316;
+            border-radius: 8px;
+            padding: 20px;
             color: #f97316;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -2086,17 +2078,9 @@ BILDIRIS_TEMPLATE = '''
     {{ header|safe }}
     <div class="bildiris-container">
         <p class="bildiris-title">🔔 BİLDİRİŞLƏR</p>
-        
-        {% if notifications %}
-            {% for n in notifications %}
-                <div class="notif-card">
-                    <span class="notif-icon">{{ n.icon }}</span>
-                    <p class="notif-text">{{ n.text|safe }}</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p style="text-align: center; color: #94a3b8; font-size: 11px;">Hələ ki heç bir bildirişiniz yoxdur.</p>
-        {% endif %}
+        <div class="warning-box">
+            BU BÖLMƏ TEZLİKLƏ AÇILACAQDIR...‼️
+        </div>
     </div>
 </body>
 </html>
@@ -2754,68 +2738,10 @@ def bildiris():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    
-    notifications = []
-    
-    cursor.execute('''
-        SELECT pl.username, p.id FROM photo_likes pl
-        JOIN photos p ON pl.photo_id = p.id
-        WHERE p.uploader = ? AND pl.username != ?
-    ''', (current_user, current_user))
-    for row in cursor.fetchall():
-        notifications.append({
-            "icon": "❤️",
-            "text": f"<b>@{row[0]}</b> şəklinizi bəyəndi."
-        })
-        
-    cursor.execute('''
-        SELECT pc.username, pc.comment FROM photo_comments pc
-        JOIN photos p ON pc.photo_id = p.id
-        WHERE p.uploader = ? AND pc.username != ?
-    ''', (current_user, current_user))
-    for row in cursor.fetchall():
-        notifications.append({
-            "icon": "✍️",
-            "text": f"<b>@{row[0]}</b> şəklinizə şərh yazdı: \"{row[1]}\""
-        })
-        
-    cursor.execute('''
-        SELECT vl.username, v.id FROM video_likes vl
-        JOIN videos v ON vl.video_id = v.id
-        WHERE v.uploader = ? AND vl.username != ?
-    ''', (current_user, current_user))
-    for row in cursor.fetchall():
-        notifications.append({
-            "icon": "❤️",
-            "text": f"<b>@{row[0]}</b> videonuzu bəyəndi."
-        })
-        
-    cursor.execute('''
-        SELECT vc.username, vc.comment FROM video_comments vc
-        JOIN videos v ON vc.video_id = v.id
-        WHERE v.uploader = ? AND vc.username != ?
-    ''', (current_user, current_user))
-    for row in cursor.fetchall():
-        notifications.append({
-            "icon": "✍️",
-            "text": f"<b>@{row[0]}</b> videonuza şərh yazdı: \"{row[1]}\""
-        })
-
-    cursor.execute("SELECT sender, gift FROM gifts WHERE receiver = ?", (current_user,))
-    for row in cursor.fetchall():
-        notifications.append({
-            "icon": "🎁",
-            "text": f"<b>@{row[0]}</b> sizə hədiyyə göndərdi: {row[1]}"
-        })
-
-    conn.context = None # type: ignore
-    conn.close()
-    
     points = get_user_points(current_user)
     header = get_header_template(points)
-    return render_template_string(BILDIRIS_TEMPLATE, notifications=notifications, header=header)
+    
+    return render_template_string(BILDIRIS_TEMPLATE, header=header)
 
 @app.route('/logout')
 def logout():
