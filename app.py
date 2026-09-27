@@ -139,18 +139,18 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 380px; 
-            padding: 32px 24px; 
-            background: rgba(24, 24, 27, 0.75); 
+            width: 420px; 
+            padding: 40px 32px; 
+            background: rgba(24, 24, 27, 0.85); 
             backdrop-filter: blur(16px);
-            border-radius: 20px; 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6); 
             text-align: center; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
         }
         h1 { 
-            font-size: 18px; 
-            margin-bottom: 24px; 
+            font-size: 22px; 
+            margin-bottom: 28px; 
             background: linear-gradient(135deg, #f97316, #fb923c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -159,49 +159,49 @@ INDEX_TEMPLATE = '''
         }
         input { 
             width: 100%; 
-            padding: 12px 16px; 
-            margin: 10px 0; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 12px; 
-            background: rgba(9, 9, 11, 0.6); 
+            padding: 14px 18px; 
+            margin: 12px 0; 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            border-radius: 14px; 
+            background: rgba(9, 9, 11, 0.7); 
             color: #f8fafc; 
             box-sizing: border-box; 
-            font-size: 14px;
+            font-size: 15px;
             transition: all 0.3s ease;
         }
         input:focus {
             border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
             outline: none;
         }
-        input::placeholder { color: #71717a; }
+        input::placeholder { color: #a1a1aa; }
         button { 
             width: 100%; 
-            padding: 12px; 
-            margin: 8px 0; 
+            padding: 14px; 
+            margin: 10px 0; 
             background: linear-gradient(135deg, #f97316, #ea580c); 
             color: white; 
             border: none; 
-            border-radius: 12px; 
+            border-radius: 14px; 
             cursor: pointer; 
             font-weight: 600; 
-            font-size: 14px;
+            font-size: 15px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
         }
         button:hover { 
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45);
         }
         button[name="action"][value="register"] {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: none;
         }
         button[name="action"][value="register"]:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
         }
-        .error { color: #f87171; font-size: 13px; margin-bottom: 12px; font-weight: 500; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .error { color: #f87171; font-size: 14px; margin-bottom: 16px; font-weight: 500; background: rgba(239, 68, 68, 0.12); padding: 10px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.25); }
     </style>
 </head>
 <body>
@@ -265,7 +265,7 @@ COMMON_STYLE = '''
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; 
-            padding: 12px; 
+            padding: 16px; 
             background: #09090b; 
             color: #f8fafc; 
             display: flex; 
@@ -274,18 +274,18 @@ COMMON_STYLE = '''
             box-sizing: border-box; 
         }
         .nav-bar { 
-            background: rgba(24, 24, 27, 0.8); 
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 14px; 
-            padding: 10px 12px; 
+            background: rgba(24, 24, 27, 0.9); 
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            border-radius: 16px; 
+            padding: 12px 16px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 12px;
-            gap: 6px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 16px;
+            gap: 10px;
+            overflow-x: auto;
+            box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4);
             flex-shrink: 0;
             box-sizing: border-box;
             width: 100%;
@@ -295,25 +295,25 @@ COMMON_STYLE = '''
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: #a1a1aa;
-            padding: 6px 8px;
-            border-radius: 10px;
-            font-size: 11px;
+            color: #d4d4d8;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 18px;
-            margin-bottom: 3px;
+            font-size: 22px;
+            margin-bottom: 4px;
             transition: transform 0.2s;
         }
         .nav-item:hover {
             color: #f97316;
-            background: rgba(249, 115, 22, 0.1);
+            background: rgba(249, 115, 22, 0.15);
         }
         .nav-item:hover .icon {
-            transform: scale(1.1);
+            transform: scale(1.15);
         }
     </style>
 '''
@@ -327,74 +327,74 @@ CHAT_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .chat-container {
-            background: rgba(24, 24, 27, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         .chat-header-title {
-            background: rgba(9, 9, 11, 0.5);
-            padding: 12px;
-            font-size: 13px;
+            background: rgba(9, 9, 11, 0.7);
+            padding: 16px;
+            font-size: 15px;
             font-weight: 700;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             color: #f97316;
             letter-spacing: 0.5px;
         }
         .messages-box {
             flex: 1;
-            padding: 16px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
         .message-bubble {
-            background: rgba(39, 39, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 10px 14px;
-            border-radius: 12px;
-            max-width: 75%;
+            background: rgba(39, 39, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 14px 18px;
+            border-radius: 16px;
+            max-width: 80%;
             word-break: break-all;
             position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
         .message-bubble.my-message {
             background: linear-gradient(135deg, #c2410c, #9a3412);
             align-self: flex-end;
-            border-color: rgba(249, 115, 22, 0.3);
+            border-color: rgba(249, 115, 22, 0.4);
         }
         .msg-user {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
             color: #fed7aa;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         .message-bubble.my-message .msg-user {
             color: #ffedd5;
         }
         .msg-text {
-            font-size: 13px;
+            font-size: 15px;
             margin: 0;
             color: #f8fafc;
-            line-height: 1.4;
+            line-height: 1.5;
         }
         .msg-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 6px;
-            font-size: 10px;
+            gap: 14px;
+            margin-top: 8px;
+            font-size: 12px;
         }
         .msg-actions button {
             background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.75);
             cursor: pointer;
             padding: 0;
             font-weight: 600;
@@ -406,31 +406,32 @@ CHAT_TEMPLATE = '''
         }
         .chat-form {
             display: flex;
-            padding: 12px;
-            background: rgba(9, 9, 11, 0.5);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            gap: 8px;
+            padding: 16px;
+            background: rgba(9, 9, 11, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 12px;
         }
         .chat-input {
             flex: 1;
-            padding: 10px 14px;
-            background: rgba(24, 24, 27, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+            padding: 14px 18px;
+            background: rgba(24, 24, 27, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
             color: #fff;
-            font-size: 13px;
+            font-size: 15px;
         }
-        .chat-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
+        .chat-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); }
         .chat-submit {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
+            padding: 14px 24px;
+            border-radius: 14px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 15px;
             transition: transform 0.2s;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
         .chat-submit:hover { transform: translateY(-1px); }
     </style>
@@ -457,7 +458,7 @@ CHAT_TEMPLATE = '''
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="text-align: center; color: #71717a; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+                <p style="text-align: center; color: #a1a1aa; font-size: 14px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
             {% endif %}
         </div>
 
@@ -520,25 +521,25 @@ USERS_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .users-container {
-            background: rgba(24, 24, 27, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            gap: 14px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         .users-title {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             color: #f97316;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            padding-bottom: 8px;
-            margin: 0 0 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+            margin: 0 0 10px 0;
             text-align: center;
             letter-spacing: 0.5px;
         }
@@ -546,37 +547,37 @@ USERS_TEMPLATE = '''
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(39, 39, 42, 0.5);
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(39, 39, 42, 0.6);
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: transform 0.2s;
         }
         .user-card:hover {
-            transform: translateX(2px);
-            background: rgba(39, 39, 42, 0.8);
+            transform: translateX(3px);
+            background: rgba(39, 39, 42, 0.9);
         }
         .user-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
         .user-avatar {
-            width: 38px;
-            height: 38px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: 2px solid #f97316;
             object-fit: cover;
             background: #111;
         }
         .user-name {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             color: #f8fafc;
-            margin: 0 0 2px 0;
+            margin: 0 0 4px 0;
         }
         .user-status {
-            font-size: 11px;
+            font-size: 13px;
             color: #4ade80;
             font-weight: 600;
             margin: 0;
@@ -602,7 +603,7 @@ USERS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #71717a; font-size: 12px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            <p style="text-align: center; color: #a1a1aa; font-size: 14px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
 </body>
@@ -620,15 +621,15 @@ SEKIL_TEMPLATE = '''
         .shorts-container {
             background: #000;
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
         .short-card {
             width: 100%;
@@ -648,11 +649,11 @@ SEKIL_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 12px;
-            right: 16px;
+            top: 16px;
+            right: 20px;
             z-index: 20;
-            width: 110px;
-            height: 32px;
+            width: 130px;
+            height: 38px;
         }
         .btn-open-upload {
             background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -660,11 +661,11 @@ SEKIL_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -675,88 +676,88 @@ SEKIL_TEMPLATE = '''
         .upload-modal {
             display: none;
             position: absolute;
-            top: 52px;
+            top: 60px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(24, 24, 27, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(249, 115, 22, 0.4);
-            padding: 16px;
-            border-radius: 14px;
+            background: rgba(24, 24, 27, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            padding: 20px;
+            border-radius: 16px;
             z-index: 30;
-            width: 80%;
-            max-width: 280px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.7);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 16px;
-            bottom: 130px; 
-            width: 50px;
+            right: 20px;
+            bottom: 140px; 
+            width: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 18px;
             z-index: 10;
         }
         .action-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(24, 24, 27, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 10px;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 12px;
             border-radius: 50%;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
-            width: 44px;  
-            height: 44px; 
+            width: 52px;  
+            height: 52px; 
             justify-content: center;
             transition: all 0.2s;
         }
         .action-item:hover {
-            background: rgba(249, 115, 22, 0.8);
+            background: rgba(249, 115, 22, 0.9);
             border-color: #f97316;
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
         .action-item span {
-            font-size: 18px; 
+            font-size: 22px; 
         }
         .action-count {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
-            margin-top: 4px;
+            margin-top: 6px;
             color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
         }
 
         .shorts-info {
             position: absolute;
-            left: 16px;
-            bottom: 30px; 
+            left: 20px;
+            bottom: 35px; 
             z-index: 10;
             color: #fff;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 6px rgba(0,0,0,0.9);
         }
         .shorts-username {
-            font-size: 14px;
+            font-size: 17px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         .delete-short-btn {
             background: #ef4444;
             border: none;
             color: white;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 6px;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            margin-top: 8px;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
         }
 
         .comments-drawer {
@@ -764,19 +765,19 @@ SEKIL_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 50%;
-            background: rgba(24, 24, 27, 0.95);
-            backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(249, 115, 22, 0.3);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            height: 55%;
+            background: rgba(24, 24, 27, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(249, 115, 22, 0.4);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
             transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 12px;
+            padding: 16px;
             box-sizing: border-box;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 -15px 35px rgba(0,0,0,0.6);
         }
         .comments-drawer.active {
             bottom: 0;
@@ -785,58 +786,58 @@ SEKIL_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 16px;
+            font-size: 20px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 8px 0;
+            margin: 12px 0;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            font-size: 11px;
+            gap: 10px;
+            font-size: 13px;
         }
         .drawer-comment-item {
-            background: rgba(39, 39, 42, 0.6);
-            padding: 6px 10px;
-            border-radius: 8px;
+            background: rgba(39, 39, 42, 0.7);
+            padding: 10px 14px;
+            border-radius: 10px;
             word-break: break-all;
             color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .drawer-form {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
         .drawer-input {
             flex: 1;
-            padding: 8px 12px;
-            background: rgba(9, 9, 11, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
+            padding: 12px 16px;
+            background: rgba(9, 9, 11, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             color: #fff;
-            font-size: 11px;
+            font-size: 13px;
         }
         .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
         }
     </style>
@@ -850,11 +851,11 @@ SEKIL_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:8px;">
-                <label style="font-size: 11px; color: #a1a1aa; font-weight: 700;">Şəkil Seç:</label>
-                <input type="file" name="sekil_file" accept="image/*" required style="font-size:10px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:8px; border-radius:6px; font-weight:700; cursor:pointer; font-size:11px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:6px; border-radius:6px; cursor:pointer; font-size:10px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:12px;">
+                <label style="font-size: 13px; color: #d4d4d8; font-weight: 700;">Şəkil Seç:</label>
+                <input type="file" name="sekil_file" accept="image/*" required style="font-size:12px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:8px; border-radius:8px; cursor:pointer; font-size:12px;">Bağla</button>
             </form>
         </div>
 
@@ -911,7 +912,7 @@ SEKIL_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#71717a; font-size:12px; text-align:center; padding:15px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:14px; text-align:center; padding:20px;">
                 Hələ ki şəkil yoxdur. Yuxarıdakı düymədən ilk şəkli sən yüklə!
             </div>
         {% endif %}
@@ -1014,15 +1015,15 @@ VIDYO_TEMPLATE = '''
         .shorts-container {
             background: #000;
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
         .short-card {
             width: 100%;
@@ -1042,11 +1043,11 @@ VIDYO_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 12px;
-            right: 16px;
+            top: 16px;
+            right: 20px;
             z-index: 20;
-            width: 110px;
-            height: 32px;
+            width: 130px;
+            height: 38px;
         }
         .btn-open-upload {
             background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -1054,11 +1055,11 @@ VIDYO_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1069,88 +1070,88 @@ VIDYO_TEMPLATE = '''
         .upload-modal {
             display: none;
             position: absolute;
-            top: 52px;
+            top: 60px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(24, 24, 27, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(249, 115, 22, 0.4);
-            padding: 16px;
-            border-radius: 14px;
+            background: rgba(24, 24, 27, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            padding: 20px;
+            border-radius: 16px;
             z-index: 30;
-            width: 80%;
-            max-width: 280px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.7);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 16px;
-            bottom: 130px; 
-            width: 50px;
+            right: 20px;
+            bottom: 140px; 
+            width: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 18px;
             z-index: 10;
         }
         .action-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(24, 24, 27, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 10px;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 12px;
             border-radius: 50%;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
-            width: 44px;  
-            height: 44px; 
+            width: 52px;  
+            height: 52px; 
             justify-content: center;
             transition: all 0.2s;
         }
         .action-item:hover {
-            background: rgba(249, 115, 22, 0.8);
+            background: rgba(249, 115, 22, 0.9);
             border-color: #f97316;
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
         .action-item span {
-            font-size: 18px; 
+            font-size: 22px; 
         }
         .action-count {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
-            margin-top: 4px;
+            margin-top: 6px;
             color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
         }
 
         .shorts-info {
             position: absolute;
-            left: 16px;
-            bottom: 30px; 
+            left: 20px;
+            bottom: 35px; 
             z-index: 10;
             color: #fff;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 6px rgba(0,0,0,0.9);
         }
         .shorts-username {
-            font-size: 14px;
+            font-size: 17px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         .delete-short-btn {
             background: #ef4444;
             border: none;
             color: white;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 6px;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            margin-top: 8px;
+            box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
         }
 
         .comments-drawer {
@@ -1158,19 +1159,19 @@ VIDYO_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 50%;
-            background: rgba(24, 24, 27, 0.95);
-            backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(249, 115, 22, 0.3);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            height: 55%;
+            background: rgba(24, 24, 27, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(249, 115, 22, 0.4);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
             transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 12px;
+            padding: 16px;
             box-sizing: border-box;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 -15px 35px rgba(0,0,0,0.6);
         }
         .comments-drawer.active {
             bottom: 0;
@@ -1179,58 +1180,58 @@ VIDYO_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 16px;
+            font-size: 20px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 8px 0;
+            margin: 12px 0;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            font-size: 11px;
+            gap: 10px;
+            font-size: 13px;
         }
         .drawer-comment-item {
-            background: rgba(39, 39, 42, 0.6);
-            padding: 6px 10px;
-            border-radius: 8px;
+            background: rgba(39, 39, 42, 0.7);
+            padding: 10px 14px;
+            border-radius: 10px;
             word-break: break-all;
             color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .drawer-form {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
         .drawer-input {
             flex: 1;
-            padding: 8px 12px;
-            background: rgba(9, 9, 11, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
+            padding: 12px 16px;
+            background: rgba(9, 9, 11, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             color: #fff;
-            font-size: 11px;
+            font-size: 13px;
         }
         .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
         }
     </style>
@@ -1244,11 +1245,11 @@ VIDYO_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:8px;">
-                <label style="font-size: 11px; color: #a1a1aa; font-weight: 700;">Shorts Videosu Seç:</label>
-                <input type="file" name="video_file" accept="video/*" required style="font-size:10px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:8px; border-radius:6px; font-weight:700; cursor:pointer; font-size:11px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:6px; border-radius:6px; cursor:pointer; font-size:10px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:12px;">
+                <label style="font-size: 13px; color: #d4d4d8; font-weight: 700;">Shorts Videosu Seç:</label>
+                <input type="file" name="video_file" accept="video/*" required style="font-size:12px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:8px; border-radius:8px; cursor:pointer; font-size:12px;">Bağla</button>
             </form>
         </div>
 
@@ -1305,7 +1306,7 @@ VIDYO_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#71717a; font-size:12px; text-align:center; padding:15px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:14px; text-align:center; padding:20px;">
                 Hələ ki Shorts videosu yoxdur. Yuxarıdakı düymədən ilk videonu sən yüklə!
             </div>
         {% endif %}
@@ -1436,48 +1437,48 @@ PROFIL_TEMPLATE = '''
             justify-content: center;
             align-items: center;
             overflow-y: auto;
-            padding: 12px;
+            padding: 16px;
             box-sizing: border-box;
         }
         .profile-container {
-            background: rgba(24, 24, 27, 0.75);
+            background: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
             box-sizing: border-box;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .profile-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             color: #f8fafc;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 14px;
-            background: rgba(39, 39, 42, 0.5);
-            padding: 12px 16px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 18px;
+            background: rgba(39, 39, 42, 0.6);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .avatar-wrapper {
             position: relative;
-            width: 52px;
-            height: 52px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             border: 2px solid #ef4444;
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
             overflow: visible;
             background: #111;
             flex-shrink: 0;
@@ -1492,64 +1493,64 @@ PROFIL_TEMPLATE = '''
             position: absolute;
             bottom: -4px;
             right: -4px;
-            font-size: 10px;
+            font-size: 12px;
             background: #18181b;
             border-radius: 50%;
-            padding: 2px;
+            padding: 3px;
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 2px 0;
-            font-size: 15px;
+            margin: 0 0 4px 0;
+            font-size: 18px;
             color: #f8fafc;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             font-weight: 700;
         }
         .profile-info .status {
             color: #4ade80;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 600;
             margin: 0;
         }
         .gifts-box {
-            background: rgba(39, 39, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 10px;
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
-            min-height: 36px;
+            min-height: 44px;
             align-items: center;
         }
         .gift-item {
-            font-size: 16px;
-            background: rgba(24, 24, 27, 0.8);
-            padding: 4px 8px;
-            border-radius: 8px;
-            border: 1px solid rgba(249, 115, 22, 0.3);
+            font-size: 20px;
+            background: rgba(24, 24, 27, 0.9);
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(249, 115, 22, 0.4);
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 10px 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            background: rgba(9, 9, 11, 0.6);
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(9, 9, 11, 0.7);
             color: #f8fafc;
-            font-size: 12px;
+            font-size: 14px;
             box-sizing: border-box;
             text-align: center;
         }
-        input[type="text"]:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
-        input[type="text"]::placeholder { color: #71717a; }
+        input[type="text"]:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); }
+        input[type="text"]::placeholder { color: #a1a1aa; }
         input[type="file"] {
             display: none;
         }
@@ -1557,25 +1558,25 @@ PROFIL_TEMPLATE = '''
             background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             text-align: center;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
             transition: transform 0.2s;
         }
         .btn-blue:hover { transform: translateY(-1px); }
         .btn-gray {
-            background: rgba(39, 39, 42, 0.8);
+            background: rgba(39, 39, 42, 0.9);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -1586,19 +1587,19 @@ PROFIL_TEMPLATE = '''
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             text-align: center;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
             transition: transform 0.2s;
         }
         .btn-red:hover { transform: translateY(-1px); }
         .msg-alert {
-            font-size: 11px;
+            font-size: 13px;
             text-align: center;
             margin: 0;
             font-weight: 600;
@@ -1628,14 +1629,14 @@ PROFIL_TEMPLATE = '''
             </div>
 
             <div>
-                <p style="font-size: 11px; margin: 0 0 4px 0; color: #a1a1aa; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
+                <p style="font-size: 13px; margin: 0 0 6px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
                 <div class="gifts-box">
                     {% if gifts %}
                         {% for g in gifts %}
                             <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                         {% endfor %}
                     {% else %}
-                        <span style="font-size: 11px; color: #71717a;">Hələ ki hədiyyə yoxdur.</span>
+                        <span style="font-size: 13px; color: #a1a1aa;">Hələ ki hədiyyə yoxdur.</span>
                     {% endif %}
                 </div>
             </div>
@@ -1680,60 +1681,60 @@ MAGAZA_TEMPLATE = '''
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
-            padding: 12px;
+            padding: 16px;
             box-sizing: border-box;
         }
         .magaza-container {
-            background: rgba(24, 24, 27, 0.75);
+            background: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             width: 100%;
-            max-width: 520px;
+            max-width: 550px;
             box-sizing: border-box;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .magaza-title {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             color: #f8fafc;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
             margin: 0;
             text-align: center;
             letter-spacing: 0.5px;
         }
         .product-section {
-            background: rgba(39, 39, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 12px;
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .product-title {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
             color: #f97316;
             margin: 0;
         }
         .color-list {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 8px 16px;
+            border-radius: 10px;
             border: none;
             font-weight: 700;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 13px;
             transition: transform 0.2s;
         }
         .color-btn:hover { transform: translateY(-1px); }
@@ -1746,41 +1747,41 @@ MAGAZA_TEMPLATE = '''
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            max-height: 110px;
+            gap: 8px;
+            max-height: 140px;
             overflow-y: auto;
-            background: rgba(9, 9, 11, 0.6);
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(9, 9, 11, 0.7);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .emoji-btn {
-            font-size: 18px;
+            font-size: 24px;
             cursor: pointer;
-            padding: 6px;
-            background: rgba(39, 39, 42, 0.6);
-            border-radius: 8px;
+            padding: 8px;
+            background: rgba(39, 39, 42, 0.7);
+            border-radius: 10px;
             border: 1px solid transparent;
             transition: all 0.2s;
         }
         .emoji-btn:hover {
             transform: scale(1.15);
             border-color: #f97316;
-            background: rgba(249, 115, 22, 0.2);
+            background: rgba(249, 115, 22, 0.25);
         }
         select {
             width: 100%;
-            padding: 10px 12px;
-            background: rgba(9, 9, 11, 0.8);
+            padding: 12px 14px;
+            background: rgba(9, 9, 11, 0.9);
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 14px;
             box-sizing: border-box;
         }
         select:focus { border-color: #f97316; outline: none; }
         .msg-alert {
-            font-size: 11px;
+            font-size: 13px;
             text-align: center;
             margin: 0;
             font-weight: 600;
@@ -1832,7 +1833,7 @@ MAGAZA_TEMPLATE = '''
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <div class="emoji-grid" style="margin-top: 6px;">
+                    <div class="emoji-grid" style="margin-top: 8px;">
                         {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                         {% for emo in emojis %}
                             <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
@@ -1865,22 +1866,22 @@ OYUN_PANEL_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .panel-container {
-            background: rgba(24, 24, 27, 0.75);
+            background: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 16px;
+            gap: 20px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .panel-title {
-            font-size: 15px;
+            font-size: 18px;
             font-weight: 700;
             color: #f8fafc;
             margin: 0;
@@ -1888,44 +1889,44 @@ OYUN_PANEL_TEMPLATE = '''
         }
         .games-grid {
             display: flex;
-            gap: 14px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
         }
         .game-card {
-            background: rgba(39, 39, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 20px;
-            width: 150px;
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            width: 180px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             text-decoration: none;
             color: #fff;
             transition: all 0.3s ease;
         }
         .game-card:hover {
             border-color: #f97316;
-            transform: translateY(-4px);
-            background: rgba(194, 65, 12, 0.2);
-            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);
+            transform: translateY(-6px);
+            background: rgba(194, 65, 12, 0.25);
+            box-shadow: 0 12px 30px rgba(249, 115, 22, 0.3);
         }
         .game-icon {
-            font-size: 28px;
+            font-size: 40px;
         }
         .game-name {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 700;
             margin: 0;
             color: #f8fafc;
         }
         .game-desc {
-            font-size: 10px;
-            color: #a1a1aa;
+            font-size: 12px;
+            color: #d4d4d8;
             margin: 0;
-            line-height: 1.3;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -1959,82 +1960,82 @@ SUAL_CAVAB_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .game-container {
-            background: rgba(24, 24, 27, 0.75);
+            background: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 16px;
             text-align: center;
-            max-width: 440px;
+            max-width: 480px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .timer-box {
-            font-size: 12px;
-            font-weight: 700;
-            color: #f97316;
-            background: rgba(9, 9, 11, 0.6);
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .question-box {
             font-size: 14px;
             font-weight: 700;
+            color: #f97316;
+            background: rgba(9, 9, 11, 0.7);
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .question-box {
+            font-size: 16px;
+            font-weight: 700;
             color: #f8fafc;
-            background: rgba(39, 39, 42, 0.5);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(39, 39, 42, 0.6);
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             width: 100%;
             box-sizing: border-box;
-            line-height: 1.4;
+            line-height: 1.5;
         }
         .answer-input {
             width: 100%;
-            padding: 12px;
-            background: rgba(9, 9, 11, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+            padding: 14px;
+            background: rgba(9, 9, 11, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             color: #fff;
-            font-size: 12px;
+            font-size: 14px;
             text-align: center;
             box-sizing: border-box;
         }
-        .answer-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
+        .answer-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); }
         .submit-btn {
             background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
             transition: transform 0.2s;
         }
         .submit-btn:hover { transform: translateY(-1px); }
         .info-msg {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
-            min-height: 18px;
+            min-height: 20px;
         }
     </style>
 </head>
 <body>
     {{ header|safe }}
     <div class="game-container">
-        <h3 style="font-size: 13px; margin: 0; color: #f97316; font-weight: 700;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
+        <h3 style="font-size: 15px; margin: 0; color: #f97316; font-weight: 700;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
         <div class="timer-box">⏱️ Qalan vaxt: <span id="timer">60</span> san</div>
         
         <div class="question-box" id="questionText">Sual yüklənir...</div>
@@ -2043,7 +2044,7 @@ SUAL_CAVAB_TEMPLATE = '''
         <button class="submit-btn" onclick="checkAnswer()">Cavabla</button>
         
         <div class="info-msg" id="infoMsg"></div>
-        <a href="/oyun" style="color: #a1a1aa; font-size: 11px; text-decoration: none; margin-top: 6px; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
+        <a href="/oyun" style="color: #d4d4d8; font-size: 13px; text-decoration: none; margin-top: 8px; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
     </div>
 
     <script>
@@ -2122,38 +2123,38 @@ BILDIRIS_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .bildiris-container {
-            background: rgba(24, 24, 27, 0.75);
+            background: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .bildiris-title {
-            font-size: 15px;
+            font-size: 18px;
             font-weight: 700;
             color: #f8fafc;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 10px;
-            margin: 0 0 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 14px;
+            margin: 0 0 24px 0;
             width: 100%;
             letter-spacing: 0.5px;
         }
         .warning-box {
-            background: rgba(39, 39, 42, 0.5);
-            border: 2px dashed rgba(249, 115, 22, 0.5);
-            border-radius: 16px;
-            padding: 24px;
+            background: rgba(39, 39, 42, 0.6);
+            border: 2px dashed rgba(249, 115, 22, 0.6);
+            border-radius: 20px;
+            padding: 30px;
             color: #f97316;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
     </style>
 </head>
