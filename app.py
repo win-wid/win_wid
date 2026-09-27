@@ -7,11 +7,11 @@ import random
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
-# Bazanın həmişə eyni yerdə və təhlükəsiz qalması üçün tam yol təyini
+# Bazanın həmişə eyni yerdə və təhlükəsiz qalması üçün mütləq yol təyini
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'win_wid.db')
 
-# Bazanın yaradılması və cədvəllərin qurulması
+# Bazanın yaradılması və cədvəllərin qurulması (Məlumatlar heç vaxt silinmir, mövcud cədvəllərə toxunulmur)
 def init_db():
     if not os.path.exists(BASE_DIR):
         os.makedirs(BASE_DIR)
@@ -2189,6 +2189,7 @@ def index():
                 if cursor.fetchone():
                     error = "Bu nikname artıq istifadədədir!"
                 else:
+                    # Hər yeni hesab 0 balla başlayır
                     cursor.execute("INSERT INTO users (nickname, password, profile_pic, points) VALUES (?, ?, ?, ?)", (nickname, password, '', 0))
                     conn.commit()
                     session['user'] = nickname
@@ -2758,6 +2759,10 @@ def sual_getir():
         return jsonify({"error": "Unauthorized"}), 401
     q = random.choice(QUESTIONS_DB)
     return jsonify({"id": q["id"], "question": q["q"]})
+
+@app.route('/oyun/sual_yoxla', methods=['POST'])
+def sign_sual_yoxla(): # internal name safeguard
+    pass
 
 @app.route('/oyun/sual_yoxla', methods=['POST'])
 def sual_yoxla():
