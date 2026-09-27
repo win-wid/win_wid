@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 import sqlite3
 import base64
@@ -127,10 +126,11 @@ INDEX_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <title>WİN_WİD - Giriş</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
-            font-family: Arial, sans-serif; 
-            background-color: #0f172a; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%); 
             color: #f8fafc; 
             display: flex; 
             justify-content: center; 
@@ -139,51 +139,69 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 360px; 
-            padding: 24px 20px; 
-            background: #1e293b; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+            width: 380px; 
+            padding: 32px 24px; 
+            background: rgba(24, 24, 27, 0.75); 
+            backdrop-filter: blur(16px);
+            border-radius: 20px; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
             text-align: center; 
-            border: 2px solid #f97316; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
         }
         h1 { 
-            font-size: 16px; 
-            margin-bottom: 18px; 
-            color: #f8fafc; 
-            letter-spacing: 0.3px;
-            font-weight: bold;
+            font-size: 18px; 
+            margin-bottom: 24px; 
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+            font-weight: 700;
         }
         input { 
             width: 100%; 
-            padding: 10px 12px; 
-            margin: 8px 0; 
-            border: 1px solid #475569; 
-            border-radius: 6px; 
-            background: #0f172a; 
+            padding: 12px 16px; 
+            margin: 10px 0; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 12px; 
+            background: rgba(9, 9, 11, 0.6); 
             color: #f8fafc; 
             box-sizing: border-box; 
-            font-size: 13px;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
         input:focus {
             border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
             outline: none;
         }
-        input::placeholder { color: #94a3b8; }
+        input::placeholder { color: #71717a; }
         button { 
             width: 100%; 
-            padding: 10px; 
+            padding: 12px; 
             margin: 8px 0; 
-            background: #2563eb; 
+            background: linear-gradient(135deg, #f97316, #ea580c); 
             color: white; 
             border: none; 
-            border-radius: 6px; 
+            border-radius: 12px; 
             cursor: pointer; 
-            font-weight: bold; 
-            font-size: 13px;
+            font-weight: 600; 
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
-        button:hover { background: #1d4ed8; }
-        .error { color: #ef4444; font-size: 12px; margin-bottom: 8px; font-weight: bold; }
+        button:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+        }
+        button[name="action"][value="register"] {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+        button[name="action"][value="register"]:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .error { color: #f87171; font-size: 13px; margin-bottom: 12px; font-weight: 500; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); }
     </style>
 </head>
 <body>
@@ -242,12 +260,13 @@ def get_header_template(points=0):
 '''
 
 COMMON_STYLE = '''
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
-            font-family: Arial, sans-serif; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; 
-            padding: 6px; 
-            background: #0f172a; 
+            padding: 12px; 
+            background: #09090b; 
             color: #f8fafc; 
             display: flex; 
             flex-direction: column; 
@@ -255,17 +274,18 @@ COMMON_STYLE = '''
             box-sizing: border-box; 
         }
         .nav-bar { 
-            background: #1e293b; 
-            border: 2px solid #f97316; 
-            border-radius: 8px; 
-            padding: 8px 6px; 
+            background: rgba(24, 24, 27, 0.8); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 14px; 
+            padding: 10px 12px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 8px;
-            gap: 4px;
+            margin-bottom: 12px;
+            gap: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             flex-shrink: 0;
             box-sizing: border-box;
             width: 100%;
@@ -275,21 +295,25 @@ COMMON_STYLE = '''
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: #cbd5e1;
-            padding: 4px 6px;
-            border-radius: 6px;
+            color: #a1a1aa;
+            padding: 6px 8px;
+            border-radius: 10px;
             font-size: 11px;
-            font-weight: bold;
-            transition: 0.2s;
+            font-weight: 600;
+            transition: all 0.2s ease;
             white-space: nowrap;
         }
         .nav-item .icon {
             font-size: 18px;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
+            transition: transform 0.2s;
         }
         .nav-item:hover {
-            color: #ffffff;
-            background: rgba(249, 115, 22, 0.3);
+            color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+        }
+        .nav-item:hover .icon {
+            transform: scale(1.1);
         }
     </style>
 '''
@@ -303,70 +327,78 @@ CHAT_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .chat-container {
-            background: #1e293b;
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
         .chat-header-title {
-            background: #0f172a;
-            padding: 8px;
-            font-size: 12px;
-            font-weight: bold;
+            background: rgba(9, 9, 11, 0.5);
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 700;
             text-align: center;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             color: #f97316;
+            letter-spacing: 0.5px;
         }
         .messages-box {
             flex: 1;
-            padding: 10px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
         .message-bubble {
-            background: #0f172a;
-            border: 1px solid #334155;
-            padding: 6px 10px;
-            border-radius: 6px;
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 10px 14px;
+            border-radius: 12px;
             max-width: 75%;
             word-break: break-all;
             position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .message-bubble.my-message {
-            background: #1e3a8a;
+            background: linear-gradient(135deg, #c2410c, #9a3412);
             align-self: flex-end;
-            border-color: #2563eb;
+            border-color: rgba(249, 115, 22, 0.3);
         }
         .msg-user {
-            font-size: 10px;
-            font-weight: bold;
-            color: #cbd5e1;
-            margin-bottom: 2px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fed7aa;
+            margin-bottom: 4px;
+        }
+        .message-bubble.my-message .msg-user {
+            color: #ffedd5;
         }
         .msg-text {
-            font-size: 12px;
+            font-size: 13px;
             margin: 0;
             color: #f8fafc;
+            line-height: 1.4;
         }
         .msg-actions {
             display: flex;
-            gap: 6px;
-            margin-top: 4px;
-            font-size: 9px;
+            gap: 10px;
+            margin-top: 6px;
+            font-size: 10px;
         }
         .msg-actions button {
             background: transparent;
             border: none;
-            color: #94a3b8;
+            color: rgba(255, 255, 255, 0.6);
             cursor: pointer;
             padding: 0;
-            font-weight: bold;
+            font-weight: 600;
+            transition: color 0.2s;
         }
         .msg-actions button:hover {
             color: #fff;
@@ -374,32 +406,33 @@ CHAT_TEMPLATE = '''
         }
         .chat-form {
             display: flex;
-            padding: 8px;
-            background: #0f172a;
-            border-top: 1px solid #334155;
-            gap: 6px;
+            padding: 12px;
+            background: rgba(9, 9, 11, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 8px;
         }
         .chat-input {
             flex: 1;
-            padding: 8px;
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 6px;
+            padding: 10px 14px;
+            background: rgba(24, 24, 27, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
             color: #fff;
-            font-size: 12px;
+            font-size: 13px;
         }
-        .chat-input:focus { border-color: #f97316; outline: none; }
+        .chat-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
         .chat-submit {
-            background: #2563eb;
+            background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
+            transition: transform 0.2s;
         }
-        .chat-submit:hover { background: #1d4ed8; }
+        .chat-submit:hover { transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -418,13 +451,13 @@ CHAT_TEMPLATE = '''
                         {% if m[1] == current_user %}
                             <div class="msg-actions">
                                 <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
-                                <button onclick="deleteMessage('{{ m[0] }}')" style="color: #ef4444;">Sil</button>
+                                <button onclick="deleteMessage('{{ m[0] }}')" style="color: #fca5a5;">Sil</button>
                             </div>
                         {% endif %}
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="text-align: center; color: #94a3b8; font-size: 11px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+                <p style="text-align: center; color: #71717a; font-size: 12px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
             {% endif %}
         </div>
 
@@ -487,57 +520,65 @@ USERS_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .users-container {
-            background: #1e293b;
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
-            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
         .users-title {
-            font-size: 12px;
-            font-weight: bold;
-            color: #f8fafc;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
-            margin: 0 0 5px 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: #f97316;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 8px;
+            margin: 0 0 8px 0;
             text-align: center;
+            letter-spacing: 0.5px;
         }
         .user-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #0f172a;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid #334155;
+            background: rgba(39, 39, 42, 0.5);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s;
+        }
+        .user-card:hover {
+            transform: translateX(2px);
+            background: rgba(39, 39, 42, 0.8);
         }
         .user-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
         .user-avatar {
-            width: 30px;
-            height: 30px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            border: 1px solid #f97316;
+            border: 2px solid #f97316;
             object-fit: cover;
             background: #111;
         }
         .user-name {
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 13px;
+            font-weight: 700;
             color: #f8fafc;
-            margin: 0 0 1px 0;
+            margin: 0 0 2px 0;
         }
         .user-status {
-            font-size: 10px;
-            color: #22c55e;
-            font-weight: bold;
+            font-size: 11px;
+            color: #4ade80;
+            font-weight: 600;
             margin: 0;
         }
     </style>
@@ -561,7 +602,7 @@ USERS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #94a3b8; font-size: 11px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            <p style="text-align: center; color: #71717a; font-size: 12px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
 </body>
@@ -579,14 +620,15 @@ SEKIL_TEMPLATE = '''
         .shorts-container {
             background: #000;
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .short-card {
             width: 100%;
@@ -597,7 +639,7 @@ SEKIL_TEMPLATE = '''
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #111;
+            background: #09090b;
         }
         .short-card img {
             width: 100%;
@@ -606,112 +648,115 @@ SEKIL_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 8px;
-            right: 12px;
+            top: 12px;
+            right: 16px;
             z-index: 20;
-            width: 100px;
-            height: 28px;
+            width: 110px;
+            height: 32px;
         }
         .btn-open-upload {
-            background: #22c55e;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 11px;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.2s;
         }
-        .btn-open-upload:hover { background: #16a34a; }
+        .btn-open-upload:hover { transform: translateY(-1px); }
 
         .upload-modal {
             display: none;
             position: absolute;
-            top: 42px;
+            top: 52px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1e293b;
-            border: 1px solid #f97316;
-            padding: 12px;
-            border-radius: 8px;
+            background: rgba(24, 24, 27, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            padding: 16px;
+            border-radius: 14px;
             z-index: 30;
-            width: 75%;
-            max-width: 260px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            width: 80%;
+            max-width: 280px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 12px;
-            bottom: 120px; 
+            right: 16px;
+            bottom: 130px; 
             width: 50px;
-            height: 220px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
+            gap: 14px;
             z-index: 10;
-            border: none;
-            background: transparent;
         }
         .action-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px;
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 10px;
             border-radius: 50%;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
             width: 44px;  
             height: 44px; 
             justify-content: center;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         .action-item:hover {
-            background: rgba(37, 99, 235, 0.6);
+            background: rgba(249, 115, 22, 0.8);
+            border-color: #f97316;
+            transform: scale(1.05);
         }
         .action-item span {
-            font-size: 20px; 
+            font-size: 18px; 
         }
         .action-count {
-            font-size: 10px;
-            font-weight: bold;
-            margin-top: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
             color: #fff;
-            text-shadow: 0 1px 2px #000;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         .shorts-info {
             position: absolute;
-            left: 12px;
-            bottom: 24px; 
+            left: 16px;
+            bottom: 30px; 
             z-index: 10;
             color: #fff;
-            text-shadow: 0 1px 3px #000;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
         }
         .shorts-username {
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
             color: #fff;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .delete-short-btn {
             background: #ef4444;
             border: none;
             color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 4px;
+            margin-top: 6px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
         }
 
         .comments-drawer {
@@ -719,17 +764,19 @@ SEKIL_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 45%;
-            background: #1e293b;
-            border-top: 1px solid #f97316;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            transition: 0.3s ease-in-out;
+            height: 50%;
+            background: rgba(24, 24, 27, 0.95);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(249, 115, 22, 0.3);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 8px;
+            padding: 12px;
             box-sizing: border-box;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
         }
         .comments-drawer.active {
             bottom: 0;
@@ -738,57 +785,58 @@ SEKIL_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 11px;
-            font-weight: bold;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 6px 0;
+            margin: 8px 0;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            font-size: 10px;
+            gap: 6px;
+            font-size: 11px;
         }
         .drawer-comment-item {
-            background: #0f172a;
-            padding: 4px 6px;
-            border-radius: 5px;
+            background: rgba(39, 39, 42, 0.6);
+            padding: 6px 10px;
+            border-radius: 8px;
             word-break: break-all;
             color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .drawer-form {
             display: flex;
-            gap: 5px;
+            gap: 8px;
         }
         .drawer-input {
             flex: 1;
-            padding: 5px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 5px;
+            padding: 8px 12px;
+            background: rgba(9, 9, 11, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
             color: #fff;
-            font-size: 10px;
+            font-size: 11px;
         }
         .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
-            background: #2563eb;
+            background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 10px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 11px;
             cursor: pointer;
         }
     </style>
@@ -802,11 +850,11 @@ SEKIL_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:6px;">
-                <label style="font-size: 10px; color: #94a3b8; font-weight: bold;">Şəkil Seç:</label>
-                <input type="file" name="sekil_file" accept="image/*" required style="font-size:9px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:5px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:10px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:3px; border-radius:4px; cursor:pointer; font-size:9px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:8px;">
+                <label style="font-size: 11px; color: #a1a1aa; font-weight: 700;">Şəkil Seç:</label>
+                <input type="file" name="sekil_file" accept="image/*" required style="font-size:10px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:8px; border-radius:6px; font-weight:700; cursor:pointer; font-size:11px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:6px; border-radius:6px; cursor:pointer; font-size:10px;">Bağla</button>
             </form>
         </div>
 
@@ -863,7 +911,7 @@ SEKIL_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#94a3b8; font-size:11px; text-align:center; padding:15px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#71717a; font-size:12px; text-align:center; padding:15px;">
                 Hələ ki şəkil yoxdur. Yuxarıdakı düymədən ilk şəkli sən yüklə!
             </div>
         {% endif %}
@@ -966,14 +1014,15 @@ VIDYO_TEMPLATE = '''
         .shorts-container {
             background: #000;
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .short-card {
             width: 100%;
@@ -984,7 +1033,7 @@ VIDYO_TEMPLATE = '''
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #111;
+            background: #09090b;
         }
         .short-card video {
             width: 100%;
@@ -993,112 +1042,115 @@ VIDYO_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 8px;
-            right: 12px;
+            top: 12px;
+            right: 16px;
             z-index: 20;
-            width: 100px;
-            height: 28px;
+            width: 110px;
+            height: 32px;
         }
         .btn-open-upload {
-            background: #22c55e;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 11px;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.2s;
         }
-        .btn-open-upload:hover { background: #16a34a; }
+        .btn-open-upload:hover { transform: translateY(-1px); }
 
         .upload-modal {
             display: none;
             position: absolute;
-            top: 42px;
+            top: 52px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1e293b;
-            border: 1px solid #f97316;
-            padding: 12px;
-            border-radius: 8px;
+            background: rgba(24, 24, 27, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            padding: 16px;
+            border-radius: 14px;
             z-index: 30;
-            width: 75%;
-            max-width: 260px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            width: 80%;
+            max-width: 280px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 12px;
-            bottom: 120px; 
+            right: 16px;
+            bottom: 130px; 
             width: 50px;
-            height: 220px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
+            gap: 14px;
             z-index: 10;
-            border: none;
-            background: transparent;
         }
         .action-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px;
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 10px;
             border-radius: 50%;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
             width: 44px;  
             height: 44px; 
             justify-content: center;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         .action-item:hover {
-            background: rgba(37, 99, 235, 0.6);
+            background: rgba(249, 115, 22, 0.8);
+            border-color: #f97316;
+            transform: scale(1.05);
         }
         .action-item span {
-            font-size: 20px; 
+            font-size: 18px; 
         }
         .action-count {
-            font-size: 10px;
-            font-weight: bold;
-            margin-top: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
             color: #fff;
-            text-shadow: 0 1px 2px #000;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         .shorts-info {
             position: absolute;
-            left: 12px;
-            bottom: 24px; 
+            left: 16px;
+            bottom: 30px; 
             z-index: 10;
             color: #fff;
-            text-shadow: 0 1px 3px #000;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
         }
         .shorts-username {
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
             color: #fff;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .delete-short-btn {
             background: #ef4444;
             border: none;
             color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 4px;
+            margin-top: 6px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
         }
 
         .comments-drawer {
@@ -1106,17 +1158,19 @@ VIDYO_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 45%;
-            background: #1e293b;
-            border-top: 1px solid #f97316;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            transition: 0.3s ease-in-out;
+            height: 50%;
+            background: rgba(24, 24, 27, 0.95);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(249, 115, 22, 0.3);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 8px;
+            padding: 12px;
             box-sizing: border-box;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
         }
         .comments-drawer.active {
             bottom: 0;
@@ -1125,57 +1179,58 @@ VIDYO_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 11px;
-            font-weight: bold;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 6px 0;
+            margin: 8px 0;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            font-size: 10px;
+            gap: 6px;
+            font-size: 11px;
         }
         .drawer-comment-item {
-            background: #0f172a;
-            padding: 4px 6px;
-            border-radius: 5px;
+            background: rgba(39, 39, 42, 0.6);
+            padding: 6px 10px;
+            border-radius: 8px;
             word-break: break-all;
             color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .drawer-form {
             display: flex;
-            gap: 5px;
+            gap: 8px;
         }
         .drawer-input {
             flex: 1;
-            padding: 5px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 5px;
+            padding: 8px 12px;
+            background: rgba(9, 9, 11, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
             color: #fff;
-            font-size: 10px;
+            font-size: 11px;
         }
         .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
-            background: #2563eb;
+            background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 10px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 11px;
             cursor: pointer;
         }
     </style>
@@ -1189,11 +1244,11 @@ VIDYO_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:6px;">
-                <label style="font-size: 10px; color: #94a3b8; font-weight: bold;">Shorts Videosu Seç:</label>
-                <input type="file" name="video_file" accept="video/*" required style="font-size:9px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:5px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:10px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:3px; border-radius:4px; cursor:pointer; font-size:9px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:8px;">
+                <label style="font-size: 11px; color: #a1a1aa; font-weight: 700;">Shorts Videosu Seç:</label>
+                <input type="file" name="video_file" accept="video/*" required style="font-size:10px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:8px; border-radius:6px; font-weight:700; cursor:pointer; font-size:11px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:6px; border-radius:6px; cursor:pointer; font-size:10px;">Bağla</button>
             </form>
         </div>
 
@@ -1250,7 +1305,7 @@ VIDYO_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#94a3b8; font-size:11px; text-align:center; padding:15px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#71717a; font-size:12px; text-align:center; padding:15px;">
                 Hələ ki Shorts videosu yoxdur. Yuxarıdakı düymədən ilk videonu sən yüklə!
             </div>
         {% endif %}
@@ -1381,47 +1436,48 @@ PROFIL_TEMPLATE = '''
             justify-content: center;
             align-items: center;
             overflow-y: auto;
-            padding: 8px;
+            padding: 12px;
             box-sizing: border-box;
         }
         .profile-container {
-            background: #1e293b;
-            border: 1px solid #f97316;
-            border-radius: 10px;
-            padding: 14px 18px;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .profile-title {
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
             color: #f8fafc;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: #0f172a;
-            padding: 8px 10px;
-            border-radius: 6px;
-            border: 1px solid #334155;
+            gap: 14px;
+            background: rgba(39, 39, 42, 0.5);
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .avatar-wrapper {
             position: relative;
-            width: 44px;
-            height: 44px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            border: 1px solid #ef4444;
-            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
             overflow: visible;
             background: #111;
             flex-shrink: 0;
@@ -1434,111 +1490,118 @@ PROFIL_TEMPLATE = '''
         }
         .crown-icon {
             position: absolute;
-            bottom: -3px;
-            right: -3px;
-            font-size: 9px;
-            background: #0f172a;
+            bottom: -4px;
+            right: -4px;
+            font-size: 10px;
+            background: #18181b;
             border-radius: 50%;
-            padding: 1px;
+            padding: 2px;
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 1px 0;
-            font-size: 13px;
+            margin: 0 0 2px 0;
+            font-size: 15px;
             color: #f8fafc;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
+            font-weight: 700;
         }
         .profile-info .status {
-            color: #22c55e;
-            font-size: 10px;
-            font-weight: bold;
+            color: #4ade80;
+            font-size: 11px;
+            font-weight: 600;
             margin: 0;
         }
         .gifts-box {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 5px;
-            padding: 6px 8px;
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 10px;
             display: flex;
-            gap: 5px;
+            gap: 6px;
             flex-wrap: wrap;
-            min-height: 28px;
+            min-height: 36px;
             align-items: center;
         }
         .gift-item {
-            font-size: 14px;
-            background: #1e293b;
-            padding: 1px 5px;
-            border-radius: 4px;
-            border: 1px solid #f97316;
+            font-size: 16px;
+            background: rgba(24, 24, 27, 0.8);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(249, 115, 22, 0.3);
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 7px 10px;
-            border: 1px solid #334155;
-            border-radius: 5px;
-            background: #0f172a;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            background: rgba(9, 9, 11, 0.6);
             color: #f8fafc;
-            font-size: 11px;
+            font-size: 12px;
             box-sizing: border-box;
             text-align: center;
         }
-        input[type="text"]:focus { border-color: #f97316; outline: none; }
-        input[type="text"]::placeholder { color: #94a3b8; }
+        input[type="text"]:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
+        input[type="text"]::placeholder { color: #71717a; }
         input[type="file"] {
             display: none;
         }
         .btn-blue {
-            background: #0284c7;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
             border: none;
-            padding: 7px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 11px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+            transition: transform 0.2s;
         }
-        .btn-blue:hover { background: #0369a1; }
+        .btn-blue:hover { transform: translateY(-1px); }
         .btn-gray {
-            background: #334155;
+            background: rgba(39, 39, 42, 0.8);
             color: white;
-            border: 1px solid #475569;
-            padding: 7px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
+            transition: background 0.2s;
         }
-        .btn-gray:hover { background: #475569; }
+        .btn-gray:hover { background: rgba(39, 39, 42, 1); }
         .btn-red {
-            background: #ef4444;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
             border: none;
-            padding: 7px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 11px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
             width: 100%;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            transition: transform 0.2s;
         }
-        .btn-red:hover { background: #dc2626; }
+        .btn-red:hover { transform: translateY(-1px); }
         .msg-alert {
-            font-size: 10px;
+            font-size: 11px;
             text-align: center;
             margin: 0;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -1550,7 +1613,7 @@ PROFIL_TEMPLATE = '''
             <p class="profile-title">Mənim Profilim</p>
             
             {% if message %}
-                <p class="msg-alert" style="color: {% if error %}#ef4444{% else %}#22c55e{% endif %};">{{ message }}</p>
+                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#4ade80{% endif %};">{{ message }}</p>
             {% endif %}
 
             <div class="profile-header">
@@ -1565,14 +1628,14 @@ PROFIL_TEMPLATE = '''
             </div>
 
             <div>
-                <p style="font-size: 10px; margin: 0 0 2px 0; color: #94a3b8;">Hədiyyələr / Stikerlər:</p>
+                <p style="font-size: 11px; margin: 0 0 4px 0; color: #a1a1aa; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
                 <div class="gifts-box">
                     {% if gifts %}
                         {% for g in gifts %}
                             <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                         {% endfor %}
                     {% else %}
-                        <span style="font-size: 10px; color: #94a3b8;">Hələ ki hədiyyə yoxdur.</span>
+                        <span style="font-size: 11px; color: #71717a;">Hələ ki hədiyyə yoxdur.</span>
                     {% endif %}
                 </div>
             </div>
@@ -1617,59 +1680,63 @@ MAGAZA_TEMPLATE = '''
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
-            padding: 8px;
+            padding: 12px;
             box-sizing: border-box;
         }
         .magaza-container {
-            background: #1e293b;
-            border: 1px solid #f97316;
-            border-radius: 10px;
-            padding: 10px;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .magaza-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f8fafc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            margin: 0;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .product-section {
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            width: 100%;
-            max-width: 560px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .magaza-title {
-            font-size: 12px;
-            font-weight: bold;
-            color: #f8fafc;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
-            margin: 0;
-            text-align: center;
-        }
-        .product-section {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
         }
         .product-title {
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 700;
             color: #f97316;
             margin: 0;
         }
         .color-list {
             display: flex;
-            gap: 5px;
+            gap: 8px;
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 8px;
             border: none;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 11px;
+            transition: transform 0.2s;
         }
+        .color-btn:hover { transform: translateY(-1px); }
         .btn-yellow { background: #eab308; color: #000; }
         .btn-red { background: #ef4444; color: #fff; }
         .btn-blue { background: #3b82f6; color: #fff; }
@@ -1679,42 +1746,44 @@ MAGAZA_TEMPLATE = '''
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
-            max-height: 90px;
+            gap: 6px;
+            max-height: 110px;
             overflow-y: auto;
-            background: #1e293b;
-            padding: 6px;
-            border-radius: 6px;
-            border: 1px solid #334155;
+            background: rgba(9, 9, 11, 0.6);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .emoji-btn {
-            font-size: 15px;
+            font-size: 18px;
             cursor: pointer;
-            padding: 3px 5px;
-            background: #0f172a;
-            border-radius: 4px;
+            padding: 6px;
+            background: rgba(39, 39, 42, 0.6);
+            border-radius: 8px;
             border: 1px solid transparent;
+            transition: all 0.2s;
         }
         .emoji-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
             border-color: #f97316;
-            background: #2563eb;
+            background: rgba(249, 115, 22, 0.2);
         }
         select {
             width: 100%;
-            padding: 6px 8px;
-            background: #1e293b;
+            padding: 10px 12px;
+            background: rgba(9, 9, 11, 0.8);
             color: #fff;
-            border: 1px solid #334155;
-            border-radius: 5px;
-            font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            font-size: 12px;
             box-sizing: border-box;
         }
         select:focus { border-color: #f97316; outline: none; }
         .msg-alert {
-            font-size: 10px;
+            font-size: 11px;
             text-align: center;
             margin: 0;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -1726,7 +1795,7 @@ MAGAZA_TEMPLATE = '''
             <p class="magaza-title">🛍️ MAQAZİN BÖLMƏSİ (BAL - <span id="userPointsDisplay">{{ points }}</span>)</p>
 
             {% if message %}
-                <p class="msg-alert" style="color: {% if error %}#ef4444{% else %}#22c55e{% endif %};">{{ message }}</p>
+                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#4ade80{% endif %};">{{ message }}</p>
             {% endif %}
 
             <div class="product-section">
@@ -1763,7 +1832,7 @@ MAGAZA_TEMPLATE = '''
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <div class="emoji-grid" style="margin-top: 5px;">
+                    <div class="emoji-grid" style="margin-top: 6px;">
                         {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                         {% for emo in emojis %}
                             <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
@@ -1796,61 +1865,67 @@ OYUN_PANEL_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .panel-container {
-            background: #1e293b;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
-            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 16px;
             text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .panel-title {
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
             color: #f8fafc;
             margin: 0;
+            letter-spacing: 0.5px;
         }
         .games-grid {
             display: flex;
-            gap: 10px;
+            gap: 14px;
             flex-wrap: wrap;
             justify-content: center;
         }
         .game-card {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 14px;
-            width: 140px;
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            width: 150px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             text-decoration: none;
             color: #fff;
-            transition: 0.2s;
+            transition: all 0.3s ease;
         }
         .game-card:hover {
             border-color: #f97316;
-            transform: translateY(-2px);
-            background: #1e3a8a;
+            transform: translateY(-4px);
+            background: rgba(194, 65, 12, 0.2);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);
         }
         .game-icon {
-            font-size: 24px;
+            font-size: 28px;
         }
         .game-name {
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 700;
             margin: 0;
+            color: #f8fafc;
         }
         .game-desc {
-            font-size: 9px;
-            color: #94a3b8;
+            font-size: 10px;
+            color: #a1a1aa;
             margin: 0;
+            line-height: 1.3;
         }
     </style>
 </head>
@@ -1884,77 +1959,82 @@ SUAL_CAVAB_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .game-container {
-            background: #1e293b;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
-            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             text-align: center;
-            max-width: 420px;
+            max-width: 440px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .timer-box {
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 700;
             color: #f97316;
-            background: #0f172a;
-            padding: 5px 12px;
-            border-radius: 15px;
-            border: 1px solid #334155;
+            background: rgba(9, 9, 11, 0.6);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .question-box {
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
             color: #f8fafc;
-            background: #0f172a;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #334155;
+            background: rgba(39, 39, 42, 0.5);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             width: 100%;
             box-sizing: border-box;
+            line-height: 1.4;
         }
         .answer-input {
             width: 100%;
-            padding: 9px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
+            padding: 12px;
+            background: rgba(9, 9, 11, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
             color: #fff;
-            font-size: 11px;
+            font-size: 12px;
             text-align: center;
             box-sizing: border-box;
         }
-        .answer-input:focus { border-color: #f97316; outline: none; }
+        .answer-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); }
         .submit-btn {
-            background: #22c55e;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
             border: none;
-            padding: 9px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 11px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 12px;
             cursor: pointer;
             width: 100%;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            transition: transform 0.2s;
         }
-        .submit-btn:hover { background: #16a34a; }
+        .submit-btn:hover { transform: translateY(-1px); }
         .info-msg {
-            font-size: 11px;
-            font-weight: bold;
-            min-height: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            min-height: 18px;
         }
     </style>
 </head>
 <body>
     {{ header|safe }}
     <div class="game-container">
-        <h3 style="font-size: 12px; margin: 0;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
+        <h3 style="font-size: 13px; margin: 0; color: #f97316; font-weight: 700;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
         <div class="timer-box">⏱️ Qalan vaxt: <span id="timer">60</span> san</div>
         
         <div class="question-box" id="questionText">Sual yüklənir...</div>
@@ -1963,7 +2043,7 @@ SUAL_CAVAB_TEMPLATE = '''
         <button class="submit-btn" onclick="checkAnswer()">Cavabla</button>
         
         <div class="info-msg" id="infoMsg"></div>
-        <a href="/oyun" style="color: #94a3b8; font-size: 10px; text-decoration: none; margin-top: 5px;">⬅️ Oyunlar Panelinə Qayıt</a>
+        <a href="/oyun" style="color: #a1a1aa; font-size: 11px; text-decoration: none; margin-top: 6px; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
     </div>
 
     <script>
@@ -1994,7 +2074,7 @@ SUAL_CAVAB_TEMPLATE = '''
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
                     let msgEl = document.getElementById('infoMsg');
-                    msgEl.style.color = '#ef4444';
+                    msgEl.style.color = '#f87171';
                     msgEl.innerText = '⏱️ Vaxt bitdi! Başqa suala keçilir...';
                     setTimeout(loadNewQuestion, 1500);
                 }
@@ -2015,13 +2095,13 @@ SUAL_CAVAB_TEMPLATE = '''
                 let msgEl = document.getElementById('infoMsg');
                 if(data.correct) {
                     clearInterval(timerInterval);
-                    msgEl.style.color = '#22c55e';
+                    msgEl.style.color = '#4ade80';
                     msgEl.innerText = '🎉 Düzdür! +6 bal qazandınız!';
                     let ptsDisp = document.getElementById('userPointsDisplay');
                     if(ptsDisp) ptsDisp.innerText = data.new_points;
                     setTimeout(loadNewQuestion, 1500);
                 } else {
-                    msgEl.style.color = '#ef4444';
+                    msgEl.style.color = '#f87171';
                     msgEl.innerText = '❌ Səhvdir, yenidən sınayın!';
                 }
             });
@@ -2042,35 +2122,38 @@ BILDIRIS_TEMPLATE = '''
     ''' + COMMON_STYLE + '''
     <style>
         .bildiris-container {
-            background: #1e293b;
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
             flex: 1;
-            border: 1px solid #f97316;
-            border-radius: 8px;
-            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
         .bildiris-title {
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
             color: #f8fafc;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 8px;
-            margin: 0 0 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+            margin: 0 0 20px 0;
             width: 100%;
+            letter-spacing: 0.5px;
         }
         .warning-box {
-            background: #0f172a;
-            border: 2px dashed #f97316;
-            border-radius: 8px;
-            padding: 20px;
+            background: rgba(39, 39, 42, 0.5);
+            border: 2px dashed rgba(249, 115, 22, 0.5);
+            border-radius: 16px;
+            padding: 24px;
             color: #f97316;
             font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -2557,19 +2640,9 @@ def profil():
                     error = True
                 else:
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
-                    cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
-                    cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
-                    cursor.execute("UPDATE photo_likes SET username = ? WHERE username = ?", (new_name, current_user))
-                    cursor.execute("UPDATE photo_comments SET username = ? WHERE username = ?", (new_name, current_user))
-                    cursor.execute("UPDATE photo_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE photo_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
-                    cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
-                    cursor.execute("UPDATE video_comments SET username = ? WHERE username = ?", (new_name, current_user))
-                    cursor.execute("UPDATE video_shares SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE video_shares SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     conn.commit()
                     session['user'] = new_name
                     current_user = new_name
@@ -2581,27 +2654,30 @@ def profil():
                 file_bytes = file.read()
                 encoded = base64.b64encode(file_bytes).decode('utf-8')
                 mime_type = file.content_type or 'image/jpeg'
-                pic_url = f"data:{mime_type};base64,{encoded}"
-                cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
+                pic_data = f"data:{mime_type};base64,{encoded}"
+                cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_data, current_user))
                 conn.commit()
-                message = "Profil şəkli dəyişdirildi!"
+                message = "Profil şəkli yeniləndi!"
                 
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
+            cursor.execute("DELETE FROM photos WHERE uploader = ?", (current_user,))
+            cursor.execute("DELETE FROM videos WHERE uploader = ?", (current_user,))
             conn.commit()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
-            
+
     cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
-    row = cursor.fetchone()
-    pic = row[0] if row else ''
-    points = row[1] if row and row[1] is not None else 0
+    user_data = cursor.fetchone()
+    pic = user_data[0] if user_data else ''
+    points = user_data[1] if user_data and user_data[1] is not None else 0
     
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
-    
     conn.close()
+    
     header = get_header_template(points)
     return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, message=message, error=error, header=header)
 
@@ -2611,11 +2687,11 @@ def magaza():
         return redirect(url_for('index'))
         
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    
     message = None
     error = False
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     
     if request.method == 'POST':
         action = request.form.get('action')
@@ -2627,25 +2703,26 @@ def magaza():
             pts = cursor.fetchone()[0]
             
             if pts < 20:
-                message = "Balınız kifayət etmir (20 bal lazımdır)!"
+                message = "Balınız kifayət etmir! (20 bal lazımdır)"
                 error = True
             else:
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
-                message = f"Hədiyyə @{receiver}-ə uğurla göndərildi!"
+                message = f"Hədiyyə uğurla @{receiver}-ə göndərildi!"
                 
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    points = cursor.fetchone()[0]
+    
     cursor.execute("SELECT nickname FROM users")
     users = [row[0] for row in cursor.fetchall()]
-    
-    points = get_user_points(current_user)
     conn.close()
     
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, users=users, current_user=current_user, points=points, message=message, error=error, header=header)
+    return render_template_string(MAGAZA_TEMPLATE, points=points, users=users, current_user=current_user, message=message, error=error, header=header)
 
 @app.route('/oyun')
-def oyun_panel():
+def oyun():
     if 'user' not in session:
         return redirect(url_for('index'))
     points = get_user_points(session['user'])
@@ -2653,45 +2730,10 @@ def oyun_panel():
     return render_template_string(OYUN_PANEL_TEMPLATE, points=points, header=header)
 
 @app.route('/oyun/wow')
-def wow_oyunu():
+def oyun_wow():
     if 'user' not in session:
         return redirect(url_for('index'))
-    points = get_user_points(session['user'])
-    header = get_header_template(points)
-    return render_template_string(SUB_TEMPLATE, title="WOW Oyunu", header=header)
-
-QUESTIONS_DB = [
-    {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "a": "baki"},
-    {"id": 2, "q": "2 + 2 * 2 nəyə bərabərdir?", "a": "6"},
-    {"id": 3, "q": "Dünyanın ən böyük okeanı hansıdır?", "a": "sakit okean"},
-    {"id": 4, "q": "Azərbaycan Respublikasının müstəqillik ili?", "a": "1991"},
-    {"id": 5, "q": "Kompüterin beyni sayılan əsas hissə necə adlanır?", "a": "prosessor"},
-    {"id": 6, "q": "Su hansı temperaturda qaynayır (°C)?", "a": "100"},
-    {"id": 7, "q": "İlin neçə ayı var?", "a": "12"},
-    {"id": 8, "q": "Günəş sistemində neçə planet var?", "a": "8"},
-    {"id": 9, "q": "Fransanın paytaxtı hansı şəhərdir?", "a": "paris"},
-    {"id": 10, "q": "Dünyanın ən uzun çayı hansıdır?", "a": "nil"},
-    {"id": 11, "q": "İnsan bədənində neçə əsas qrup qan var?", "a": "4"},
-    {"id": 12, "q": "Azərbaycanın Dövlət Bayrağındakı rənglərin sayı neçədir?", "a": "3"},
-    {"id": 13, "q": "Yer kürəsinin təbii peyki necə adlanır?", "a": "ay"},
-    {"id": 14, "q": "İşığın sürəti təqribən saniyədə neçə kilometrdir? (Yalnız rəqəm yazın)", "a": "300000"},
-    {"id": 15, "q": "DNT-nin açması olan molekulun tam adı (Azərbaycan dilində qısa: dezoksirbonuklein turşusu əvəzinə qısa olaraq nə yazılır)?", "a": "dnt"},
-    {"id": 16, "q": "1 Kilobayt neçə Baytdır?", "a": "1024"},
-    {"id": 17, "q": "Türkiyənin paytaxtı hansı şəhərdir?", "a": "ankara"},
-    {"id": 18, "q": "H2O (Su) formulasında hidrogen atomunun sayı neçədir?", "a": "2"},
-    {"id": 19, "q": "Dünyanın ən hündür dağ zirvəsi hansıdır?", "a": "everest"},
-    {"id": 20, "q": "Futbol oyununda bir komandada meydanda neçə oyunçu olur?", "a": "11"},
-    {"id": 21, "q": "Şahmat taxtasındakı xanaların ümumi sayı neçədir?", "a": "64"},
-    {"id": 22, "q": "İtalyanın paytaxtı hansı şəhərdir?", "a": "roma"},
-    {"id": 23, "q": "Dəmirin kimyəvi işarəsi necədir?", "a": "fe"},
-    {"id": 24, "q": "Bir ildə neçə həftə var?", "a": "52"},
-    {"id": 25, "q": "Qızılın kimyəvi elementi simvolu necədir?", "a": "au"},
-    {"id": 26, "q": "Kosmosa gedən ilk insan kimdir? (Soyadını yazın)", "a": "qaqarin"},
-    {"id": 27, "q": "Azərbaycanın ən böyük gölü hansıdır?", "a": "göyçə"},
-    {"id": 28, "q": "Dünyanın ən böyük səhrası hansıdır?", "a": "sahara"},
-    {"id": 29, "q": "İnsan neçə əsas hissədən ibarət duyğu orqanına sahibdir?", "a": "5"},
-    {"id": 30, "q": "1 saat neçə saniyədir?", "a": "3600"}
-]
+    return redirect(url_for('oyun'))
 
 @app.route('/oyun/sual_cavab')
 def sual_cavab():
@@ -2700,6 +2742,14 @@ def sual_cavab():
     points = get_user_points(session['user'])
     header = get_header_template(points)
     return render_template_string(SUAL_CAVAB_TEMPLATE, header=header)
+
+QUESTIONS_DB = [
+    {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "a": "Bakı"},
+    {"id": 2, "q": "2 + 2 * 2 nəyə bərabərdir?", "a": "6"},
+    {"id": 3, "q": "Dünyanın ən böyük okeanı hansıdır?", "a": "Sakit okean"},
+    {"id": 4, "q": "Azərbaycan Respublikası neçənci ildə müstəqillik qazanıb?", "a": "1991"},
+    {"id": 5, "q": "İT sahəsində 'AI' nə deməkdir?", "a": "Süni intellekt"}
+]
 
 @app.route('/oyun/sual_getir')
 def sual_getir():
@@ -2712,35 +2762,35 @@ def sual_getir():
 def sual_yoxla():
     if 'user' not in session:
         return jsonify({"success": False}), 401
-    
     data = request.get_json()
     q_id = data.get('q_id')
     user_ans = data.get('answer', '').strip().lower()
     
-    target_q = next((q for q in QUESTIONS_DB if q["id"] == q_id), None)
+    q_obj = next((item for item in QUESTIONS_DB if item["id"] == q_id), None)
+    if not q_obj:
+        return jsonify({"correct": False})
+        
+    is_correct = user_ans == q_obj["a"].lower()
+    new_points = get_user_points(session['user'])
     
-    if target_q and target_q["a"] == user_ans:
+    if is_correct:
         current_user = session['user']
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (current_user,))
         conn.commit()
         cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-        new_pts = cursor.fetchone()[0]
+        new_points = cursor.fetchone()[0]
         conn.close()
-        return jsonify({"correct": True, "new_points": new_pts})
-    else:
-        return jsonify({"correct": False})
+        
+    return jsonify({"correct": is_correct, "new_points": new_points})
 
 @app.route('/bildiris')
 def bildiris():
     if 'user' not in session:
         return redirect(url_for('index'))
-    
-    current_user = session['user']
-    points = get_user_points(current_user)
+    points = get_user_points(session['user'])
     header = get_header_template(points)
-    
     return render_template_string(BILDIRIS_TEMPLATE, header=header)
 
 @app.route('/logout')
@@ -2749,4 +2799,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, port=5000)
