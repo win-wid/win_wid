@@ -11,7 +11,6 @@ app.secret_key = 'win_wid_gizli_kalit'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'win_wid.db')
 
-# Bazanın yaradılması və cədvəllərin qurulması (Məlumatlar heç vaxt silinmir, mövcud cədvəllərə toxunulmur)
 def init_db():
     if not os.path.exists(BASE_DIR):
         os.makedirs(BASE_DIR)
@@ -139,8 +138,9 @@ INDEX_TEMPLATE = '''
             margin: 0; 
         }
         .container { 
-            width: 420px; 
-            padding: 40px 32px; 
+            width: 90%;
+            max-width: 480px; 
+            padding: 45px 38px; 
             background: rgba(24, 24, 27, 0.85); 
             backdrop-filter: blur(16px);
             border-radius: 24px; 
@@ -149,8 +149,8 @@ INDEX_TEMPLATE = '''
             border: 1px solid rgba(255, 255, 255, 0.12); 
         }
         h1 { 
-            font-size: 22px; 
-            margin-bottom: 28px; 
+            font-size: 26px; 
+            margin-bottom: 32px; 
             background: linear-gradient(135deg, #f97316, #fb923c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -159,14 +159,14 @@ INDEX_TEMPLATE = '''
         }
         input { 
             width: 100%; 
-            padding: 14px 18px; 
-            margin: 12px 0; 
+            padding: 16px 20px; 
+            margin: 14px 0; 
             border: 1px solid rgba(255, 255, 255, 0.12); 
             border-radius: 14px; 
             background: rgba(9, 9, 11, 0.7); 
             color: #f8fafc; 
             box-sizing: border-box; 
-            font-size: 15px;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
         input:focus {
@@ -177,15 +177,15 @@ INDEX_TEMPLATE = '''
         input::placeholder { color: #a1a1aa; }
         button { 
             width: 100%; 
-            padding: 14px; 
-            margin: 10px 0; 
+            padding: 16px; 
+            margin: 12px 0; 
             background: linear-gradient(135deg, #f97316, #ea580c); 
             color: white; 
             border: none; 
             border-radius: 14px; 
             cursor: pointer; 
             font-weight: 600; 
-            font-size: 15px;
+            font-size: 16px;
             transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
         }
@@ -201,7 +201,7 @@ INDEX_TEMPLATE = '''
         button[name="action"][value="register"]:hover {
             background: rgba(255, 255, 255, 0.15);
         }
-        .error { color: #f87171; font-size: 14px; margin-bottom: 16px; font-weight: 500; background: rgba(239, 68, 68, 0.12); padding: 10px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .error { color: #f87171; font-size: 15px; margin-bottom: 16px; font-weight: 500; background: rgba(239, 68, 68, 0.12); padding: 12px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.25); }
     </style>
 </head>
 <body>
@@ -265,7 +265,7 @@ COMMON_STYLE = '''
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; 
-            padding: 16px; 
+            padding: 20px; 
             background: #09090b; 
             color: #f8fafc; 
             display: flex; 
@@ -277,13 +277,13 @@ COMMON_STYLE = '''
             background: rgba(24, 24, 27, 0.9); 
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.12); 
-            border-radius: 16px; 
-            padding: 12px 16px; 
+            border-radius: 18px; 
+            padding: 14px 20px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 16px;
-            gap: 10px;
+            margin-bottom: 20px;
+            gap: 14px;
             overflow-x: auto;
             box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4);
             flex-shrink: 0;
@@ -296,16 +296,16 @@ COMMON_STYLE = '''
             align-items: center;
             text-decoration: none;
             color: #d4d4d8;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 12px;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 600;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
         .nav-item .icon {
-            font-size: 22px;
-            margin-bottom: 4px;
+            font-size: 26px;
+            margin-bottom: 6px;
             transition: transform 0.2s;
         }
         .nav-item:hover {
@@ -331,7 +331,7 @@ CHAT_TEMPLATE = '''
             backdrop-filter: blur(16px);
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 22px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -339,8 +339,8 @@ CHAT_TEMPLATE = '''
         }
         .chat-header-title {
             background: rgba(9, 9, 11, 0.7);
-            padding: 16px;
-            font-size: 15px;
+            padding: 18px;
+            font-size: 17px;
             font-weight: 700;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -349,17 +349,17 @@ CHAT_TEMPLATE = '''
         }
         .messages-box {
             flex: 1;
-            padding: 20px;
+            padding: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
         }
         .message-bubble {
             background: rgba(39, 39, 42, 0.75);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 14px 18px;
-            border-radius: 16px;
+            padding: 16px 20px;
+            border-radius: 18px;
             max-width: 80%;
             word-break: break-all;
             position: relative;
@@ -371,7 +371,7 @@ CHAT_TEMPLATE = '''
             border-color: rgba(249, 115, 22, 0.4);
         }
         .msg-user {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: #fed7aa;
             margin-bottom: 6px;
@@ -380,16 +380,16 @@ CHAT_TEMPLATE = '''
             color: #ffedd5;
         }
         .msg-text {
-            font-size: 15px;
+            font-size: 16px;
             margin: 0;
             color: #f8fafc;
             line-height: 1.5;
         }
         .msg-actions {
             display: flex;
-            gap: 14px;
-            margin-top: 8px;
-            font-size: 12px;
+            gap: 16px;
+            margin-top: 10px;
+            font-size: 13px;
         }
         .msg-actions button {
             background: transparent;
@@ -406,30 +406,30 @@ CHAT_TEMPLATE = '''
         }
         .chat-form {
             display: flex;
-            padding: 16px;
+            padding: 18px;
             background: rgba(9, 9, 11, 0.7);
             border-top: 1px solid rgba(255, 255, 255, 0.08);
-            gap: 12px;
+            gap: 14px;
         }
         .chat-input {
             flex: 1;
-            padding: 14px 18px;
+            padding: 16px 20px;
             background: rgba(24, 24, 27, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             color: #fff;
-            font-size: 15px;
+            font-size: 16px;
         }
         .chat-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); }
         .chat-submit {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 14px 24px;
+            padding: 16px 28px;
             border-radius: 14px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 16px;
             transition: transform 0.2s;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
@@ -458,7 +458,7 @@ CHAT_TEMPLATE = '''
                     </div>
                 {% endfor %}
             {% else %}
-                <p style="text-align: center; color: #a1a1aa; font-size: 14px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
+                <p style="text-align: center; color: #a1a1aa; font-size: 15px; margin: auto;">Hələ ki mesaj yoxdur. İlk mesajı sən yaz!</p>
             {% endif %}
         </div>
 
@@ -525,21 +525,21 @@ USERS_TEMPLATE = '''
             backdrop-filter: blur(16px);
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 22px;
+            padding: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         .users-title {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             color: #f97316;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 12px;
-            margin: 0 0 10px 0;
+            padding-bottom: 14px;
+            margin: 0 0 12px 0;
             text-align: center;
             letter-spacing: 0.5px;
         }
@@ -548,8 +548,8 @@ USERS_TEMPLATE = '''
             align-items: center;
             justify-content: space-between;
             background: rgba(39, 39, 42, 0.6);
-            padding: 14px 18px;
-            border-radius: 14px;
+            padding: 16px 20px;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             transition: transform 0.2s;
         }
@@ -560,24 +560,24 @@ USERS_TEMPLATE = '''
         .user-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
         }
         .user-avatar {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             border: 2px solid #f97316;
             object-fit: cover;
             background: #111;
         }
         .user-name {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             color: #f8fafc;
             margin: 0 0 4px 0;
         }
         .user-status {
-            font-size: 13px;
+            font-size: 14px;
             color: #4ade80;
             font-weight: 600;
             margin: 0;
@@ -603,7 +603,7 @@ USERS_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <p style="text-align: center; color: #a1a1aa; font-size: 14px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            <p style="text-align: center; color: #a1a1aa; font-size: 15px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
 </body>
@@ -622,7 +622,7 @@ SEKIL_TEMPLATE = '''
             background: #000;
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 22px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
@@ -649,11 +649,11 @@ SEKIL_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 16px;
-            right: 20px;
+            top: 20px;
+            right: 24px;
             z-index: 20;
-            width: 130px;
-            height: 38px;
+            width: 145px;
+            height: 42px;
         }
         .btn-open-upload {
             background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -661,9 +661,9 @@ SEKIL_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
             display: flex;
@@ -676,29 +676,29 @@ SEKIL_TEMPLATE = '''
         .upload-modal {
             display: none;
             position: absolute;
-            top: 60px;
+            top: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(24, 24, 27, 0.95);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(249, 115, 22, 0.5);
-            padding: 20px;
-            border-radius: 16px;
+            padding: 24px;
+            border-radius: 18px;
             z-index: 30;
-            width: 85%;
-            max-width: 320px;
+            width: 90%;
+            max-width: 360px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.7);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 20px;
-            bottom: 140px; 
-            width: 60px;
+            right: 24px;
+            bottom: 150px; 
+            width: 65px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 18px;
+            gap: 20px;
             z-index: 10;
         }
         .action-item {
@@ -712,8 +712,8 @@ SEKIL_TEMPLATE = '''
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
-            width: 52px;  
-            height: 52px; 
+            width: 58px;  
+            height: 58px; 
             justify-content: center;
             transition: all 0.2s;
         }
@@ -723,10 +723,10 @@ SEKIL_TEMPLATE = '''
             transform: scale(1.1);
         }
         .action-item span {
-            font-size: 22px; 
+            font-size: 26px; 
         }
         .action-count {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             margin-top: 6px;
             color: #fff;
@@ -735,25 +735,25 @@ SEKIL_TEMPLATE = '''
 
         .shorts-info {
             position: absolute;
-            left: 20px;
-            bottom: 35px; 
+            left: 24px;
+            bottom: 40px; 
             z-index: 10;
             color: #fff;
             text-shadow: 0 1px 6px rgba(0,0,0,0.9);
         }
         .shorts-username {
-            font-size: 17px;
+            font-size: 19px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .delete-short-btn {
             background: #ef4444;
             border: none;
             color: white;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
@@ -765,7 +765,7 @@ SEKIL_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 55%;
+            height: 60%;
             background: rgba(24, 24, 27, 0.98);
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(249, 115, 22, 0.4);
@@ -775,7 +775,7 @@ SEKIL_TEMPLATE = '''
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 16px;
+            padding: 20px;
             box-sizing: border-box;
             box-shadow: 0 -15px 35px rgba(0,0,0,0.6);
         }
@@ -786,58 +786,58 @@ SEKIL_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 12px 0;
+            margin: 14px 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            font-size: 13px;
+            gap: 12px;
+            font-size: 15px;
         }
         .drawer-comment-item {
             background: rgba(39, 39, 42, 0.7);
-            padding: 10px 14px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             word-break: break-all;
             color: #f8fafc;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .drawer-form {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
         .drawer-input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 14px 18px;
             background: rgba(9, 9, 11, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border-radius: 12px;
             color: #fff;
-            font-size: 13px;
+            font-size: 15px;
         }
         .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 24px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 15px;
             cursor: pointer;
         }
     </style>
@@ -851,11 +851,11 @@ SEKIL_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:12px;">
-                <label style="font-size: 13px; color: #d4d4d8; font-weight: 700;">Şəkil Seç:</label>
-                <input type="file" name="sekil_file" accept="image/*" required style="font-size:12px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:8px; border-radius:8px; cursor:pointer; font-size:12px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/sekil/upload" style="display:flex; flex-direction:column; gap:14px;">
+                <label style="font-size: 14px; color: #d4d4d8; font-weight: 700;">Şəkil Seç:</label>
+                <input type="file" name="sekil_file" accept="image/*" required style="font-size:14px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; font-size:14px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:10px; border-radius:10px; cursor:pointer; font-size:14px;">Bağla</button>
             </form>
         </div>
 
@@ -912,7 +912,7 @@ SEKIL_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:14px; text-align:center; padding:20px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:16px; text-align:center; padding:20px;">
                 Hələ ki şəkil yoxdur. Yuxarıdakı düymədən ilk şəkli sən yüklə!
             </div>
         {% endif %}
@@ -1016,7 +1016,7 @@ VIDYO_TEMPLATE = '''
             background: #000;
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 22px;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             position: relative;
@@ -1043,11 +1043,11 @@ VIDYO_TEMPLATE = '''
         }
         .upload-trigger-bar {
             position: absolute;
-            top: 16px;
-            right: 20px;
+            top: 20px;
+            right: 24px;
             z-index: 20;
-            width: 130px;
-            height: 38px;
+            width: 145px;
+            height: 42px;
         }
         .btn-open-upload {
             background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -1055,9 +1055,9 @@ VIDYO_TEMPLATE = '''
             border: none;
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
             display: flex;
@@ -1070,29 +1070,29 @@ VIDYO_TEMPLATE = '''
         .upload-modal {
             display: none;
             position: absolute;
-            top: 60px;
+            top: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(24, 24, 27, 0.95);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(249, 115, 22, 0.5);
-            padding: 20px;
-            border-radius: 16px;
+            padding: 24px;
+            border-radius: 18px;
             z-index: 30;
-            width: 85%;
-            max-width: 320px;
+            width: 90%;
+            max-width: 360px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.7);
         }
         
         .shorts-actions {
             position: absolute;
-            right: 20px;
-            bottom: 140px; 
-            width: 60px;
+            right: 24px;
+            bottom: 150px; 
+            width: 65px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 18px;
+            gap: 20px;
             z-index: 10;
         }
         .action-item {
@@ -1106,8 +1106,8 @@ VIDYO_TEMPLATE = '''
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
-            width: 52px;  
-            height: 52px; 
+            width: 58px;  
+            height: 58px; 
             justify-content: center;
             transition: all 0.2s;
         }
@@ -1117,10 +1117,10 @@ VIDYO_TEMPLATE = '''
             transform: scale(1.1);
         }
         .action-item span {
-            font-size: 22px; 
+            font-size: 26px; 
         }
         .action-count {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             margin-top: 6px;
             color: #fff;
@@ -1129,25 +1129,25 @@ VIDYO_TEMPLATE = '''
 
         .shorts-info {
             position: absolute;
-            left: 20px;
-            bottom: 35px; 
+            left: 24px;
+            bottom: 40px; 
             z-index: 10;
             color: #fff;
             text-shadow: 0 1px 6px rgba(0,0,0,0.9);
         }
         .shorts-username {
-            font-size: 17px;
+            font-size: 19px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         .delete-short-btn {
             background: #ef4444;
             border: none;
             color: white;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
@@ -1159,7 +1159,7 @@ VIDYO_TEMPLATE = '''
             bottom: -100%;
             left: 0;
             width: 100%;
-            height: 55%;
+            height: 60%;
             background: rgba(24, 24, 27, 0.98);
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(249, 115, 22, 0.4);
@@ -1169,7 +1169,7 @@ VIDYO_TEMPLATE = '''
             z-index: 25;
             display: flex;
             flex-direction: column;
-            padding: 16px;
+            padding: 20px;
             box-sizing: border-box;
             box-shadow: 0 -15px 35px rgba(0,0,0,0.6);
         }
@@ -1180,58 +1180,58 @@ VIDYO_TEMPLATE = '''
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
             color: #f97316;
         }
         .close-drawer {
             background: transparent;
             border: none;
             color: #fff;
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
         }
         .drawer-list {
             flex: 1;
             overflow-y: auto;
-            margin: 12px 0;
+            margin: 14px 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            font-size: 13px;
+            gap: 12px;
+            font-size: 15px;
         }
         .drawer-comment-item {
             background: rgba(39, 39, 42, 0.7);
-            padding: 10px 14px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             word-break: break-all;
             color: #f8fafc;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .drawer-form {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
         .drawer-input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 14px 18px;
             background: rgba(9, 9, 11, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border-radius: 12px;
             color: #fff;
-            font-size: 13px;
+            font-size: 15px;
         }
         .drawer-input:focus { border-color: #f97316; outline: none; }
         .drawer-submit {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 24px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 15px;
             cursor: pointer;
         }
     </style>
@@ -1245,11 +1245,11 @@ VIDYO_TEMPLATE = '''
         </div>
 
         <div class="upload-modal" id="uploadModal">
-            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:12px;">
-                <label style="font-size: 13px; color: #d4d4d8; font-weight: 700;">Shorts Videosu Seç:</label>
-                <input type="file" name="video_file" accept="video/*" required style="font-size:12px; color:#fff;">
-                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Yüklə</button>
-                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:8px; border-radius:8px; cursor:pointer; font-size:12px;">Bağla</button>
+            <form method="POST" enctype="multipart/form-data" action="/vidyo/upload" style="display:flex; flex-direction:column; gap:14px;">
+                <label style="font-size: 14px; color: #d4d4d8; font-weight: 700;">Shorts Videosu Seç:</label>
+                <input type="file" name="video_file" accept="video/*" required style="font-size:14px; color:#fff;">
+                <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; font-size:14px;">Yüklə</button>
+                <button type="button" onclick="toggleUploadModal()" style="background:#ef4444; color:#fff; border:none; padding:10px; border-radius:10px; cursor:pointer; font-size:14px;">Bağla</button>
             </form>
         </div>
 
@@ -1306,7 +1306,7 @@ VIDYO_TEMPLATE = '''
                 </div>
             {% endfor %}
         {% else %}
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:14px; text-align:center; padding:20px;">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#a1a1aa; font-size:16px; text-align:center; padding:20px;">
                 Hələ ki Shorts videosu yoxdur. Yuxarıdakı düymədən ilk videonu sən yüklə!
             </div>
         {% endif %}
@@ -1437,7 +1437,7 @@ PROFIL_TEMPLATE = '''
             justify-content: center;
             align-items: center;
             overflow-y: auto;
-            padding: 16px;
+            padding: 20px;
             box-sizing: border-box;
         }
         .profile-container {
@@ -1445,37 +1445,37 @@ PROFIL_TEMPLATE = '''
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             width: 100%;
-            max-width: 520px;
+            max-width: 580px;
             box-sizing: border-box;
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .profile-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #f8fafc;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 12px;
+            padding-bottom: 14px;
             margin: 0;
             text-align: center;
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 20px;
             background: rgba(39, 39, 42, 0.6);
-            padding: 16px 20px;
-            border-radius: 16px;
+            padding: 18px 22px;
+            border-radius: 18px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .avatar-wrapper {
             position: relative;
-            width: 64px;
-            height: 64px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             border: 2px solid #ef4444;
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
@@ -1493,24 +1493,24 @@ PROFIL_TEMPLATE = '''
             position: absolute;
             bottom: -4px;
             right: -4px;
-            font-size: 12px;
+            font-size: 14px;
             background: #18181b;
             border-radius: 50%;
-            padding: 3px;
+            padding: 4px;
             border: 1px solid #f97316;
         }
         .profile-info h3 {
-            margin: 0 0 4px 0;
-            font-size: 18px;
+            margin: 0 0 6px 0;
+            font-size: 20px;
             color: #f8fafc;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             font-weight: 700;
         }
         .profile-info .status {
             color: #4ade80;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             margin: 0;
         }
@@ -1518,34 +1518,34 @@ PROFIL_TEMPLATE = '''
             background: rgba(39, 39, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
-            padding: 12px;
+            padding: 14px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            min-height: 44px;
+            min-height: 50px;
             align-items: center;
         }
         .gift-item {
-            font-size: 20px;
+            font-size: 24px;
             background: rgba(24, 24, 27, 0.9);
-            padding: 6px 10px;
-            border-radius: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
             border: 1px solid rgba(249, 115, 22, 0.4);
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin: 0;
         }
         input[type="text"] {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 18px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 14px;
             background: rgba(9, 9, 11, 0.7);
             color: #f8fafc;
-            font-size: 14px;
+            font-size: 15px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -1558,10 +1558,10 @@ PROFIL_TEMPLATE = '''
             background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 14px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -1573,10 +1573,10 @@ PROFIL_TEMPLATE = '''
             background: rgba(39, 39, 42, 0.9);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 14px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -1587,10 +1587,10 @@ PROFIL_TEMPLATE = '''
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 14px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             text-align: center;
             width: 100%;
@@ -1599,7 +1599,7 @@ PROFIL_TEMPLATE = '''
         }
         .btn-red:hover { transform: translateY(-1px); }
         .msg-alert {
-            font-size: 13px;
+            font-size: 14px;
             text-align: center;
             margin: 0;
             font-weight: 600;
@@ -1629,14 +1629,14 @@ PROFIL_TEMPLATE = '''
             </div>
 
             <div>
-                <p style="font-size: 13px; margin: 0 0 6px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
+                <p style="font-size: 14px; margin: 0 0 8px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
                 <div class="gifts-box">
                     {% if gifts %}
                         {% for g in gifts %}
                             <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
                         {% endfor %}
                     {% else %}
-                        <span style="font-size: 13px; color: #a1a1aa;">Hələ ki hədiyyə yoxdur.</span>
+                        <span style="font-size: 14px; color: #a1a1aa;">Hələ ki hədiyyə yoxdur.</span>
                     {% endif %}
                 </div>
             </div>
@@ -1681,7 +1681,7 @@ MAGAZA_TEMPLATE = '''
             justify-content: center;
             align-items: flex-start;
             overflow-y: auto;
-            padding: 16px;
+            padding: 20px;
             box-sizing: border-box;
         }
         .magaza-container {
@@ -1689,21 +1689,21 @@ MAGAZA_TEMPLATE = '''
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
             box-sizing: border-box;
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .magaza-title {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             color: #f8fafc;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 12px;
+            padding-bottom: 14px;
             margin: 0;
             text-align: center;
             letter-spacing: 0.5px;
@@ -1711,30 +1711,30 @@ MAGAZA_TEMPLATE = '''
         .product-section {
             background: rgba(39, 39, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         .product-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: #f97316;
             margin: 0;
         }
         .color-list {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
         }
         .color-btn {
-            padding: 8px 16px;
-            border-radius: 10px;
+            padding: 10px 18px;
+            border-radius: 12px;
             border: none;
             font-weight: 700;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
             transition: transform 0.2s;
         }
         .color-btn:hover { transform: translateY(-1px); }
@@ -1747,20 +1747,20 @@ MAGAZA_TEMPLATE = '''
         .emoji-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            max-height: 140px;
+            gap: 10px;
+            max-height: 160px;
             overflow-y: auto;
             background: rgba(9, 9, 11, 0.7);
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .emoji-btn {
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
-            padding: 8px;
+            padding: 10px;
             background: rgba(39, 39, 42, 0.7);
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid transparent;
             transition: all 0.2s;
         }
@@ -1771,17 +1771,17 @@ MAGAZA_TEMPLATE = '''
         }
         select {
             width: 100%;
-            padding: 12px 14px;
+            padding: 14px 16px;
             background: rgba(9, 9, 11, 0.9);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 14px;
+            font-size: 15px;
             box-sizing: border-box;
         }
         select:focus { border-color: #f97316; outline: none; }
         .msg-alert {
-            font-size: 13px;
+            font-size: 14px;
             text-align: center;
             margin: 0;
             font-weight: 600;
@@ -1833,7 +1833,7 @@ MAGAZA_TEMPLATE = '''
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <div class="emoji-grid" style="margin-top: 8px;">
+                    <div class="emoji-grid" style="margin-top: 10px;">
                         {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                         {% for emo in emojis %}
                             <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
@@ -1871,17 +1871,17 @@ OYUN_PANEL_TEMPLATE = '''
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 24px;
             text-align: center;
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .panel-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #f8fafc;
             margin: 0;
@@ -1889,7 +1889,7 @@ OYUN_PANEL_TEMPLATE = '''
         }
         .games-grid {
             display: flex;
-            gap: 20px;
+            gap: 24px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -1897,12 +1897,12 @@ OYUN_PANEL_TEMPLATE = '''
             background: rgba(39, 39, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            padding: 24px;
-            width: 180px;
+            padding: 28px;
+            width: 200px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             text-decoration: none;
             color: #fff;
             transition: all 0.3s ease;
@@ -1914,16 +1914,16 @@ OYUN_PANEL_TEMPLATE = '''
             box-shadow: 0 12px 30px rgba(249, 115, 22, 0.3);
         }
         .game-icon {
-            font-size: 40px;
+            font-size: 48px;
         }
         .game-name {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
             margin: 0;
             color: #f8fafc;
         }
         .game-desc {
-            font-size: 12px;
+            font-size: 13px;
             color: #d4d4d8;
             margin: 0;
             line-height: 1.4;
@@ -1965,35 +1965,35 @@ SUAL_CAVAB_TEMPLATE = '''
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 16px;
+            gap: 18px;
             text-align: center;
-            max-width: 480px;
+            max-width: 520px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .timer-box {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: #f97316;
             background: rgba(9, 9, 11, 0.7);
-            padding: 8px 18px;
+            padding: 10px 20px;
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .question-box {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #f8fafc;
             background: rgba(39, 39, 42, 0.6);
-            padding: 18px;
-            border-radius: 14px;
+            padding: 20px;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             width: 100%;
             box-sizing: border-box;
@@ -2001,12 +2001,12 @@ SUAL_CAVAB_TEMPLATE = '''
         }
         .answer-input {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: rgba(9, 9, 11, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 14px;
             color: #fff;
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
             box-sizing: border-box;
         }
@@ -2015,10 +2015,10 @@ SUAL_CAVAB_TEMPLATE = '''
             background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 14px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             width: 100%;
             box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
@@ -2026,16 +2026,16 @@ SUAL_CAVAB_TEMPLATE = '''
         }
         .submit-btn:hover { transform: translateY(-1px); }
         .info-msg {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
-            min-height: 20px;
+            min-height: 24px;
         }
     </style>
 </head>
 <body>
     {{ header|safe }}
     <div class="game-container">
-        <h3 style="font-size: 15px; margin: 0; color: #f97316; font-weight: 700;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
+        <h3 style="font-size: 17px; margin: 0; color: #f97316; font-weight: 700;">❓ SUAL - CAVAB OYUNU (+6 Bal)</h3>
         <div class="timer-box">⏱️ Qalan vaxt: <span id="timer">60</span> san</div>
         
         <div class="question-box" id="questionText">Sual yüklənir...</div>
@@ -2044,7 +2044,7 @@ SUAL_CAVAB_TEMPLATE = '''
         <button class="submit-btn" onclick="checkAnswer()">Cavabla</button>
         
         <div class="info-msg" id="infoMsg"></div>
-        <a href="/oyun" style="color: #d4d4d8; font-size: 13px; text-decoration: none; margin-top: 8px; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
+        <a href="/oyun" style="color: #d4d4d8; font-size: 14px; text-decoration: none; margin-top: 10px; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
     </div>
 
     <script>
@@ -2128,7 +2128,7 @@ BILDIRIS_TEMPLATE = '''
             flex: 1;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 30px;
+            padding: 35px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -2137,12 +2137,12 @@ BILDIRIS_TEMPLATE = '''
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
         }
         .bildiris-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #f8fafc;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 14px;
-            margin: 0 0 24px 0;
+            padding-bottom: 16px;
+            margin: 0 0 28px 0;
             width: 100%;
             letter-spacing: 0.5px;
         }
@@ -2150,9 +2150,9 @@ BILDIRIS_TEMPLATE = '''
             background: rgba(39, 39, 42, 0.6);
             border: 2px dashed rgba(249, 115, 22, 0.6);
             border-radius: 20px;
-            padding: 30px;
+            padding: 35px;
             color: #f97316;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
@@ -2189,7 +2189,6 @@ def index():
                 if cursor.fetchone():
                     error = "Bu nikname artıq istifadədədir!"
                 else:
-                    # Hər yeni hesab 0 balla başlayır
                     cursor.execute("INSERT INTO users (nickname, password, profile_pic, points) VALUES (?, ?, ?, ?)", (nickname, password, '', 0))
                     conn.commit()
                     session['user'] = nickname
@@ -2761,10 +2760,6 @@ def sual_getir():
     return jsonify({"id": q["id"], "question": q["q"]})
 
 @app.route('/oyun/sual_yoxla', methods=['POST'])
-def sign_sual_yoxla(): # internal name safeguard
-    pass
-
-@app.route('/oyun/sual_yoxla', methods=['POST'])
 def sual_yoxla():
     if 'user' not in session:
         return jsonify({"success": False}), 401
@@ -2780,12 +2775,11 @@ def sual_yoxla():
     new_points = get_user_points(session['user'])
     
     if is_correct:
-        current_user = session['user']
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (current_user,))
+        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (session['user'],))
         conn.commit()
-        cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
         new_points = cursor.fetchone()[0]
         conn.close()
         
@@ -2805,4 +2799,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
