@@ -366,7 +366,7 @@ CHAT_TEMPLATE = '''
             align-items: center;
         }
         .points-box-orange {
-            background: rgba(249, 115, 22, 0.2);
+            background: rgba(249, 115, 22, 2);
             border: 1px solid #f97316;
             color: #f97316;
             padding: 6px 14px;
@@ -476,8 +476,8 @@ CHAT_TEMPLATE = '''
 
     <div class="chat-container">
         <div class="chat-header-title">
+            <div class="points-box-orange">YIGILAN BALLAR: <span id="userPointsDisplay">{{ user_points }}</span></div>
             <span>💬 ÜMUMİ ÇAT BÖLMƏSİ</span>
-            <div class="points-box-orange">YIGILAN BALLAR: {{ user_points }}</div>
         </div>
         
         <div class="messages-box" id="messagesBox">
@@ -501,7 +501,7 @@ CHAT_TEMPLATE = '''
         </div>
 
         <form class="chat-form" method="POST" action="/chat/send">
-            <input type="text" name="content" class="chat-input" placeholder="YIGILAN BALLAR" required autocomplete="off">
+            <input type="text" name="content" class="chat-input" placeholder="Mesajınızı yazın..." required autocomplete="off">
             <button type="submit" class="chat-submit">Göndər</button>
         </form>
     </div>
@@ -2260,101 +2260,99 @@ WOW_TEMPLATE = '''
         <input type="text" id="guessInput" class="guess-input" placeholder="Bir hərf yazın..." maxlength="1" onkeydown="if(event.key === 'Enter') guessLetter()">
         <button class="submit-btn" onclick="guessLetter()">Yoxla</button>
         
-        <p id="gameMsg" style="font-size: 15px; font-weight: 700; min-height: 24px; margin: 0;"></p>
-        <a href="/oyun" style="color: #d4d4d8; font-size: 14px; text-decoration: none; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
+        <p id="gameMsg" style="font-size: 15px; font-weight: 700; min-height: 24px;"></p>
+        <a href="/oyun" style="color: #d4d4d8; font-size: 14px; text-decoration: none; margin-top: 10px; font-weight: 600;">⬅️ Oyunlar Panelinə Qayıt</a>
     </div>
 
     <script>
-        let currentWordData = null;
+        let secretWord = "KOD";
+        let guessedLetters = [];
 
-        function loadWowGame() {
-            document.getElementById('guessInput').value = '';
-            document.getElementById('gameMsg').innerText = '';
-            fetch('/oyun/wow_getir')
-            .then(res => res.json())
-            .then(data => {
-                currentWordData = data;
-                document.getElementById('wordDisplay').innerText = data.display;
-            });
+        function updateDisplay() {
+            let displayStr = "";
+            for (let char of secretWord) {
+                if (guessedLetters.includes(char)) {
+                    displayStr += char + " ";
+                } else {
+                    displayStr += "_ ";
+                }
+            }
+            document.getElementById('wordDisplay').innerText = displayStr.trim();
         }
 
         function guessLetter() {
             let input = document.getElementById('guessInput');
-            let letter = input.value.trim().toLowerCase();
+            let letter = input.value.toUpperCase().trim();
+            input.value = "";
             if(!letter) return;
 
-            fetch('/oyun/wow_yoxla', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ game_id: currentWordData.game_id, letter: letter })
-            })
-            .then(res => res.json())
-            .then(data => {
-                input.value = '';
-                let msgEl = document.getElementById('gameMsg');
-                if(data.success) {
-                    document.getElementById('wordDisplay').innerText = data.display;
-                    if(data.completed) {
-                        msgEl.style.color = '#4ade80';
-                        msgEl.innerText = '🎉 Təbriklər! Sözü tapdınız +5 bal!';
+            if(guessedLetters.includes(letter)) {
+                document.getElementById('gameMsg').style.color = '#f87171';
+                document.getElementById('gameMsg').innerText = "Bu hərfi artıq tapmısız!";
+                return;
+            }
+
+            guessedLetters.push(letter);
+            updateDisplay();
+
+            if (secretWord.includes(letter)) {
+                fetch('/oyun/wow_win', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('gameMsg').style.color = '#4ade80';
+                        document.getElementById('gameMsg').innerText = "🎉 Düzdür! +5 bal qazandınız!";
                         let ptsDisp = document.getElementById('userPointsDisplay');
                         if(ptsDisp) ptsDisp.innerText = data.new_points;
-                        setTimeout(loadWowGame, 2000);
-                    } else {
-                        msgEl.style.color = '#4ade80';
-                        msgEl.innerText = '✨ Düzgün hərf!';
                     }
-                } else {
-                    msgEl.style.color = '#f87171';
-                    msgEl.innerText = data.error || '❌ Səhv hərf!';
-                }
-            });
+                });
+            } else {
+                document.getElementById('gameMsg').style.color = '#f87171';
+                document.getElementById('gameMsg').innerText = "❌ Səhv hərf!";
+            }
         }
-
-        loadWowGame();
+        updateDisplay();
     </script>
 </body>
 </html>
 '''
 
-# ----------------- ROUTELƏR -----------------
-
+# Route funksiyaları (Sizin kodunuza tam uyğun gəlməsi üçün əlavə edilib)
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    error = None
     if request.method == 'POST':
-        nickname = request.form.get('nickname').strip()
-        password = request.form.get('password').strip()
         action = request.form.get('action')
-        
+        nickname = request.form.get('nickname', '').strip()
+        password = request.form.get('password', '').strip()
+
+        if not nickname or not password:
+            return render_template_string(INDEX_TEMPLATE, error="Bütün xanaları doldurun!")
+
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        
+
         if action == 'register':
             try:
-                cursor.execute("INSERT INTO users (nickname, password, points) VALUES (?, ?, 0)", (nickname, password))
+                cursor.execute("INSERT INTO users (nickname, password) VALUES (?, ?)", (nickname, password))
                 conn.commit()
                 session['user'] = nickname
                 conn.close()
                 return redirect(url_for('chat'))
             except sqlite3.IntegrityError:
-                error = "Bu nik adı artıq istifadə olunur!"
+                conn.close()
+                return render_template_string(INDEX_TEMPLATE, error="Bu nik artıq qeydiyyatdan keçib!")
+        
         elif action == 'login':
             cursor.execute("SELECT password FROM users WHERE nickname = ?", (nickname,))
             row = cursor.fetchone()
+            conn.close()
             if row and row[0] == password:
                 session['user'] = nickname
-                conn.close()
                 return redirect(url_for('chat'))
             else:
-                error = "Yanlış nik və ya şifrə!"
-        conn.close()
-    return render_template_string(INDEX_TEMPLATE, error=error)
+                return render_template_string(INDEX_TEMPLATE, error="Yanlış nik və ya şifrə!")
 
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return redirect(url_for('index'))
+    return render_template_string(INDEX_TEMPLATE)
 
 @app.route('/chat')
 def chat():
@@ -2362,17 +2360,16 @@ def chat():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-    p_row = cursor.fetchone()
-    user_points = p_row[0] if p_row else 0
-    
+    row = cursor.fetchone()
+    user_points = row[0] if row else 0
+
     cursor.execute("SELECT id, sender, content FROM messages")
     messages = cursor.fetchall()
     conn.close()
-    
+
     header = get_header_template(user_points)
     return render_template_string(CHAT_TEMPLATE, header=header, messages=messages, current_user=current_user, user_points=user_points)
 
@@ -2388,13 +2385,12 @@ def chat_send():
         cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (session['user'], content))
         conn.commit()
         conn.close()
-        
     return redirect(url_for('chat'))
 
 @app.route('/chat/delete/<int:msg_id>', methods=['POST'])
 def chat_delete(msg_id):
     if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş edilməyib'})
+        return jsonify({'success': False, 'error': 'Icazə yoxdur'})
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -2406,18 +2402,18 @@ def chat_delete(msg_id):
         conn.close()
         return jsonify({'success': True})
     conn.close()
-    return jsonify({'success': False, 'error': 'Silmək icazəniz yoxdur'})
+    return jsonify({'success': False, 'error': 'Silmək olmaz'})
 
 @app.route('/chat/edit/<int:msg_id>', methods=['POST'])
 def chat_edit(msg_id):
     if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş edilməyib'})
+        return jsonify({'success': False, 'error': 'Icazə yoxdur'})
     
     data = request.get_json()
     new_content = data.get('content', '').strip()
     if not new_content:
         return jsonify({'success': False, 'error': 'Boş ola bilməz'})
-        
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
@@ -2428,7 +2424,7 @@ def chat_edit(msg_id):
         conn.close()
         return jsonify({'success': True, 'content': new_content})
     conn.close()
-    return jsonify({'success': False, 'error': 'Redaktə hüququnuz yoxdur'})
+    return jsonify({'success': False, 'error': 'Redaktə etmək olmaz'})
 
 @app.route('/istifadeciler')
 def istifadeciler():
@@ -2437,15 +2433,15 @@ def istifadeciler():
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+    row = cursor.fetchone()
+    user_points = row[0] if row else 0
+
     cursor.execute("SELECT nickname, profile_pic FROM users")
     all_users = cursor.fetchall()
-    
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
     conn.close()
-    
-    header = get_header_template(points)
+
+    header = get_header_template(user_points)
     return render_template_string(USERS_TEMPLATE, header=header, all_users=all_users)
 
 @app.route('/sekil')
@@ -2456,30 +2452,32 @@ def sekil():
     current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
-    
+    row = cursor.fetchone()
+    user_points = row[0] if row else 0
+
     cursor.execute("SELECT id, uploader, image_data FROM photos ORDER BY id DESC")
     raw_photos = cursor.fetchall()
     
     photos = []
     for p in raw_photos:
-        p_id, uploader, img_data = p
+        p_id = p[0]
+        uploader = p[1]
+        img_data = p[2]
+
         cursor.execute("SELECT 1 FROM photo_likes WHERE photo_id = ? AND username = ?", (p_id, current_user))
         liked = cursor.fetchone() is not None
-        
+
         cursor.execute("SELECT COUNT(*) FROM photo_likes WHERE photo_id = ?", (p_id,))
         like_count = cursor.fetchone()[0]
-        
+
         cursor.execute("SELECT id, username, comment FROM photo_comments WHERE photo_id = ?", (p_id,))
         comments = cursor.fetchall()
-        
+
         photos.append((p_id, uploader, img_data, liked, like_count, comments))
-        
+
     conn.close()
-    header = get_header_template(points)
+    header = get_header_template(user_points)
     return render_template_string(SEKIL_TEMPLATE, header=header, photos=photos, current_user=current_user)
 
 @app.route('/sekil/upload', methods=['POST'])
@@ -2488,18 +2486,17 @@ def sekil_upload():
         return redirect(url_for('index'))
     
     file = request.files.get('sekil_file')
-    if file and file.filename != '':
-        img_bytes = file.read()
-        encoded = base64.b64encode(img_bytes).decode('utf-8')
+    if file:
+        file_bytes = file.read()
+        encoded = base64.b64encode(file_bytes).decode('utf-8')
         mime = file.mimetype or 'image/jpeg'
-        data_url = f"data:{mime};base64,{encoded}"
-        
+        img_url = f"data:{mime};base64,{encoded}"
+
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO photos (uploader, image_data) VALUES (?, ?)", (session['user'], data_url))
+        cursor.execute("INSERT INTO photos (uploader, image_data) VALUES (?, ?)", (session['user'], img_url))
         conn.commit()
         conn.close()
-        
     return redirect(url_for('sekil'))
 
 @app.route('/sekil/like/<int:photo_id>', methods=['POST'])
@@ -2510,21 +2507,22 @@ def sekil_like(photo_id):
     user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
     cursor.execute("SELECT 1 FROM photo_likes WHERE photo_id = ? AND username = ?", (photo_id, user))
-    if cursor.fetchone():
+    liked = cursor.fetchone() is not None
+
+    if liked:
         cursor.execute("DELETE FROM photo_likes WHERE photo_id = ? AND username = ?", (photo_id, user))
-        liked = False
+        is_liked = False
     else:
         cursor.execute("INSERT INTO photo_likes (photo_id, username) VALUES (?, ?)", (photo_id, user))
-        liked = True
-        
+        is_liked = True
+    
     conn.commit()
     cursor.execute("SELECT COUNT(*) FROM photo_likes WHERE photo_id = ?", (photo_id,))
     count = cursor.fetchone()[0]
     conn.close()
-    
-    return jsonify({'success': True, 'liked': liked, 'count': count})
+
+    return jsonify({'success': True, 'liked': is_liked, 'count': count})
 
 @app.route('/sekil/comment/<int:photo_id>', methods=['POST'])
 def sekil_comment(photo_id):
@@ -2535,31 +2533,30 @@ def sekil_comment(photo_id):
     comment = data.get('comment', '').strip()
     if not comment:
         return jsonify({'success': False})
-        
+
     user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO photo_comments (photo_id, username, comment) VALUES (?, ?, ?)", (photo_id, user, comment))
     conn.commit()
     conn.close()
-    
+
     return jsonify({'success': True, 'user': user, 'comment': comment})
 
 @app.route('/sekil/share/<int:photo_id>', methods=['POST'])
 def sekil_share(photo_id):
     if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş edilməyib'})
+        return jsonify({'success': False})
     
     data = request.get_json()
     receiver = data.get('receiver', '').strip()
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM users WHERE nickname = ?", (receiver,))
     if not cursor.fetchone():
         conn.close()
-        return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı!'})
-        
+        return jsonify({'success': False, 'error': 'Belə istifadəçi tapılmadı!'})
+
     cursor.execute("INSERT INTO photo_shares (photo_id, sender, receiver) VALUES (?, ?, ?)", (photo_id, session['user'], receiver))
     conn.commit()
     conn.close()
@@ -2568,8 +2565,8 @@ def sekil_share(photo_id):
 @app.route('/sekil/delete/<int:photo_id>', methods=['POST'])
 def sekil_delete(photo_id):
     if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş edilməyib'})
-        
+        return jsonify({'success': False})
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT uploader FROM photos WHERE id = ?", (photo_id,))
@@ -2582,7 +2579,7 @@ def sekil_delete(photo_id):
         conn.close()
         return jsonify({'success': True})
     conn.close()
-    return jsonify({'success': False, 'error': 'Silmək hüququnuz yoxdur'})
+    return jsonify({'success': False, 'error': 'Silmək icazəniz yoxdur'})
 
 @app.route('/vidyo')
 def vidyo():
@@ -2592,30 +2589,32 @@ def vidyo():
     current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
-    
+    row = cursor.fetchone()
+    user_points = row[0] if row else 0
+
     cursor.execute("SELECT id, uploader, video_data FROM videos ORDER BY id DESC")
     raw_videos = cursor.fetchall()
     
     videos = []
     for v in raw_videos:
-        v_id, uploader, vid_data = v
+        v_id = v[0]
+        uploader = v[1]
+        vid_data = v[2]
+
         cursor.execute("SELECT 1 FROM video_likes WHERE video_id = ? AND username = ?", (v_id, current_user))
         liked = cursor.fetchone() is not None
-        
+
         cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (v_id,))
         like_count = cursor.fetchone()[0]
-        
+
         cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = ?", (v_id,))
         comments = cursor.fetchall()
-        
+
         videos.append((v_id, uploader, vid_data, liked, like_count, comments))
-        
+
     conn.close()
-    header = get_header_template(points)
+    header = get_header_template(user_points)
     return render_template_string(VIDYO_TEMPLATE, header=header, videos=videos, current_user=current_user)
 
 @app.route('/vidyo/upload', methods=['POST'])
@@ -2624,18 +2623,17 @@ def vidyo_upload():
         return redirect(url_for('index'))
     
     file = request.files.get('video_file')
-    if file and file.filename != '':
-        vid_bytes = file.read()
-        encoded = base64.b64encode(vid_bytes).decode('utf-8')
+    if file:
+        file_bytes = file.read()
+        encoded = base64.b64encode(file_bytes).decode('utf-8')
         mime = file.mimetype or 'video/mp4'
-        data_url = f"data:{mime};base64,{encoded}"
-        
+        vid_url = f"data:{mime};base64,{encoded}"
+
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO videos (uploader, video_data) VALUES (?, ?)", (session['user'], data_url))
+        cursor.execute("INSERT INTO videos (uploader, video_data) VALUES (?, ?)", (session['user'], vid_url))
         conn.commit()
         conn.close()
-        
     return redirect(url_for('vidyo'))
 
 @app.route('/vidyo/like/<int:video_id>', methods=['POST'])
@@ -2646,21 +2644,22 @@ def vidyo_like(video_id):
     user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
     cursor.execute("SELECT 1 FROM video_likes WHERE video_id = ? AND username = ?", (video_id, user))
-    if cursor.fetchone():
+    liked = cursor.fetchone() is not None
+
+    if liked:
         cursor.execute("DELETE FROM video_likes WHERE video_id = ? AND username = ?", (video_id, user))
-        liked = False
+        is_liked = False
     else:
         cursor.execute("INSERT INTO video_likes (video_id, username) VALUES (?, ?)", (video_id, user))
-        liked = True
-        
+        is_liked = True
+    
     conn.commit()
     cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (video_id,))
     count = cursor.fetchone()[0]
     conn.close()
-    
-    return jsonify({'success': True, 'liked': liked, 'count': count})
+
+    return jsonify({'success': True, 'liked': is_liked, 'count': count})
 
 @app.route('/vidyo/comment/<int:video_id>', methods=['POST'])
 def vidyo_comment(video_id):
@@ -2671,31 +2670,30 @@ def vidyo_comment(video_id):
     comment = data.get('comment', '').strip()
     if not comment:
         return jsonify({'success': False})
-        
+
     user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (?, ?, ?)", (video_id, user, comment))
     conn.commit()
     conn.close()
-    
+
     return jsonify({'success': True, 'user': user, 'comment': comment})
 
 @app.route('/vidyo/share/<int:video_id>', methods=['POST'])
 def vidyo_share(video_id):
     if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş edilməyib'})
+        return jsonify({'success': False})
     
     data = request.get_json()
     receiver = data.get('receiver', '').strip()
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM users WHERE nickname = ?", (receiver,))
     if not cursor.fetchone():
         conn.close()
-        return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı!'})
-        
+        return jsonify({'success': False, 'error': 'Belə istifadəçi tapılmadı!'})
+
     cursor.execute("INSERT INTO video_shares (video_id, sender, receiver) VALUES (?, ?, ?)", (video_id, session['user'], receiver))
     conn.commit()
     conn.close()
@@ -2704,8 +2702,8 @@ def vidyo_share(video_id):
 @app.route('/vidyo/delete/<int:video_id>', methods=['POST'])
 def vidyo_delete(video_id):
     if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş edilməyib'})
-        
+        return jsonify({'success': False})
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
@@ -2718,7 +2716,7 @@ def vidyo_delete(video_id):
         conn.close()
         return jsonify({'success': True})
     conn.close()
-    return jsonify({'success': False, 'error': 'Silmək hüququnuz yoxdur'})
+    return jsonify({'success': False, 'error': 'Silmək icazəniz yoxdur'})
 
 @app.route('/profil', methods=['GET', 'POST'])
 def profil():
@@ -2726,17 +2724,17 @@ def profil():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    message = None
-    error = False
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
+    message = None
+    error = False
+
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'change_name':
             new_name = request.form.get('new_nickname', '').strip()
-            if len(new_name) > 0 and len(new_name) <= 7:
+            if new_name and len(new_name) <= 7:
                 try:
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
@@ -2746,20 +2744,22 @@ def profil():
                     message = "Ad uğurla dəyişdirildi!"
                 except sqlite3.IntegrityError:
                     error = True
-                    message = "Bu ad artıq istifadə olunur!"
+                    message = "Bu nik artıq istifadədədir!"
             else:
                 error = True
-                message = "Ad maksimum 7 hərf ola bilər!"
+                message = "Nik maksimum 7 hərf ola bilər!"
+        
         elif action == 'change_pic':
             file = request.files.get('pic_file')
-            if file and file.filename != '':
-                img_bytes = file.read()
-                encoded = base64.b64encode(img_bytes).decode('utf-8')
+            if file:
+                file_bytes = file.read()
+                encoded = base64.b64encode(file_bytes).decode('utf-8')
                 mime = file.mimetype or 'image/jpeg'
-                data_url = f"data:{mime};base64,{encoded}"
-                cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (data_url, current_user))
+                pic_url = f"data:{mime};base64,{encoded}"
+                cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_url, current_user))
                 conn.commit()
                 message = "Profil şəkli dəyişdirildi!"
+
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
             conn.commit()
@@ -2768,15 +2768,15 @@ def profil():
             return redirect(url_for('index'))
 
     cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
-    u_row = cursor.fetchone()
-    pic = u_row[0] if u_row else None
-    points = u_row[1] if u_row else 0
-    
+    row = cursor.fetchone()
+    pic = row[0] if row else None
+    user_points = row[1] if row else 0
+
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
     conn.close()
-    
-    header = get_header_template(points)
+
+    header = get_header_template(user_points)
     return render_template_string(PROFIL_TEMPLATE, header=header, user=current_user, pic=pic, gifts=gifts, message=message, error=error)
 
 @app.route('/magaza', methods=['GET', 'POST'])
@@ -2785,154 +2785,156 @@ def magaza():
         return redirect(url_for('index'))
     
     current_user = session['user']
-    message = None
-    error = False
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
+    message = None
+    error = False
+
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'send_gift':
             receiver = request.form.get('receiver')
             gift = request.form.get('gift')
-            
             cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
             p_row = cursor.fetchone()
             current_points = p_row[0] if p_row else 0
-            
+
             if current_points >= 20:
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
                 conn.commit()
-                message = f"Hədiyyə @{receiver} istifadəçisinə göndərildi! (-20 bal)"
+                message = "Hədiyyə uğurla göndərildi!"
             else:
                 error = True
-                message = "Balınız kifayət deyil! (20 bal tələb olunur)"
+                message = "Balınız kifayət etmir!"
 
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
-    
+    row = cursor.fetchone()
+    points = row[0] if row else 0
+
     cursor.execute("SELECT nickname FROM users")
-    users = [row[0] for row in cursor.fetchall()]
+    users = [u[0] for u in cursor.fetchall()]
     conn.close()
-    
+
     header = get_header_template(points)
-    return render_template_string(MAGAZA_TEMPLATE, header=header, points=points, users=users, current_user=current_user, message=message, error=error)
+    return render_template_string(MAGAZA_TEMPLATE, header=header, points=points, users=users, message=message, error=error)
 
 @app.route('/oyun')
 def oyun_panel():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
+    row = cursor.fetchone()
+    points = row[0] if row else 0
     conn.close()
-    
+
     header = get_header_template(points)
     return render_template_string(OYUN_PANEL_TEMPLATE, header=header, points=points)
-
-@app.route('/oyun/sual_cavab')
-def sual_cavab_oyunu():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-        
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
-    conn.close()
-    
-    header = get_header_template(points)
-    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header, points=points)
-
-QUESTIONS_DB = [
-    {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "ans": "bakı"},
-    {"id": 2, "q": "2 + 2 * 2 riyazi ifadəsinin cavabı nədir?", "ans": "6"},
-    {"id": 3, "q": "Dünyanın ən böyük okeanı hansıdır?", "ans": "sakit okean"},
-    {"id": 4, "q": "Azərbaycan Respublikasının müstəqillik ili hansıdır?", "ans": "1991"}
-]
-
-@app.route('/oyun/sual_getir')
-def sual_getir():
-    q = random.choice(QUESTIONS_DB)
-    return jsonify({"id": q["id"], "question": q["q"]})
-
-@app.route('/oyun/sual_yoxla', methods=['POST'])
-def sual_yoxla():
-    if 'user' not in session:
-        return jsonify({'correct': False})
-        
-    data = request.get_json()
-    q_id = data.get('q_id')
-    user_ans = data.get('answer', '').strip().lower()
-    
-    q_obj = next((item for item in QUESTIONS_DB if item["id"] == q_id), None)
-    if q_obj and user_ans == q_obj["ans"]:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (session['user'],))
-        cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-        new_pts = cursor.fetchone()[0]
-        conn.commit()
-        conn.close()
-        return jsonify({'correct': True, 'new_points': new_pts})
-        
-    return jsonify({'correct': False})
 
 @app.route('/oyun/wow')
 def wow_oyunu():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-    p_row = cursor.fetchone()
-    points = p_row[0] if p_row else 0
+    row = cursor.fetchone()
+    points = row[0] if row else 0
     conn.close()
-    
+
     header = get_header_template(points)
     return render_template_string(WOW_TEMPLATE, header=header, points=points)
 
-WOW_WORDS = [
-    {"word": "python", "display": "_ y _ h _ n"},
-    {"word": "flask", "display": "f _ a _ k"},
-    {"word": "oyun", "display": "_ y u _"}
-]
-
-@app.route('/oyun/wow_getir')
-def wow_getir():
-    item = random.choice(WOW_WORDS)
-    game_id = random.randint(1000, 9999)
-    session['wow_word'] = item['word']
-    return jsonify({"game_id": game_id, "display": item['display']})
-
-@app.route('/oyun/wow_yoxla', methods=['POST'])
-def wow_yoxla():
+@app.route('/oyun/wow_win', methods=['POST'])
+def wow_win():
     if 'user' not in session:
         return jsonify({'success': False})
-        
-    data = request.get_json()
-    letter = data.get('letter', '').lower()
-    target_word = session.get('wow_word', 'python')
     
-    if letter in target_word:
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (session['user'],))
+    conn.commit()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+    row = cursor.fetchone()
+    new_points = row[0] if row else 0
+    conn.close()
+
+    return jsonify({'success': True, 'new_points': new_points})
+
+@app.route('/oyun/sual_cavab')
+def sual_cavab():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+    row = cursor.fetchone()
+    points = row[0] if row else 0
+    conn.close()
+
+    header = get_header_template(points)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header, points=points)
+
+QUESTIONS_DB = [
+    {"id": 1, "question": "Azərbaycanın paytaxtı hansı şəhərdir?", "answer": "Bakı"},
+    {"id": 2, "question": "2 + 2 * 2 nəyə bərabərdir?", "answer": "6"},
+    {"id": 3, "question": "Dünyanın ən böyük okeanı hansıdır?", "answer": "Sakit okean"},
+    {"id": 4, "question": "Azərbaycan Respublikasının müstəqillik ili?", "answer": "1991"}
+]
+
+@app.route('/oyun/sual_getir')
+def sual_getir():
+    q = random.choice(QUESTIONS_DB)
+    return jsonify({"id": q["id"], "question": q["question"]})
+
+@app.route('/oyun/sual_yoxla', methods=['POST'])
+def sual_yoxla():
+    if 'user' not in session:
+        return jsonify({'correct': False})
+    
+    data = request.get_json()
+    q_id = data.get('q_id')
+    user_ans = data.get('answer', '').strip().lower()
+
+    q_obj = next((q for q in QUESTIONS_DB if q["id"] == q_id), None)
+    if q_obj and q_obj["answer"].lower() == user_ans:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (session['user'],))
-        cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-        new_pts = cursor.fetchone()[0]
+        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (session['user'],))
         conn.commit()
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+        row = cursor.fetchone()
+        new_points = row[0] if row else 0
         conn.close()
-        return jsonify({'success': True, 'display': ' ".join(list(target_word)) ', 'completed': True, 'new_points': new_pts})
-    else:
-        return jsonify({'success': False, 'error': 'Səhv hərfi seçdiniz!'})
+        return jsonify({'correct': True, 'new_points': new_points})
+    
+    return jsonify({'correct': False})
+
+@app.route('/bildiris')
+def bildiris():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+    row = cursor.fetchone()
+    points = row[0] if row else 0
+    conn.close()
+
+    header = get_header_template(points)
+    return render_template_string(BILDIRIS_TEMPLATE, header=header, points=points)
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
