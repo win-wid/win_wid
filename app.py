@@ -23,15 +23,32 @@ def init_db():
             nickname TEXT PRIMARY KEY,
             password TEXT NOT NULL,
             profile_pic TEXT,
-            points INTEGER DEFAULT 0
+            points INTEGER DEFAULT 0,
+            name_color TEXT DEFAULT 'inherit',
+            msg_color TEXT DEFAULT '#f8fafc',
+            profile_sticker TEXT DEFAULT ''
         )
     ''')
+    
+    # Mövcud bazalarda sütunlar yoxdursa əlavə etmək üçün
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN profile_pic TEXT")
     except sqlite3.OperationalError:
         pass
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN name_color TEXT DEFAULT 'inherit'")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN msg_color TEXT DEFAULT '#f8fafc'")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN profile_sticker TEXT DEFAULT ''")
     except sqlite3.OperationalError:
         pass
         
@@ -401,16 +418,11 @@ CHAT_TEMPLATE = '''
         .msg-user {
             font-size: 14px;
             font-weight: 700;
-            color: #fed7aa;
             margin-bottom: 6px;
-        }
-        .message-bubble.my-message .msg-user {
-            color: #ffedd5;
         }
         .msg-text {
             font-size: 16px;
             margin: 0;
-            color: #f8fafc;
             line-height: 1.5;
         }
         .msg-actions {
@@ -484,8 +496,8 @@ CHAT_TEMPLATE = '''
             {% if messages %}
                 {% for m in messages %}
                     <div class="message-bubble {% if m[1] == current_user %}my-message{% endif %}" id="msg-{{ m[0] }}">
-                        <div class="msg-user">@{{ m[1] }}</div>
-                        <p class="msg-text" id="msg-text-{{ m[0] }}">{{ m[2] }}</p>
+                        <div class="msg-user" style="color: {{ m[3] if m[3] and m[3] != 'inherit' else ('#fed7aa' if m[1] == current_user else '#f97316') }};">@{{ m[1] }} {{ m[5] }}</div>
+                        <p class="msg-text" id="msg-text-{{ m[0] }}" style="color: {{ m[4] if m[4] else '#f8fafc' }};">{{ m[2] }}</p>
                         
                         {% if m[1] == current_user %}
                             <div class="msg-actions">
@@ -611,7 +623,6 @@ USERS_TEMPLATE = '''
         .user-name {
             font-size: 17px;
             font-weight: 700;
-            color: #f8fafc;
             margin: 0 0 4px 0;
         }
         .user-status {
@@ -634,7 +645,7 @@ USERS_TEMPLATE = '''
                     <div class="user-left">
                         <img src="{{ u[1] if u[1] else 'https://i.imgur.com/6VBx3io.png' }}" class="user-avatar" alt="Profil">
                         <div>
-                            <p class="user-name">@{{ u[0] }} 👑</p>
+                            <p class="user-name" style="color: {{ u[2] if u[2] and u[2] != 'inherit' else '#f8fafc' }};">@{{ u[0] }} {{ u[3] }}</p>
                             <p class="user-status">● Aktivdir</p>
                         </div>
                     </div>
@@ -782,7 +793,6 @@ SEKIL_TEMPLATE = '''
         .shorts-username {
             font-size: 19px;
             font-weight: 700;
-            color: #fff;
             margin-bottom: 8px;
         }
         .delete-short-btn {
@@ -903,7 +913,7 @@ SEKIL_TEMPLATE = '''
                     <img src="{{ p[2] }}" alt="Şəkil">
 
                     <div class="shorts-info">
-                        <div class="shorts-username">@{{ p[1] }}</div>
+                        <div class="shorts-username" style="color: {{ p[6] if p[6] and p[6] != 'inherit' else '#fff' }};">@{{ p[1] }}</div>
                         {% if p[1] == current_user %}
                             <button class="delete-short-btn" onclick="deletePhoto('{{ p[0] }}')">Sil 🗑️</button>
                         {% endif %}
@@ -1176,7 +1186,6 @@ VIDYO_TEMPLATE = '''
         .shorts-username {
             font-size: 19px;
             font-weight: 700;
-            color: #fff;
             margin-bottom: 8px;
         }
         .delete-short-btn {
@@ -1297,7 +1306,7 @@ VIDYO_TEMPLATE = '''
                     <video src="{{ v[2] }}" loop playsinline onclick="togglePlay(this)"></video>
 
                     <div class="shorts-info">
-                        <div class="shorts-username">@{{ v[1] }}</div>
+                        <div class="shorts-username" style="color: {{ v[6] if v[6] and v[6] != 'inherit' else '#fff' }};">@{{ v[1] }}</div>
                         {% if v[1] == current_user %}
                             <button class="delete-short-btn" onclick="deleteVideo('{{ v[0] }}')">Sil 🗑️</button>
                         {% endif %}
@@ -1540,7 +1549,6 @@ PROFIL_TEMPLATE = '''
         .profile-info h3 {
             margin: 0 0 6px 0;
             font-size: 20px;
-            color: #f8fafc;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1661,7 +1669,7 @@ PROFIL_TEMPLATE = '''
                     <div class="crown-icon">👑</div>
                 </div>
                 <div class="profile-info">
-                    <h3>@{{ user }} 👑</h3>
+                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👑</h3>
                     <p class="status">● Aktivdir</p>
                 </div>
             </div>
@@ -1838,6 +1846,34 @@ MAGAZA_TEMPLATE = '''
             {% endif %}
 
             <div class="product-section">
+                <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="buy_name_color">
+                    <div class="color-list">
+                        <button type="submit" name="color" value="#eab308" class="color-btn btn-yellow">Sarı</button>
+                        <button type="submit" name="color" value="#ef4444" class="color-btn btn-red">Qırmızı</button>
+                        <button type="submit" name="color" value="#3b82f6" class="color-btn btn-blue">Göy</button>
+                        <button type="submit" name="color" value="#a855f7" class="color-btn btn-purple">Bənövşəyi</button>
+                        <button type="submit" name="color" value="#22c55e" class="color-btn btn-green">Yaşıl</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="product-section">
+                <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="buy_msg_color">
+                    <div class="color-list">
+                        <button type="submit" name="color" value="#eab308" class="color-btn btn-yellow">Sarı</button>
+                        <button type="submit" name="color" value="#ef4444" class="color-btn btn-red">Qırmızı</button>
+                        <button type="submit" name="color" value="#3b82f6" class="color-btn btn-blue">Göy</button>
+                        <button type="submit" name="color" value="#a855f7" class="color-btn btn-purple">Bənövşəyi</button>
+                        <button type="submit" name="color" value="#22c55e" class="color-btn btn-green">Yaşıl</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="product-section">
                 <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
                 <form method="POST">
                     <input type="hidden" name="action" value="send_gift">
@@ -1853,6 +1889,19 @@ MAGAZA_TEMPLATE = '''
                         {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
                         {% for emo in emojis %}
                             <button type="submit" name="gift" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            <div class="product-section">
+                <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="buy_profile_sticker">
+                    <div class="emoji-grid">
+                        {% set emojis = ['😇', '🤣', '🫠', '🤩', '🤗', '🤭', '😜', '🤔', '🤤', '🤠', '🤒', '😎', '😱', '🥺', '🥳', '☠️', '👻', '😸', '😹', '🙊', '🙈', '💌', '❤️‍🔥', '💬', '👋', '🤘', '🫶', '🙏', '🐻', '🐼', '🐸', '🌹', '🍻', '✈️', '✨', '🎉', '💰'] %}
+                        {% for emo in emojis %}
+                            <button type="submit" name="sticker" value="{{ emo }}" class="emoji-btn">{{ emo }}</button>
                         {% endfor %}
                     </div>
                 </form>
@@ -2351,7 +2400,11 @@ def chat():
     row = cursor.fetchone()
     user_points = row[0] if row else 0
     
-    cursor.execute("SELECT id, sender, content FROM messages")
+    cursor.execute('''
+        SELECT m.id, m.sender, m.content, u.name_color, u.msg_color, u.profile_sticker 
+        FROM messages m 
+        LEFT JOIN users u ON m.sender = u.nickname
+    ''')
     messages = cursor.fetchall()
     conn.close()
     
@@ -2428,7 +2481,7 @@ def istifadeciler():
     row = cursor.fetchone()
     user_points = row[0] if row else 0
     
-    cursor.execute("SELECT nickname, profile_pic FROM users")
+    cursor.execute("SELECT nickname, profile_pic, name_color, profile_sticker FROM users")
     all_users = cursor.fetchall()
     conn.close()
     
@@ -2448,12 +2501,17 @@ def sekil():
     row = cursor.fetchone()
     user_points = row[0] if row else 0
     
-    cursor.execute("SELECT id, uploader, image_data FROM photos ORDER BY id DESC")
+    cursor.execute('''
+        SELECT p.id, p.uploader, p.image_data, u.name_color 
+        FROM photos p 
+        LEFT JOIN users u ON p.uploader = u.nickname 
+        ORDER BY p.id DESC
+    ''')
     raw_photos = cursor.fetchall()
     
     photos = []
     for p in raw_photos:
-        p_id, uploader, img_data = p
+        p_id, uploader, img_data, name_color = p
         cursor.execute("SELECT 1 FROM photo_likes WHERE photo_id = ? AND username = ?", (p_id, current_user))
         liked = cursor.fetchone() is not None
         
@@ -2463,7 +2521,7 @@ def sekil():
         cursor.execute("SELECT id, username, comment FROM photo_comments WHERE photo_id = ?", (p_id,))
         comments = cursor.fetchall()
         
-        photos.append((p_id, uploader, img_data, liked, like_count, comments))
+        photos.append((p_id, uploader, img_data, liked, like_count, comments, name_color))
         
     conn.close()
     header = get_header_template(user_points)
@@ -2588,12 +2646,17 @@ def vidyo():
     row = cursor.fetchone()
     user_points = row[0] if row else 0
     
-    cursor.execute("SELECT id, uploader, video_data FROM videos ORDER BY id DESC")
+    cursor.execute('''
+        SELECT v.id, v.uploader, v.video_data, u.name_color 
+        FROM videos v 
+        LEFT JOIN users u ON v.uploader = u.nickname 
+        ORDER BY v.id DESC
+    ''')
     raw_videos = cursor.fetchall()
     
     videos = []
     for v in raw_videos:
-        v_id, uploader, vid_data = v
+        v_id, uploader, vid_data, name_color = v
         cursor.execute("SELECT 1 FROM video_likes WHERE video_id = ? AND username = ?", (v_id, current_user))
         liked = cursor.fetchone() is not None
         
@@ -2603,7 +2666,7 @@ def vidyo():
         cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = ?", (v_id,))
         comments = cursor.fetchall()
         
-        videos.append((v_id, uploader, vid_data, liked, like_count, comments))
+        videos.append((v_id, uploader, vid_data, liked, like_count, comments, name_color))
         
     conn.close()
     header = get_header_template(user_points)
@@ -2762,22 +2825,25 @@ def profil():
                 message = "Profil şəkli uğurla yeniləndi!"
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
+            cursor.execute("DELETE FROM gifts WHERE sender = ? OR receiver = ?", (current_user, current_user))
             conn.commit()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
-            
-    cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
-    row = cursor.fetchone()
-    pic = row[0] if row else None
-    points = row[1] if row else 0
-    
+
+    cursor.execute("SELECT profile_pic, name_color, profile_sticker FROM users WHERE nickname = ?", (current_user,))
+    user_row = cursor.fetchone()
+    pic = user_row[0] if user_row else None
+    name_color = user_row[1] if user_row else 'inherit'
+    profile_sticker = user_row[2] if user_row else ''
+
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
     conn.close()
     
-    header = get_header_template(points)
-    return render_template_string(PROFIL_TEMPLATE, header=header, user=current_user, pic=pic, gifts=gifts, message=message, error=error)
+    header = get_header_template(0)
+    return render_template_string(PROFIL_TEMPLATE, header=header, user=current_user, pic=pic, gifts=gifts, message=message, error=error, name_color=name_color, profile_sticker=profile_sticker)
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -2793,43 +2859,72 @@ def magaza():
     
     if request.method == 'POST':
         action = request.form.get('action')
-        if action == 'send_gift':
-            receiver = request.form.get('receiver')
-            gift_emoji = request.form.get('gift')
-            gift_cost = 20
-            
-            cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-            row = cursor.fetchone()
-            current_points = row[0] if row else 0
-            
-            if current_points < gift_cost:
-                message = "Balınız kifayət etmir! (Minimum 20 bal lazımdır)"
-                error = True
-            elif not receiver:
-                message = "Zəhmət olmasa istifadəçi seçin!"
+        
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+        p_row = cursor.fetchone()
+        current_points = p_row[0] if p_row else 0
+        
+        if action == 'buy_name_color':
+            if current_points < 30:
+                message = "Balınız çatmır! (30 bal lazımdır)"
                 error = True
             else:
-                # Balı çıxırıq və hədiyyəni bazaya yazırıq
-                new_points = current_points - gift_cost
-                cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
-                cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift_emoji))
+                color = request.form.get('color')
+                cursor.execute("UPDATE users SET points = points - 30, name_color = ? WHERE nickname = ?", (color, current_user))
                 conn.commit()
-                message = f"Hədiyyə uğurla @{receiver} istifadəçisinə göndərildi! (-20 bal)"
-                error = False
+                message = "Rəngli nik uğurla alındı və tətbiq edildi!"
+                
+        elif action == 'buy_msg_color':
+            if current_points < 30:
+                message = "Balınız çatmır! (30 bal lazımdır)"
+                error = True
+            else:
+                color = request.form.get('color')
+                cursor.execute("UPDATE users SET points = points - 30, msg_color = ? WHERE nickname = ?", (color, current_user))
+                conn.commit()
+                message = "Rəngli mesaj uğurla alındı və tətbiq edildi!"
+                
+        elif action == 'send_gift':
+            if current_points < 20:
+                message = "Balınız çatmır! (20 bal lazımdır)"
+                error = True
+            else:
+                receiver = request.form.get('receiver')
+                gift = request.form.get('gift')
+                if receiver and gift:
+                    cursor.execute("SELECT 1 FROM users WHERE nickname = ?", (receiver,))
+                    if cursor.fetchone():
+                        cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
+                        cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
+                        conn.commit()
+                        message = f"Hədiyyə @{receiver}-ə uğurla göndərildi!"
+                    else:
+                        message = "İstifadəçi tapılmadı!"
+                        error = True
+                        
+        elif action == 'buy_profile_sticker':
+            if current_points < 25:
+                message = "Balınız çatmır! (25 bal lazımdır)"
+                error = True
+            else:
+                sticker = request.form.get('sticker')
+                cursor.execute("UPDATE users SET points = points - 25, profile_sticker = ? WHERE nickname = ?", (sticker, current_user))
+                conn.commit()
+                message = "Profil stikeri uğurla alındı və tətbiq edildi!"
 
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
     row = cursor.fetchone()
     points = row[0] if row else 0
     
     cursor.execute("SELECT nickname FROM users")
-    users = [r[0] for r in cursor.fetchall()]
+    users = [u[0] for u in cursor.fetchall()]
     conn.close()
     
     header = get_header_template(points)
     return render_template_string(MAGAZA_TEMPLATE, header=header, points=points, users=users, current_user=current_user, message=message, error=error)
 
 @app.route('/oyun')
-def oyun_panel():
+def oyun():
     if 'user' not in session:
         return redirect(url_for('index'))
         
@@ -2863,19 +2958,15 @@ def wow_win():
     if 'user' not in session:
         return jsonify(success=False)
         
-    current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-    row = cursor.fetchone()
-    current_points = row[0] if row else 0
-    
-    new_points = current_points + 5
-    cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
+    cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (session['user'],))
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+    new_pts = cursor.fetchone()[0]
     conn.commit()
     conn.close()
     
-    return jsonify(success=True, new_points=new_points)
+    return jsonify(success=True, new_points=new_pts)
 
 @app.route('/oyun/sual_cavab')
 def sual_cavab():
@@ -2892,18 +2983,20 @@ def sual_cavab():
     header = get_header_template(points)
     return render_template_string(SUAL_CAVAB_TEMPLATE, header=header)
 
-QUESTIONS_BANK = [
-    {"id": 1, "question": "Azərbaycanın paytaxtı haradır?", "answer": "BAKI"},
-    {"id": 2, "question": "2 + 2 * 2 neçə edir?", "answer": "6"},
-    {"id": 3, "question": "Dünyanın ən böyük okeanı hansıdır?", "answer": "SAKIT"},
-    {"id": 4, "question": "Azərbaycanın dövlət dili hansıdır?", "answer": "AZƏRBAYCAN"},
-    {"id": 5, "question": "1 il neçə gündür?", "answer": "365"}
+SUALLAR_BAZASI = [
+    {"id": 1, "q": "Azərbaycanın paytaxtı hansı şəhərdir?", "a": "Bakı"},
+    {"id": 2, "q": "2 + 2 * 2 nəyə bərabərdir?", "a": "6"},
+    {"id": 3, "q": "İlin neçə ayı var?", "a": "12"},
+    {"id": 4, "q": "Dünyanın ən böyük okeanı hansıdır?", "a": "Sakit okean"},
+    {"id": 5, "q": "Azərbaycanın dövlət bayrağı neçə rənglidir?", "a": "3"}
 ]
 
 @app.route('/oyun/sual_getir')
 def sual_getir():
-    q = random.choice(QUESTIONS_BANK)
-    return jsonify(id=q["id"], question=q["question"])
+    if 'user' not in session:
+        return jsonify(error="Icazə yoxdur")
+    s = random.choice(SUALLAR_BAZASI)
+    return jsonify(id=s["id"], question=s["q"])
 
 @app.route('/oyun/sual_yoxla', methods=['POST'])
 def sual_yoxla():
@@ -2912,20 +3005,18 @@ def sual_yoxla():
         
     data = request.get_json()
     q_id = data.get('q_id')
-    user_ans = data.get('answer', '').strip().upper()
+    ans = data.get('answer', '').strip().lower()
     
-    q = next((item for item in QUESTIONS_BANK if item["id"] == q_id), None)
-    if q and q["answer"] == user_ans:
-        current_user = session['user']
+    target = next((item for item in SUALLAR_BAZASI if item["id"] == q_id), None)
+    if target and target["a"].lower() == ans:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-        row = cursor.fetchone()
-        new_points = (row[0] if row else 0) + 6
-        cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
+        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (session['user'],))
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
+        new_pts = cursor.fetchone()[0]
         conn.commit()
         conn.close()
-        return jsonify(correct=True, new_points=new_points)
+        return jsonify(correct=True, new_points=new_pts)
         
     return jsonify(correct=False)
 
@@ -2950,4 +3041,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000) 
