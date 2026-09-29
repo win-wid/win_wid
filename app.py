@@ -1838,28 +1838,6 @@ MAGAZA_TEMPLATE = '''
             {% endif %}
 
             <div class="product-section">
-                <p class="product-title">🎨 RƏNGLİ NİK (30 Bal)</p>
-                <div class="color-list">
-                    <button class="color-btn btn-yellow">Sarı</button>
-                    <button class="color-btn btn-red">Qırmızı</button>
-                    <button class="color-btn btn-blue">Göy</button>
-                    <button class="color-btn btn-purple">Bənövşəyi</button>
-                    <button class="color-btn btn-green">Yaşıl</button>
-                </div>
-            </div>
-
-            <div class="product-section">
-                <p class="product-title">💬 RƏNGLİ MESAJ (30 Bal)</p>
-                <div class="color-list">
-                    <button class="color-btn btn-yellow">Sarı</button>
-                    <button class="color-btn btn-red">Qırmızı</button>
-                    <button class="color-btn btn-blue">Göy</button>
-                    <button class="color-btn btn-purple">Bənövşəyi</button>
-                    <button class="color-btn btn-green">Yaşıl</button>
-                </div>
-            </div>
-
-            <div class="product-section">
                 <p class="product-title">🎁 HƏDİYƏ ATMAQ (20 Bal)</p>
                 <form method="POST">
                     <input type="hidden" name="action" value="send_gift">
@@ -1878,15 +1856,6 @@ MAGAZA_TEMPLATE = '''
                         {% endfor %}
                     </div>
                 </form>
-            </div>
-
-            <div class="product-section">
-                <p class="product-title">⭐ PROFİL STİKƏRLƏRİ (25 Bal)</p>
-                <div class="emoji-grid">
-                    {% for emo in emojis %}
-                        <span class="emoji-btn" style="cursor: default;">{{ emo }}</span>
-                    {% endfor %}
-                </div>
             </div>
 
         </div>
@@ -2799,15 +2768,15 @@ def profil():
             return redirect(url_for('index'))
             
     cursor.execute("SELECT profile_pic, points FROM users WHERE nickname = ?", (current_user,))
-    user_row = cursor.fetchone()
-    pic = user_row[0] if user_row else None
-    user_points = user_row[1] if user_row else 0
+    row = cursor.fetchone()
+    pic = row[0] if row else None
+    points = row[1] if row else 0
     
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
-    
     conn.close()
-    header = get_header_template(user_points)
+    
+    header = get_header_template(points)
     return render_template_string(PROFIL_TEMPLATE, header=header, user=current_user, pic=pic, gifts=gifts, message=message, error=error)
 
 @app.route('/magaza', methods=['GET', 'POST'])
@@ -2826,32 +2795,41 @@ def magaza():
         action = request.form.get('action')
         if action == 'send_gift':
             receiver = request.form.get('receiver')
-            gift = request.form.get('gift')
+            gift_emoji = request.form.get('gift')
+            gift_cost = 20
             
             cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-            points = cursor.fetchone()[0]
+            row = cursor.fetchone()
+            current_points = row[0] if row else 0
             
-            if points >= 20:
-                cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
-                cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
-                conn.commit()
-                message = "Hədiyyə uğurla göndərildi! (-20 bal)"
-            else:
+            if current_points < gift_cost:
                 message = "Balınız kifayət etmir! (Minimum 20 bal lazımdır)"
                 error = True
-                
+            elif not receiver:
+                message = "Zəhmət olmasa istifadəçi seçin!"
+                error = True
+            else:
+                # Balı çıxırıq və hədiyyəni bazaya yazırıq
+                new_points = current_points - gift_cost
+                cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
+                cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift_emoji))
+                conn.commit()
+                message = f"Hədiyyə uğurla @{receiver} istifadəçisinə göndərildi! (-20 bal)"
+                error = False
+
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-    points = cursor.fetchone()[0]
+    row = cursor.fetchone()
+    points = row[0] if row else 0
     
     cursor.execute("SELECT nickname FROM users")
-    users = [row[0] for row in cursor.fetchall()]
-    
+    users = [r[0] for r in cursor.fetchall()]
     conn.close()
+    
     header = get_header_template(points)
     return render_template_string(MAGAZA_TEMPLATE, header=header, points=points, users=users, current_user=current_user, message=message, error=error)
 
 @app.route('/oyun')
-def oyun():
+def oyun_panel():
     if 'user' not in session:
         return redirect(url_for('index'))
         
@@ -2866,7 +2844,7 @@ def oyun():
     return render_template_string(OYUN_PANEL_TEMPLATE, header=header, points=points)
 
 @app.route('/oyun/wow')
-def wow():
+def wow_oyunu():
     if 'user' not in session:
         return redirect(url_for('index'))
         
@@ -2885,23 +2863,19 @@ def wow_win():
     if 'user' not in session:
         return jsonify(success=False)
         
+    current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (session['user'],))
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-    new_points = cursor.fetchone()[0]
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    row = cursor.fetchone()
+    current_points = row[0] if row else 0
+    
+    new_points = current_points + 5
+    cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
     conn.commit()
     conn.close()
     
     return jsonify(success=True, new_points=new_points)
-
-QUESTIONS_DB = [
-    {"id": 1, "question": "Azərbaycanın paytaxtı hansı şəhərdir?", "answer": "BAKI"},
-    {"id": 2, "question": "2 + 2 neçə edir?", "answer": "4"},
-    {"id": 3, "question": "İlin neçə ayı var?", "answer": "12"},
-    {"id": 4, "question": "Su neçə dərəcədə qaynayır?", "answer": "100"},
-    {"id": 5, "question": "Kompüterin əsas beyini necə adlanır? (Ana söz)", "answer": "PROSESOR"}
-]
 
 @app.route('/oyun/sual_cavab')
 def sual_cavab():
@@ -2918,9 +2892,17 @@ def sual_cavab():
     header = get_header_template(points)
     return render_template_string(SUAL_CAVAB_TEMPLATE, header=header)
 
+QUESTIONS_BANK = [
+    {"id": 1, "question": "Azərbaycanın paytaxtı haradır?", "answer": "BAKI"},
+    {"id": 2, "question": "2 + 2 * 2 neçə edir?", "answer": "6"},
+    {"id": 3, "question": "Dünyanın ən böyük okeanı hansıdır?", "answer": "SAKIT"},
+    {"id": 4, "question": "Azərbaycanın dövlət dili hansıdır?", "answer": "AZƏRBAYCAN"},
+    {"id": 5, "question": "1 il neçə gündür?", "answer": "365"}
+]
+
 @app.route('/oyun/sual_getir')
 def sual_getir():
-    q = random.choice(QUESTIONS_DB)
+    q = random.choice(QUESTIONS_BANK)
     return jsonify(id=q["id"], question=q["question"])
 
 @app.route('/oyun/sual_yoxla', methods=['POST'])
@@ -2932,18 +2914,15 @@ def sual_yoxla():
     q_id = data.get('q_id')
     user_ans = data.get('answer', '').strip().upper()
     
-    target_q = None
-    for q in QUESTIONS_DB:
-        if q["id"] == q_id:
-            target_q = q
-            break
-            
-    if target_q and target_q["answer"] == user_ans:
+    q = next((item for item in QUESTIONS_BANK if item["id"] == q_id), None)
+    if q and q["answer"] == user_ans:
+        current_user = session['user']
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET points = points + 6 WHERE nickname = ?", (session['user'],))
-        cursor.execute("SELECT points FROM users WHERE nickname = ?", (session['user'],))
-        new_points = cursor.fetchone()[0]
+        cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+        row = cursor.fetchone()
+        new_points = (row[0] if row else 0) + 6
+        cursor.execute("UPDATE users SET points = ? WHERE nickname = ?", (new_points, current_user))
         conn.commit()
         conn.close()
         return jsonify(correct=True, new_points=new_points)
@@ -2971,4 +2950,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, port=5000)
