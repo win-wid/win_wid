@@ -177,6 +177,72 @@ INDEX_TEMPLATE = '''
             margin: 0; 
             position: relative;
         }
+        /* Xəbərdarlıq Səhifəsi (Kvadrat Ölçüdə Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .warning-box {
+            width: 380px;
+            height: 380px;
+            background: rgba(15, 15, 18, 0.95);
+            backdrop-filter: blur(16px);
+            border: 2px solid #f97316;
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .warning-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+        .warning-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .warning-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+        .btn-read {
+            background: #f97316;
+            color: #fff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-unread {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .warning-btn:hover {
+            transform: translateY(-2px);
+        }
+
         .terms-link {
             position: absolute;
             top: 20px;
@@ -198,10 +264,6 @@ INDEX_TEMPLATE = '''
         .logo-container {
             margin-bottom: 25px;
             text-align: center;
-        }
-        .logo-container img {
-            max-width: 150px;
-            height: auto;
         }
         .container { 
             width: 90%;
@@ -271,6 +333,20 @@ INDEX_TEMPLATE = '''
     </style>
 </head>
 <body>
+    <!-- XƏBƏRDARLIQ SƏYFƏSİ (KVADRAT) -->
+    <div class="modal-overlay" id="warningModal">
+        <div class="warning-box">
+            <div class="warning-text">
+                WİN_WİD'Ə XOŞ GƏLMİSİNİZ..🤗<br><br>
+                İSDİFADƏÇİ ŞƏRTLƏRİNİ OXUYUB SONRA SAYITA DAXİL OLUN...
+            </div>
+            <div class="warning-buttons">
+                <a href="/istifade_sertleri" target="_blank" class="warning-btn btn-read">OXU</a>
+                <button type="button" class="warning-btn btn-unread" onclick="closeWarningModal()">OXUMA</button>
+            </div>
+        </div>
+    </div>
+
     <a href="/istifade_sertleri" target="_blank" class="terms-link">İSTİFADƏ ŞƏRTLƏRİ</a>
 
     <div class="logo-container">
@@ -289,6 +365,12 @@ INDEX_TEMPLATE = '''
             <button type="submit" name="action" value="register">Qeydiyyat Keç</button>
         </form>
     </div>
+
+    <script>
+        function closeWarningModal() {
+            document.getElementById('warningModal').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
 '''
@@ -2722,7 +2804,6 @@ def vidyo_upload():
     upload_error = None
     if file:
         file_bytes = file.read()
-        # Sadə yoxlama (video uzunluğu üçün fayl ölçüsü limiti qoyula bilər)
         if len(file_bytes) > 15 * 1024 * 1024:
             upload_error = "Video həcmi çox böyükdür (Max 15MB)!"
         else:
@@ -2759,8 +2840,8 @@ def vidyo_upload():
         uc_row = cursor.fetchone()
         name_color = uc_row[0] if uc_row else 'inherit'
         videos.append((v_id, uploader, vid_data, liked, like_count, comments, name_color))
+        
     conn.close()
-    
     header = get_header_template(user_points)
     return render_template_string(VIDYO_TEMPLATE, videos=videos, current_user=current_user, header=header, upload_error=upload_error)
 
@@ -2863,22 +2944,26 @@ def profil():
         if action == 'change_name':
             new_name = request.form.get('new_nickname', '').strip()
             if not new_name or len(new_name) > 7:
-                message = "Nik adı boş ola bilməz və max 7 hərf olmalıdır!"
+                message = "Yeni nik boş ola bilməz və ya 7 hərfdən çox ola bilməz!"
                 error = True
             else:
                 try:
                     cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
                     cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE private_messages SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE private_messages SET receiver = ? WHERE receiver = ?", (new_name, current_user))
-                    cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photo_likes SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photo_comments SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE video_likes SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE video_comments SET username = ? WHERE username = ?", (new_name, current_user))
+                    cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_name, current_user))
+                    cursor.execute("UPDATE private_messages SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE private_messages SET receiver = ? WHERE receiver = ?", (new_name, current_user))
                     conn.commit()
                     session['user'] = new_name
                     current_user = new_name
-                    message = "Nik adı uğurla dəyişdirildi!"
+                    message = "Nik uğurla dəyişdirildi!"
                 except sqlite3.IntegrityError:
                     message = "Bu nik artıq istifadə olunur!"
                     error = True
@@ -2893,24 +2978,28 @@ def profil():
                 message = "Profil şəkli uğurla yeniləndi!"
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
             conn.commit()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
             
-    cursor.execute("SELECT profile_pic, name_color, profile_sticker, points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT profile_pic, name_color, profile_sticker FROM users WHERE nickname = ?", (current_user,))
     u_row = cursor.fetchone()
     pic = u_row[0] if u_row else None
     name_color = u_row[1] if u_row else 'inherit'
     profile_sticker = u_row[2] if u_row else ''
-    user_points = u_row[3] if u_row else 0
     
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
     
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    p_row = cursor.fetchone()
+    user_points = p_row[0] if p_row else 0
+    
     conn.close()
     header = get_header_template(user_points)
-    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, message=message, error=error, header=header)
+    return render_template_string(PROFIL_TEMPLATE, user=current_user, pic=pic, gifts=gifts, name_color=name_color, profile_sticker=profile_sticker, message=message, error=error, header=header)
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -2927,52 +3016,56 @@ def magaza():
     if request.method == 'POST':
         action = request.form.get('action')
         cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-        pts = cursor.fetchone()[0]
+        points = cursor.fetchone()[0]
         
         if action == 'buy_name_color':
-            if pts >= 30:
+            if points >= 30:
                 color = request.form.get('color')
                 cursor.execute("UPDATE users SET points = points - 30, name_color = ? WHERE nickname = ?", (color, current_user))
                 conn.commit()
-                message = "Rəngli nik uğurla alındı!"
+                message = "Rəngli nik uğurla alındı və tətbiq olundu!"
             else:
-                message = "Balınız kifayət etmir! (30 bal lazımdır)"
+                message = "Balınız kifayət deyil! (30 bal tələb olunur)"
                 error = True
         elif action == 'buy_msg_color':
-            if pts >= 30:
+            if points >= 30:
                 color = request.form.get('color')
                 cursor.execute("UPDATE users SET points = points - 30, msg_color = ? WHERE nickname = ?", (color, current_user))
                 conn.commit()
-                message = "Rəngli mesaj uğurla alındı!"
+                message = "Rəngli mesaj uğurla alındı və tətbiq olundu!"
             else:
-                message = "Balınız kifayət etmir! (30 bal lazımdır)"
+                message = "Balınız kifayət deyil! (30 bal tələb olunur)"
                 error = True
         elif action == 'send_gift':
-            if pts >= 20:
+            if points >= 20:
                 receiver = request.form.get('receiver')
                 gift = request.form.get('gift')
-                cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
-                cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
-                conn.commit()
-                message = "Hədiyyə uğurla göndərildi!"
+                if receiver and gift:
+                    cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
+                    cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
+                    conn.commit()
+                    message = f"Hədiyyə @{receiver} istifadəçisinə uğurla göndərildi!"
+                else:
+                    message = "İstifadəçi və ya hədiyyə seçilmədi!"
+                    error = True
             else:
-                message = "Balınız kifayət etmir! (20 bal lazımdır)"
+                message = "Balınız kifayət deyil! (20 bal tələb olunur)"
                 error = True
         elif action == 'buy_profile_sticker':
-            if pts >= 25:
+            if points >= 25:
                 sticker = request.form.get('sticker')
                 cursor.execute("UPDATE users SET points = points - 25, profile_sticker = ? WHERE nickname = ?", (sticker, current_user))
                 conn.commit()
-                message = "Profil stikeri uğurla alındı!"
+                message = "Profil stikeri uğurla alındı və tətbiq olundu!"
             else:
-                message = "Balınız kifayət etmir! (25 bal lazımdır)"
+                message = "Balınız kifayət deyil! (25 bal tələb olunur)"
                 error = True
                 
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
     points = cursor.fetchone()[0]
     
     cursor.execute("SELECT nickname FROM users")
-    users = [r[0] for r in cursor.fetchall()]
+    users = [row[0] for row in cursor.fetchall()]
     
     conn.close()
     header = get_header_template(points)
@@ -2983,32 +3076,58 @@ def oyun_panel():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
     p_row = cursor.fetchone()
     points = p_row[0] if p_row else 0
     conn.close()
-    
     header = get_header_template(points)
     return render_template_string(OYUN_PANEL_TEMPLATE, points=points, header=header)
+
+@app.route('/oyun/wow')
+def oyun_wow():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return redirect(url_for('oyun_panel'))
+
+@app.route('/oyun/sual_cavab')
+def oyun_sual_cavab():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return redirect(url_for('oyun_panel'))
+
+@app.route('/oyun/win_blast')
+def oyun_win_blast():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return redirect(url_for('oyun_panel'))
 
 @app.route('/oyun/pazil')
 def oyun_pazil():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
     p_row = cursor.fetchone()
     points = p_row[0] if p_row else 0
     conn.close()
-    
     header = get_header_template(points)
     return render_template_string(PAZIL_TEMPLATE, points=points, header=header)
 
+@app.route('/bildiris')
+def bildiris():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return redirect(url_for('chat'))
+
+@app.route('/sikayet', methods=['GET', 'POST'])
+def sikayet():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    return redirect(url_for('chat'))
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, port=5000)
