@@ -751,9 +751,11 @@ CHAT_TEMPLATE = '''
                         <div class="msg-user" style="color: {{ m[3] if m[3] and m[3] != 'inherit' else ('#fed7aa' if m[1] == current_user else '#f97316') }};">@{{ m[1] }} {{ m[5] }}</div>
                         <p class="msg-text" id="msg-text-{{ m[0] }}" style="color: {{ m[4] if m[4] and m[4] != '#eab308' else '#f8fafc' }};">{{ m[2] }}</p>
                         
-                        {% if m[1] == current_user %}
+                        {% if m[1] == current_user or is_admin %}
                             <div class="msg-actions">
-                                <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
+                                {% if m[1] == current_user %}
+                                    <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
+                                {% endif %}
                                 <button onclick="deleteMessage('{{ m[0] }}')" style="color: #fca5a5;">Sil</button>
                             </div>
                         {% endif %}
@@ -898,6 +900,11 @@ USERS_TEMPLATE = '''
             font-weight: 600;
             margin: 0;
         }
+        .user-right-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
         .msg-btn {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
@@ -914,6 +921,20 @@ USERS_TEMPLATE = '''
         .msg-btn:hover {
             transform: translateY(-2px);
         }
+        .admin-action-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .admin-action-btn:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -924,7 +945,7 @@ USERS_TEMPLATE = '''
         
         {% if all_users %}
             {% for u in all_users %}
-                <div class="user-card">
+                <div class="user-card" id="user-row-{{ u[0] }}">
                     <div class="user-left">
                         <img src="{{ u[1] if u[1] else 'https://i.imgur.com/6VBx3io.png' }}" class="user-avatar" alt="Profil">
                         <div>
@@ -932,15 +953,36 @@ USERS_TEMPLATE = '''
                             <p class="user-status">● Aktivdir</p>
                         </div>
                     </div>
-                    {% if u[0] != current_user %}
-                        <a href="/ozel_mesaj/{{ u[0] }}" class="msg-btn">💬 MESAJ YAZ</a>
-                    {% endif %}
+                    <div class="user-right-actions">
+                        {% if u[0] != current_user %}
+                            <a href="/ozel_mesaj/{{ u[0] }}" class="msg-btn">💬 MESAJ YAZ</a>
+                            {% if is_admin %}
+                                <button class="admin-action-btn" onclick="deleteUserAccount('{{ u[0] }}')">Sil / Bloka at</button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         {% else %}
             <p style="text-align: center; color: #a1a1aa; font-size: 15px;">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
         {% endif %}
     </div>
+
+    <script>
+        function deleteUserAccount(username) {
+            if(confirm("@" + username + " istifadəçisini bloka atmaq və silmək istədiyinizə əminsinizmi?")) {
+                fetch('/admin/delete_user/' + username, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('user-row-' + username).remove();
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
 '''
@@ -1330,7 +1372,7 @@ SEKIL_TEMPLATE = '''
 
                     <div class="shorts-info">
                         <div class="shorts-username" style="color: {{ p[6] if p[6] and p[6] != 'inherit' and p[6] != '#eab308' else '#fff' }};">@{{ p[1] }}</div>
-                        {% if p[1] == current_user %}
+                        {% if p[1] == current_user or is_admin %}
                             <button class="delete-short-btn" onclick="deletePhoto('{{ p[0] }}')">Sil 🗑️</button>
                         {% endif %}
                     </div>
@@ -1726,7 +1768,7 @@ VIDYO_TEMPLATE = '''
 
                     <div class="shorts-info">
                         <div class="shorts-username" style="color: {{ v[6] if v[6] and v[6] != 'inherit' and v[6] != '#eab308' else '#fff' }};">@{{ v[1] }}</div>
-                        {% if v[1] == current_user %}
+                        {% if v[1] == current_user or is_admin %}
                             <button class="delete-short-btn" onclick="deleteVideo('{{ v[0] }}')">Sil 🗑️</button>
                         {% endif %}
                     </div>
@@ -2034,6 +2076,21 @@ PROFIL_TEMPLATE = '''
             transition: transform 0.2s;
         }
         .btn-blue:hover { transform: translateY(-1px); }
+        .btn-admin {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            text-decoration: none;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+        }
         .btn-gray {
             background: rgba(39, 39, 42, 0.9);
             color: white;
@@ -2092,6 +2149,10 @@ PROFIL_TEMPLATE = '''
                     <p class="status">● Aktivdir</p>
                 </div>
             </div>
+
+            {% if is_admin %}
+                <a href="/admin/sikayetler" class="btn-admin">⚙️ Şikayət İdarəetmə Paneli (Admin)</a>
+            {% endif %}
 
             <div>
                 <p style="font-size: 14px; margin: 0 0 8px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
@@ -2306,7 +2367,7 @@ MAGAZA_TEMPLATE = '''
                     </select>
                     <div class="emoji-grid">
                         <button type="submit" name="gift" value="🎁" class="emoji-btn">🎁</button>
-                        <button type="submit" name="gift" value="❤️" class="emoji-btn">❤️</button>
+                        <button type="submit" name="gift" value="❤️" class="emoji-btn">❤️️</button>
                         <button type="submit" name="gift" value="🔥" class="emoji-btn">🔥</button>
                         <button type="submit" name="gift" value="⭐" class="emoji-btn">⭐</button>
                         <button type="submit" name="gift" value="👑" class="emoji-btn">👑</button>
@@ -2545,6 +2606,137 @@ SIKAYET_TEMPLATE = '''
 </html>
 '''
 
+ADMIN_SIKAYET_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Admin Şikayətlər</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .admin-container {
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(16px);
+            flex: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .admin-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f97316;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 14px;
+            margin: 0 0 10px 0;
+            text-align: center;
+        }
+        .complaint-card {
+            background: rgba(39, 39, 42, 0.7);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .comp-user {
+            font-weight: 700;
+            color: #fb923c;
+            font-size: 16px;
+        }
+        .comp-cat {
+            font-size: 13px;
+            color: #a1a1aa;
+        }
+        .comp-text {
+            font-size: 15px;
+            color: #f8fafc;
+            margin: 0;
+        }
+        .reply-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .reply-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(9, 9, 11, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .reply-input:focus { border-color: #f97316; outline: none; }
+        .reply-btn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="admin-container">
+        <p class="admin-title">📢 GƏLƏN ŞİKAYƏT VƏ TƏKLİFLƏR (WİN_WİD & EMKA PANELİ)</p>
+        {% if complaints %}
+            {% for c in complaints %}
+                <div class="complaint-card" id="comp-{{ c[0] }}">
+                    <div class="comp-user">@{{ c[1] }} <span class="comp-cat">({{ c[2] }})</span></div>
+                    <p class="comp-text">{{ c[3] }}</p>
+                    <form class="reply-box" onsubmit="sendReply(event, '{{ c[1] }}', '{{ c[0] }}')">
+                        <input type="text" class="reply-input" id="reply-input-{{ c[0] }}" placeholder="İstifadəçiyə cavab yaz..." required>
+                        <button type="submit" class="reply-btn">Cavab Yaz</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #a1a1aa; font-size: 15px;">Hələ ki şikayət yoxdur.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function sendReply(event, username, compId) {
+            event.preventDefault();
+            let input = document.getElementById('reply-input-' + compId);
+            let text = input.value.trim();
+            if(!text) return;
+
+            fetch('/admin/reply_complaint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, content: text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    alert("Cavab istifadəçiyə bildiriş olaraq göndərildi!");
+                    input.value = '';
+                } else {
+                    alert(data.error || "Xəta baş verdi!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+'''
+
+def is_admin_user(username):
+    return username in ['WİN_WİD', 'EMKA']
+
 def get_user_unread_status(username):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -2612,7 +2804,8 @@ def chat():
     
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
-    return render_template_string(CHAT_TEMPLATE, header=header, messages=messages, current_user=current_user, user_points=user_points)
+    is_admin = is_admin_user(current_user)
+    return render_template_string(CHAT_TEMPLATE, header=header, messages=messages, current_user=current_user, user_points=user_points, is_admin=is_admin)
 
 @app.route('/chat/send', methods=['POST'])
 def chat_send():
@@ -2642,7 +2835,7 @@ def delete_message(msg_id):
     cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
     msg = cursor.fetchone()
     
-    if msg and msg[0] == current_user:
+    if msg and (msg[0] == current_user or is_admin_user(current_user)):
         cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
         conn.commit()
         conn.close()
@@ -2691,7 +2884,23 @@ def istifadeciler():
     
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
-    return render_template_string(USERS_TEMPLATE, header=header, all_users=all_users, current_user=current_user)
+    is_admin = is_admin_user(current_user)
+    return render_template_string(USERS_TEMPLATE, header=header, all_users=all_users, current_user=current_user, is_admin=is_admin)
+
+@app.route('/admin/delete_user/<username>', methods=['POST'])
+def admin_delete_user(username):
+    if 'user' not in session or not is_admin_user(session['user']):
+        return jsonify({'success': False, 'error': 'Icazə yoxdur'})
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM users WHERE nickname = ?", (username,))
+    cursor.execute("DELETE FROM messages WHERE sender = ?", (username,))
+    cursor.execute("DELETE FROM photos WHERE uploader = ?", (username,))
+    cursor.execute("DELETE FROM videos WHERE uploader = ?", (username,))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
 
 @app.route('/ozel_mesaj/<receiver>', methods=['GET', 'POST'])
 def ozel_mesaj(receiver):
@@ -2750,7 +2959,8 @@ def sekil():
     conn.close()
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
-    return render_template_string(SEKIL_TEMPLATE, header=header, photos=photos, current_user=current_user)
+    is_admin = is_admin_user(current_user)
+    return render_template_string(SEKIL_TEMPLATE, header=header, photos=photos, current_user=current_user, is_admin=is_admin)
 
 @app.route('/sekil/upload', methods=['POST'])
 def sekil_upload():
@@ -2813,26 +3023,24 @@ def sekil_comment(photo_id):
         
     current_user = session['user']
     data = request.get_json()
-    comment_text = data.get('comment', '').strip()
+    comment = data.get('comment', '').strip()
     
-    if not comment_text:
-        return jsonify({'success': False})
+    if comment:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO photo_comments (photo_id, username, comment) VALUES (?, ?, ?)", (photo_id, current_user, comment))
         
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO photo_comments (photo_id, username, comment) VALUES (?, ?, ?)", (photo_id, current_user, comment_text))
-    
-    cursor.execute("SELECT uploader FROM photos WHERE id = ?", (photo_id,))
-    uploader_row = cursor.fetchone()
-    uploader = uploader_row[0] if uploader_row else None
-    
-    if uploader and uploader != current_user:
-        cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (uploader, f"@{current_user} şəklinizə şərh yazdı: {comment_text}"))
+        cursor.execute("SELECT uploader FROM photos WHERE id = ?", (photo_id,))
+        uploader_row = cursor.fetchone()
+        uploader = uploader_row[0] if uploader_row else None
+        if uploader and uploader != current_user:
+            cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (uploader, f"@{current_user} şəklinizə şərh yazdı: {comment}"))
+
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'user': current_user, 'comment': comment})
         
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'user': current_user, 'comment': comment_text})
+    return jsonify({'success': False})
 
 @app.route('/sekil/share/<int:photo_id>', methods=['POST'])
 def sekil_share(photo_id):
@@ -2848,10 +3056,10 @@ def sekil_share(photo_id):
     cursor.execute("SELECT 1 FROM users WHERE nickname = ?", (receiver,))
     if not cursor.fetchone():
         conn.close()
-        return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+        return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı'})
         
     cursor.execute("INSERT INTO photo_shares (photo_id, sender, receiver) VALUES (?, ?, ?)", (photo_id, current_user, receiver))
-    cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, f"@{current_user} sizə şəkil göndərdi 📷"))
+    cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, f"@{current_user} sizə şəkil göndərdi!"))
     conn.commit()
     conn.close()
     
@@ -2868,17 +3076,16 @@ def sekil_delete(photo_id):
     cursor.execute("SELECT uploader FROM photos WHERE id = ?", (photo_id,))
     p = cursor.fetchone()
     
-    if p and p[0] == current_user:
+    if p and (p[0] == current_user or is_admin_user(current_user)):
         cursor.execute("DELETE FROM photos WHERE id = ?", (photo_id,))
         cursor.execute("DELETE FROM photo_likes WHERE photo_id = ?", (photo_id,))
         cursor.execute("DELETE FROM photo_comments WHERE photo_id = ?", (photo_id,))
-        cursor.execute("DELETE FROM photo_shares WHERE photo_id = ?", (photo_id,))
         conn.commit()
         conn.close()
         return jsonify({'success': True})
         
     conn.close()
-    return jsonify({'success': False, 'error': 'Silmək mümkün olmadı'})
+    return jsonify({'success': False, 'error': 'Silməkicazəniz yoxdur'})
 
 @app.route('/vidyo')
 def vidyo():
@@ -2913,8 +3120,8 @@ def vidyo():
     conn.close()
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
-    upload_error = session.pop('upload_error', None)
-    return render_template_string(VIDYO_TEMPLATE, header=header, videos=videos, current_user=current_user, upload_error=upload_error)
+    is_admin = is_admin_user(current_user)
+    return render_template_string(VIDYO_TEMPLATE, header=header, videos=videos, current_user=current_user, is_admin=is_admin)
 
 @app.route('/vidyo/upload', methods=['POST'])
 def vidyo_upload():
@@ -2923,20 +3130,37 @@ def vidyo_upload():
         
     file = request.files.get('video_file')
     if file and file.filename != '':
-        # Video uzunluğu yoxlanışı üçün temp fayla yazırıq
-        fd, temp_path = tempfile.mkstemp()
-        os.close(fd)
-        file.save(temp_path)
-        
-        # ffprobe və ya moviepy olmadıqda sadə ölçü yoxlaması edirik (və ya birbaşa qəbul edirik)
-        file.seek(0, os.SEEK_END)
-        file_size = file.tell()
-        
-        # 30 saniyəlik məhdudiyyət üçün təxmini fayl həcmi və ya birbaşa qəbul edək
-        file.seek(0)
         file_bytes = file.read()
-        os.remove(temp_path)
         
+        # Saniyə/ölçü yoxlaması üçün temp fayl
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp:
+            temp.write(file_bytes)
+            temp_path = temp.name
+            
+        # Sadə fayl ölçüsü (max ~15MB) yoxlaması
+        file_size = os.path.getsize(temp_path)
+        os.unlink(temp_path)
+        
+        if file_size > 15 * 1024 * 1024:
+            current_user = session['user']
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("SELECT v.id, v.uploader, v.video_data, u.name_color FROM videos v LEFT JOIN users u ON v.uploader = u.nickname")
+            raw_videos = cursor.fetchall()
+            videos = []
+            for v in raw_videos:
+                cursor.execute("SELECT 1 FROM video_likes WHERE video_id = ? AND username = ?", (v[0], current_user))
+                liked = cursor.fetchone() is not None
+                cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (v[0],))
+                like_count = cursor.fetchone()[0]
+                cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = ?", (v[0],))
+                comments = cursor.fetchall()
+                videos.append((v[0], v[1], v[2], liked, like_count, comments, v[3]))
+            conn.close()
+            has_notifs = get_user_unread_status(current_user)
+            header = get_header_template(has_notifs)
+            return render_template_string(VIDYO_TEMPLATE, header=header, videos=videos, current_user=current_user, upload_error="Video həddindən artıq böyükdür (Maksimum 15MB ola bilər)!")
+
         encoded = base64.b64encode(file_bytes).decode('utf-8')
         mime = file.mimetype or 'video/mp4'
         video_data = f"data:{mime};base64,{encoded}"
@@ -2990,26 +3214,24 @@ def vidyo_comment(video_id):
         
     current_user = session['user']
     data = request.get_json()
-    comment_text = data.get('comment', '').strip()
+    comment = data.get('comment', '').strip()
     
-    if not comment_text:
-        return jsonify({'success': False})
+    if comment:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (?, ?, ?)", (video_id, current_user, comment))
         
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (?, ?, ?)", (video_id, current_user, comment_text))
-    
-    cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
-    uploader_row = cursor.fetchone()
-    uploader = uploader_row[0] if uploader_row else None
-    
-    if uploader and uploader != current_user:
-        cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (uploader, f"@{current_user} videonuza şərh yazdı: {comment_text}"))
+        cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
+        uploader_row = cursor.fetchone()
+        uploader = uploader_row[0] if uploader_row else None
+        if uploader and uploader != current_user:
+            cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (uploader, f"@{current_user} videonuza şərh yazdı: {comment}"))
+
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'user': current_user, 'comment': comment})
         
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'user': current_user, 'comment': comment_text})
+    return jsonify({'success': False})
 
 @app.route('/vidyo/share/<int:video_id>', methods=['POST'])
 def vidyo_share(video_id):
@@ -3025,10 +3247,10 @@ def vidyo_share(video_id):
     cursor.execute("SELECT 1 FROM users WHERE nickname = ?", (receiver,))
     if not cursor.fetchone():
         conn.close()
-        return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+        return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı'})
         
     cursor.execute("INSERT INTO video_shares (video_id, sender, receiver) VALUES (?, ?, ?)", (video_id, current_user, receiver))
-    cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, f"@{current_user} sizə video göndərdi 📹"))
+    cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, f"@{current_user} sizə video göndərdi!"))
     conn.commit()
     conn.close()
     
@@ -3045,27 +3267,16 @@ def vidyo_delete(video_id):
     cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
     v = cursor.fetchone()
     
-    if v and v[0] == current_user:
+    if v and (v[0] == current_user or is_admin_user(current_user)):
         cursor.execute("DELETE FROM videos WHERE id = ?", (video_id,))
         cursor.execute("DELETE FROM video_likes WHERE video_id = ?", (video_id,))
         cursor.execute("DELETE FROM video_comments WHERE video_id = ?", (video_id,))
-        cursor.execute("DELETE FROM video_shares WHERE video_id = ?", (video_id,))
         conn.commit()
         conn.close()
         return jsonify({'success': True})
         
     conn.close()
-    return jsonify({'success': False, 'error': 'Silmək mümkün olmadı'})
-
-@app.route('/oyun')
-def oyun():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    
-    current_user = session['user']
-    has_notifs = get_user_unread_status(current_user)
-    header = get_header_template(has_notifs)
-    return render_template_string(OYUN_TEMPLATE, header=header)
+    return jsonify({'success': False, 'error': 'Silməkicazəniz yoxdur'})
 
 @app.route('/profil', methods=['GET', 'POST'])
 def profil():
@@ -3082,24 +3293,20 @@ def profil():
     if request.method == 'POST':
         action = request.form.get('action')
         if action == 'change_name':
-            new_nickname = request.form.get('new_nickname').strip()
-            if len(new_nickname) > 7:
-                message = "Nik name maksimum 7 hərfdən ibarət olmalıdır!"
+            new_name = request.form.get('new_nickname', '').strip()
+            if len(new_name) > 7:
+                message = "Yeni nik maksimum 7 hərfdən ibarət ola bilər!"
                 error = True
-            else:
+            elif new_name:
                 try:
-                    cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE private_messages SET sender = ? WHERE sender = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE private_messages SET receiver = ? WHERE receiver = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE gifts SET sender = ? WHERE sender = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE gifts SET receiver = ? WHERE receiver = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_nickname, current_user))
-                    cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_nickname, current_user))
+                    cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
+                    cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
+                    cursor.execute("UPDATE photos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
+                    cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
                     conn.commit()
-                    session['user'] = new_nickname
-                    current_user = new_nickname
-                    message = "Adınız uğurla dəyişdirildi!"
+                    session['user'] = new_name
+                    current_user = new_name
+                    message = "Nik uğurla dəyişdirildi!"
                 except sqlite3.IntegrityError:
                     message = "Bu nik artıq istifadədədir!"
                     error = True
@@ -3110,31 +3317,30 @@ def profil():
                 encoded = base64.b64encode(file_bytes).decode('utf-8')
                 mime = file.mimetype or 'image/jpeg'
                 pic_data = f"data:{mime};base64,{encoded}"
-                
                 cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (pic_data, current_user))
                 conn.commit()
-                message = "Profil şəkli yeniləndi!"
+                message = "Profil şəkli uğurla dəyişdirildi!"
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
-            cursor.execute("DELETE FROM messages WHERE sender = ?", (current_user,))
             conn.commit()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
             
     cursor.execute("SELECT profile_pic, name_color, profile_sticker FROM users WHERE nickname = ?", (current_user,))
-    user_data = cursor.fetchone()
-    pic = user_data[0] if user_data else None
-    name_color = user_data[1] if user_data else 'inherit'
-    profile_sticker = user_data[2] if user_data else ''
+    u_data = cursor.fetchone()
+    pic = u_data[0] if u_data else None
+    name_color = u_data[1] if u_data else 'inherit'
+    profile_sticker = u_data[2] if u_data else ''
     
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
     gifts = cursor.fetchall()
-    
     conn.close()
+    
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
-    return render_template_string(PROFIL_TEMPLATE, header=header, user=current_user, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, message=message, error=error)
+    is_admin = is_admin_user(current_user)
+    return render_template_string(PROFIL_TEMPLATE, header=header, user=current_user, pic=pic, gifts=gifts, message=message, error=error, name_color=name_color, profile_sticker=profile_sticker, is_admin=is_admin)
 
 @app.route('/magaza', methods=['GET', 'POST'])
 def magaza():
@@ -3151,7 +3357,8 @@ def magaza():
     if request.method == 'POST':
         action = request.form.get('action')
         cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
-        points = cursor.fetchone()[0]
+        p_row = cursor.fetchone()
+        points = p_row[0] if p_row else 0
         
         if action == 'buy_name_color':
             color = request.form.get('color')
@@ -3160,7 +3367,7 @@ def magaza():
                 conn.commit()
                 message = "Rəngli nik uğurla alındı!"
             else:
-                message = "Balınız kifayət etmir!"
+                message = "Balınız kifayət etmir (30 bal lazımdır)!"
                 error = True
         elif action == 'buy_msg_color':
             color = request.form.get('color')
@@ -3169,7 +3376,7 @@ def magaza():
                 conn.commit()
                 message = "Rəngli mesaj uğurla alındı!"
             else:
-                message = "Balınız kifayət etmir!"
+                message = "Balınız kifayət etmir (30 bal lazımdır)!"
                 error = True
         elif action == 'send_gift':
             receiver = request.form.get('receiver')
@@ -3177,11 +3384,11 @@ def magaza():
             if points >= 20:
                 cursor.execute("UPDATE users SET points = points - 20 WHERE nickname = ?", (current_user,))
                 cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, gift))
-                cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, f"@{current_user} sizə hədiyyə göndərdi: {gift} 🎁"))
+                cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, f"@{current_user} sizə hədiyyə göndərdi: {gift}"))
                 conn.commit()
                 message = "Hədiyyə uğurla göndərildi!"
             else:
-                message = "Balınız kifayət etmir!"
+                message = "Balınız kifayət etmir (20 bal lazımdır)!"
                 error = True
                 
     cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
@@ -3189,11 +3396,20 @@ def magaza():
     
     cursor.execute("SELECT nickname FROM users")
     users = [u[0] for u in cursor.fetchall()]
-    
     conn.close()
+    
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
     return render_template_string(MAGAZA_TEMPLATE, header=header, points=points, users=users, current_user=current_user, message=message, error=error)
+
+@app.route('/oyun')
+def oyun():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    has_notifs = get_user_unread_status(current_user)
+    header = get_header_template(has_notifs)
+    return render_template_string(OYUN_TEMPLATE, header=header)
 
 @app.route('/bildiris')
 def bildiris():
@@ -3203,11 +3419,9 @@ def bildiris():
     current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
     cursor.execute("SELECT id, content FROM notifications WHERE username = ? ORDER BY id DESC", (current_user,))
     notifications = cursor.fetchall()
     
-    # Oxundu olaraq işarələ
     cursor.execute("UPDATE notifications SET is_read = 1 WHERE username = ?", (current_user,))
     conn.commit()
     conn.close()
@@ -3231,13 +3445,55 @@ def sikayet():
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
             cursor.execute("INSERT INTO complaints (username, category, content) VALUES (?, ?, ?)", (current_user, category, content.strip()))
+            
+            # Şikayətin WİN_WİD hesabına bildiriş olaraq göndərilməsi
+            cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", ('WİN_WİD', f"Yeni şikayət gəldi (@{current_user} - {category}): {content.strip()}"))
+            
             conn.commit()
             conn.close()
-            message = "Şikayət və ya təklifiniz uğurla göndərildi!"
+            message = "Şikayətiniz uğurla göndərildi və idarəçiyə çatdırıldı!"
+        else:
+            message = "Zəhmət olmasa bütün xanaları doldurun!"
+            error = True
             
     has_notifs = get_user_unread_status(current_user)
     header = get_header_template(has_notifs)
     return render_template_string(SIKAYET_TEMPLATE, header=header, message=message, error=error)
+
+@app.route('/admin/sikayetler')
+def admin_sikayetler():
+    if 'user' not in session or not is_admin_user(session['user']):
+        return redirect(url_for('chat'))
+        
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, category, content FROM complaints ORDER BY id DESC")
+    complaints = cursor.fetchall()
+    conn.close()
+    
+    has_notifs = get_user_unread_status(session['user'])
+    header = get_header_template(has_notifs)
+    return render_template_string(ADMIN_SIKAYET_TEMPLATE, header=header, complaints=complaints)
+
+@app.route('/admin/reply_complaint', methods=['POST'])
+def admin_reply_complaint():
+    if 'user' not in session or not is_admin_user(session['user']):
+        return jsonify({'success': False, 'error': 'İcazə yoxdur'})
+        
+    current_user = session['user']
+    data = request.get_json()
+    target_user = data.get('username')
+    content = data.get('content', '').strip()
+    
+    if target_user and content:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (target_user, f"Admin (@{current_user}) şikayətinizə cavab yazdı: {content}"))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+        
+    return jsonify({'success': False})
 
 @app.route('/logout')
 def logout():
@@ -3245,4 +3501,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) 
