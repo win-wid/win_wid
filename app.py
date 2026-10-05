@@ -534,8 +534,8 @@ def get_header_template(has_unread_notifs=False):
             <span>Çat</span>
         </a>
         <a href="/istifadeciler" class="nav-item">
-            <span class="icon">👤</span>
-            <span>İstifadəçi</span>
+            <span class="icon">👥</span>
+            <span>İstifadəçilər</span>
         </a>
         <a href="/sekil" class="nav-item">
             <span class="icon">📷</span>
