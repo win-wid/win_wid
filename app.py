@@ -3793,7 +3793,7 @@ def magaza():
         <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:28px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); text-align:center;">
             <h2 style="color:#f97316; margin-top:0;">🛍 MAQAZİN / HƏDİYYƏLƏR</h2>
             <p style="font-size:16px; color:#4ade80; font-weight:700;">Balansınız: {user_points} bal</p>
-            <p style="color:#d4d4d8; font-size:15px;">Tezliklə mağazadan xüsusi stikerlər və rənglər əldə edə biləcəksiniz!</p>
+            <p style="color:#d4d4d8; font-size:15px;">TEZLİKLƏ MAĞAZA BÖLMƏSİ İŞLƏYƏCƏKDİR!! </p>
         </div>
     </body>
     </html>
