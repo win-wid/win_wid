@@ -31,7 +31,6 @@ def init_db():
         )
     ''')
     
-    # Mövcud bazalarda sütunlar yoxdursa əlavə etmək üçün
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN profile_pic TEXT")
     except sqlite3.OperationalError:
@@ -2143,12 +2142,11 @@ CANLI_ROOM_TEMPLATE = '''
             align-items: center;
             overflow: hidden;
         }
-        /* Canlı açan şəxsin video/kamera ekranı */
         #webcamVideo {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1); /* Güzgü effekti */
+            transform: scaleX(-1);
         }
         .viewer-placeholder {
             font-size: 22px;
@@ -2159,7 +2157,6 @@ CANLI_ROOM_TEMPLATE = '''
             padding: 20px;
             border-radius: 16px;
         }
-        /* Sol üst küncdə bəyəni sayı */
         .live-likes-counter {
             position: absolute;
             top: 20px;
@@ -2177,7 +2174,6 @@ CANLI_ROOM_TEMPLATE = '''
             align-items: center;
             gap: 6px;
         }
-        /* Canlı içi mesajlaşma paneli */
         .live-chat-overlay {
             position: absolute;
             bottom: 20px;
@@ -2234,7 +2230,6 @@ CANLI_ROOM_TEMPLATE = '''
             cursor: pointer;
             font-size: 13px;
         }
-        /* Sağ alt küncdə fasiləsiz bəyənmə düyməsi */
         .floating-like-btn {
             position: absolute;
             bottom: 25px;
@@ -2311,26 +2306,21 @@ CANLI_ROOM_TEMPLATE = '''
         </div>
 
         <div class="stream-viewport">
-            <!-- Sol üst küncdə bəyəni sayı -->
             <div class="live-likes-counter">
                 ❤️ <span id="likeCountDisplay">0</span>
             </div>
 
             {% if current_user == host %}
-                <!-- Canlı açan şəxs üçün kamera görüntüsü -->
                 <video id="webcamVideo" autoplay playsinline muted></video>
             {% else %}
-                <!-- İzləyicilər üçün canlı açan şəxsin vəziyyəti -->
                 <div class="viewer-placeholder">
                     🎥 @{{ host }} canlı yayım edir<br>
                     <span style="font-size: 14px; color: #a1a1aa; font-weight: normal;">Söhbətə qoşulun və bəyəni atın!</span>
                 </div>
             {% endif %}
 
-            <!-- Canlı içi mesajlaşma -->
             <div class="live-chat-overlay">
                 <div class="live-messages-list" id="liveMessagesList">
-                    <!-- Mesajlar bura dinamik gələcək -->
                 </div>
                 <form class="live-chat-form" id="liveChatForm" onsubmit="sendLiveMessage(event)">
                     <input type="text" id="liveMsgInput" class="live-chat-input" placeholder="Şərh yaz..." required autocomplete="off">
@@ -2338,7 +2328,6 @@ CANLI_ROOM_TEMPLATE = '''
                 </form>
             </div>
 
-            <!-- Fasiləsiz bəyənmə düyməsi -->
             <button class="floating-like-btn" onclick="sendLike()">❤️</button>
         </div>
 
@@ -2354,7 +2343,6 @@ CANLI_ROOM_TEMPLATE = '''
         const isHost = {{ 'true' if current_user == host else 'false' }};
         const liveId = '{{ live_id }}';
 
-        // Əgər istifadəçi canlı açandırsa, kameranı aktivləşdiririk
         if (isHost) {
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 .then(stream => {
@@ -2366,7 +2354,6 @@ CANLI_ROOM_TEMPLATE = '''
                 });
         }
 
-        // Bəyənmə göndərmə funksiyası (Fasiləsiz)
         function sendLike() {
             fetch('/canli/like/' + liveId, { method: 'POST' })
             .then(res => res.json())
@@ -2377,7 +2364,6 @@ CANLI_ROOM_TEMPLATE = '''
             });
         }
 
-        // Canlı mesaj yazma
         function sendLiveMessage(e) {
             e.preventDefault();
             let input = document.getElementById('liveMsgInput');
@@ -2398,7 +2384,6 @@ CANLI_ROOM_TEMPLATE = '''
             });
         }
 
-        // Hədiyyə göndərmə
         function sendGift(giftSymbol) {
             fetch('/canli/hediyye/' + liveId, {
                 method: 'POST',
@@ -2415,7 +2400,6 @@ CANLI_ROOM_TEMPLATE = '''
             });
         }
 
-        // Canlı məlumatlarını hər 2 saniyədən bir yeniləmək üçün (Mesajlar və bəyənilər)
         function fetchLiveUpdates() {
             fetch('/canli/yenile/' + liveId)
             .then(res => res.json())
@@ -2591,7 +2575,7 @@ IDARE_MERKEZI_TEMPLATE = '''
 
             {% if is_admin %}
                 <div style="background:rgba(39,39,42,0.6); padding:20px; border-radius:18px; margin-bottom:24px; border:1px solid #22c55e;">
-                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis / Alay Rəisi Təyin Et (Admin)</h4>
+                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis / Alay Rəisi Təyin Et (Admin: win_wid)</h4>
                     <form method="POST" action="/idare_merkezi/add_officer" style="display:flex; gap:12px; flex-wrap:wrap;">
                         <input type="text" name="officer_name" placeholder="İstifadəçi adı (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                         <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
@@ -2665,8 +2649,8 @@ IDARE_MERKEZI_TEMPLATE = '''
                                 </div>
                                 {% if is_admin %}
                                     <form method="POST" action="/idare_merkezi/verdict/{{ c[0] }}" style="display:flex; gap:6px;">
-                                        <input type="text" name="verdict" placeholder="Qərar yaz..." required style="padding:6px; border-radius:8px; background:#18181b; border:1px solid #555; color:#fff; font-size:12px;">
-                                        <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12px;">Təsdiqlə</button>
+                                        <input type="text" name="verdict" placeholder="Hökm yaz..." required style="padding:6px; border-radius:8px; background:#18181b; border:1px solid #555; color:#fff; font-size:12px;">
+                                        <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12px;">Hökm Ver (win_wid)</button>
                                     </form>
                                 {% endif %}
                             </div>
@@ -2747,9 +2731,8 @@ def chat():
     ''')
     messages = cursor.fetchall()
     
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    # YALNIZ win_wid ADMINDIR (EMKA adminlikdən çıxarıldı)
+    is_admin = (current_user.lower() == 'win_wid')
     
     conn.close()
     
@@ -2782,10 +2765,9 @@ def chat_delete(msg_id):
         conn.close()
         return jsonify({'success': False, 'error': 'Mesaj tapılmadı'})
     
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    is_admin = (current_user.lower() == 'win_wid')
     
+    # Yalnız mesajın sahibi və ya win_wid silə bilər
     if row[0] == current_user or is_admin:
         cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
         conn.commit()
@@ -2888,9 +2870,7 @@ def istifadeciler():
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    is_admin = (current_user.lower() == 'win_wid')
     
     cursor.execute("SELECT nickname, profile_pic, name_color, profile_sticker FROM users")
     all_users = cursor.fetchall()
@@ -2937,9 +2917,7 @@ def vidyo():
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    is_admin = (current_user.lower() == 'win_wid')
     
     cursor.execute('''
         SELECT v.id, v.uploader, v.video_data, u.name_color 
@@ -3062,9 +3040,8 @@ def vidyo_delete(video_id):
     if not row:
         conn.close()
         return jsonify({'success': False})
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    
+    is_admin = (current_user.lower() == 'win_wid')
     if row[0] == current_user or is_admin:
         cursor.execute("DELETE FROM videos WHERE id = ?", (video_id,))
         conn.commit()
@@ -3132,9 +3109,7 @@ def profil():
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    is_admin = (current_user.lower() == 'win_wid')
     
     conn.close()
     header_html = get_header_template(has_unread_notifs)
@@ -3294,7 +3269,6 @@ def canli_hediyye(live_id):
         return jsonify({'success': False, 'error': 'Canlı tapılmadı'})
     host = live[0]
     
-    # Göndərənin balını çıx, sahibinə əlavə et
     cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = ?", (current_user,))
     cursor.execute("UPDATE users SET points = points + 10 WHERE nickname = ?", (host,))
     cursor.execute("INSERT INTO live_gifts (live_id, sender, gift) VALUES (?, ?, ?)", (live_id, current_user, gift))
@@ -3317,10 +3291,8 @@ def canli_bitir(live_id):
     cursor.execute("SELECT host FROM lives WHERE id = ? AND is_active = 1", (live_id,))
     live = cursor.fetchone()
     if live and live[0] == current_user:
-        # Canlıyı bağla
         cursor.execute("UPDATE lives SET is_active = 0 WHERE id = ?", (live_id,))
         
-        # Bəyənmələri hesabla (Hər 50 bəyənməyə görə canlı sahibinə 10 bal)
         cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = ?", (live_id,))
         likes_count = cursor.fetchone()[0]
         
@@ -3366,6 +3338,7 @@ def bildiris():
     '''
     return render_template_string(page)
 
+# 1. TƏLƏB: BÜTÜN ŞİKAYƏTLƏR BİLDİRİŞ BÖLMƏSİNDƏ win_wid HESABINA GÖRSƏNİR
 @app.route('/sikayet', methods=['GET', 'POST'])
 def sikayet():
     if 'user' not in session:
@@ -3380,6 +3353,11 @@ def sikayet():
         content = request.form.get('content')
         if category and content:
             cursor.execute("INSERT INTO complaints (username, category, content) VALUES (?, ?, ?)", (current_user, category, content))
+            
+            # WIN_WID hesabının bildiriş bölməsinə göndərilir
+            notif_text = f"📢 Yeni Şikayət! İstifadəçi: @{current_user} | Kateqoriya: {category} | Mətn: {content}"
+            cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', ?)", (notif_text,))
+            
             conn.commit()
             message = "Şikayətiniz uğurla göndərildi!"
             
@@ -3436,9 +3414,8 @@ def idare_merkezi():
     cursor.execute("SELECT id, accused_user, reason, verdict, judge FROM court_cases ORDER BY id DESC")
     cases = cursor.fetchall()
 
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    is_admin = (current_user in admins)
+    # YALNIZ win_wid ADMINDIR
+    is_admin = (current_user.lower() == 'win_wid')
 
     conn.close()
 
@@ -3464,12 +3441,10 @@ def idare_merkezi_login():
     code = request.form.get('code', '').strip()
     regiment = request.form.get('regiment', '')
 
-    # Şəxsi kodun 6 rəqəmli olması və xüsusi idarəetmə kodu ilə uyğunluğu yoxlanılır
     if code.isdigit() and len(code) == 6 and code == '370811' and regiment:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
-        # İstifadəçini seçdiyi alaya polis əməkdaşı kimi avtomatik əlavə edirik / yeniləyirik
         cursor.execute('''
             INSERT INTO police_officers (username, regiment, role) 
             VALUES (?, ?, 'Police')
@@ -3491,28 +3466,28 @@ def idare_merkezi_logout():
     session.pop('active_regiment', None)
     return redirect(url_for('idare_merkezi'))
 
+# 3. TƏLƏB: POLİS ALAYLARININ RƏİSİNİ TƏYİN ETMƏK YALNIZ win_wid HESABINA MƏXSUSDUR
 @app.route('/idare_merkezi/add_officer', methods=['POST'])
 def idare_merkezi_add_officer():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
     
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    if current_user in admins:
+    # Yalnız win_wid hesabı rəis təyin edə bilər
+    if current_user.lower() == 'win_wid':
         officer_name = request.form.get('officer_name', '').strip()
         regiment = request.form.get('regiment')
         role = request.form.get('role', 'Police')
         
         if officer_name and regiment:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
             try:
                 cursor.execute("INSERT OR REPLACE INTO police_officers (username, regiment, role) VALUES (?, ?, ?)", (officer_name, regiment, role))
                 conn.commit()
             except sqlite3.Error:
                 pass
-    conn.close()
+            conn.close()
     return redirect(url_for('idare_merkezi'))
 
 @app.route('/idare_merkezi/add_case', methods=['POST'])
@@ -3530,22 +3505,22 @@ def idare_merkezi_add_case():
         conn.close()
     return redirect(url_for('idare_merkezi'))
 
+# 4. TƏLƏB: MƏHKƏMƏ HÖKMÜNÜ VERMƏK YALNIZ win_wid HESABINA MƏXSUSDUR
 @app.route('/idare_merkezi/verdict/<int:case_id>', methods=['POST'])
 def idare_merkezi_verdict(case_id):
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    if current_user in admins:
+    
+    # Yalnız win_wid hökm verə bilər
+    if current_user.lower() == 'win_wid':
         verdict = request.form.get('verdict', '').strip()
         if verdict:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
             cursor.execute("UPDATE court_cases SET verdict = ?, judge = ? WHERE id = ?", (verdict, f"Sayt Rəhbərliyi (@{current_user})", case_id))
             conn.commit()
-    conn.close()
+            conn.close()
     return redirect(url_for('idare_merkezi'))
 
 @app.route('/admin/sikayetler')
@@ -3553,14 +3528,12 @@ def admin_sikayetler():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    if current_user not in admins:
-        conn.close()
+    
+    if current_user.lower() != 'win_wid':
         return redirect(url_for('chat'))
         
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     cursor.execute("SELECT id, username, category, content FROM complaints ORDER BY id DESC")
     comps = cursor.fetchall()
     conn.close()
@@ -3586,21 +3559,22 @@ def admin_sikayetler():
     '''
     return render_template_string(page)
 
+# 2. TƏLƏB: İSTİFADƏÇİLƏRİN HESABINI VƏ MESAJLARINI SİLMƏK YALNIZ win_wid HESABINA MƏXSUSDUR
 @app.route('/admin/delete_user/<username>', methods=['POST'])
 def admin_delete_user(username):
     if 'user' not in session:
         return jsonify({'success': False})
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT nickname FROM users")
-    admins = [r[0] for r in cursor.fetchall()[:1]]
-    if current_user in admins and username != current_user:
+    
+    if current_user.lower() == 'win_wid' and username.lower() != 'win_wid':
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
         cursor.execute("DELETE FROM users WHERE nickname = ?", (username,))
+        cursor.execute("DELETE FROM messages WHERE sender = ?", (username,))
+        cursor.execute("DELETE FROM private_messages WHERE sender = ? OR receiver = ?", (username, username))
         conn.commit()
         conn.close()
         return jsonify({'success': True})
-    conn.close()
     return jsonify({'success': False})
 
 @app.route('/magaza')
