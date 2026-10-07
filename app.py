@@ -2564,12 +2564,12 @@ IDARE_MERKEZI_TEMPLATE = '''
         {% if not is_police_logged %}
             <div class="login-box">
                 <h3 style="margin-top:0; color:#ef4444;">🛡️ POLİS XİDMƏTİ GİRİŞİ</h3>
-                <p style="font-size:14px; color:#d4d4d8;">İdarə mərkəzinə daxil olmaq üçün xüsusi KODU və xidmət etdiyiniz ALAYI qeyd edin.</p>
+                <p style="font-size:14px; color:#d4d4d8;">İdarə mərkəzinə daxil olmaq üçün 6 RƏQƏMLİ ŞƏXSİ KODU və xidmət etdiyiniz ALAYI qeyd edin.</p>
                 {% if error %}
                     <p style="color:#ef4444; font-weight:700;">{{ error }}</p>
                 {% endif %}
                 <form method="POST" action="/idare_merkezi/login">
-                    <input type="password" name="code" placeholder="Xüsusi KODU daxil edin..." required>
+                    <input type="password" name="code" placeholder="ŞƏXSİ KOD (6 rəqəmli)..." maxlength="6" minlength="6" pattern="\d{6}" required>
                     <select name="regiment" required>
                         <option value="" disabled selected>Əmrində olduğunuz alayı seçin...</option>
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
@@ -3459,15 +3459,31 @@ def idare_merkezi():
 def idare_merkezi_login():
     if 'user' not in session:
         return redirect(url_for('index'))
+    
+    current_user = session['user']
     code = request.form.get('code', '').strip()
     regiment = request.form.get('regiment', '')
 
-    if code == '370811' and regiment:
+    # Şəxsi kodun 6 rəqəmli olması və xüsusi idarəetmə kodu ilə uyğunluğu yoxlanılır
+    if code.isdigit() and len(code) == 6 and code == '370811' and regiment:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # İstifadəçini seçdiyi alaya polis əməkdaşı kimi avtomatik əlavə edirik / yeniləyirik
+        cursor.execute('''
+            INSERT INTO police_officers (username, regiment, role) 
+            VALUES (?, ?, 'Police')
+            ON CONFLICT(username) DO UPDATE SET regiment = excluded.regiment
+        ''', (current_user, regiment))
+        
+        conn.commit()
+        conn.close()
+
         session['is_police_logged'] = True
         session['active_regiment'] = regiment
         return redirect(url_for('idare_merkezi'))
     else:
-        return redirect(url_for('idare_merkezi', error="Xüsusi KOD və ya Alay yanlışdır!"))
+        return redirect(url_for('idare_merkezi', error="Xüsusi 6 rəqəmli KOD və ya Alay yanlışdır!"))
 
 @app.route('/idare_merkezi/logout')
 def idare_merkezi_logout():
