@@ -570,6 +570,10 @@ def get_header_template(has_unread_notifs=False):
             <span class="icon">📢</span>
             <span>Şikayət</span>
         </a>
+        <a href="/idare_merkezi" class="nav-item">
+            <span class="icon">🛡️</span>
+            <span>İDARƏ MƏRKƏZİ</span>
+        </a>
     </div>
 '''
 
@@ -3477,7 +3481,6 @@ def canli_ac():
         ''')
         lives = cursor.fetchall()
         conn.close()
-        cursor_notif = sqlite3.connect(DB_PATH) # error handling helper
         return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, error="Canlı açmaq üçün balansınızda ən azı 60 bal olmalıdır!", header=get_header_template(False))
         
     cursor.execute("INSERT INTO lives (host, is_active) VALUES (?, 1)", (current_user,))
@@ -3705,6 +3708,62 @@ def sikayet():
                 <textarea name="content" placeholder="Şikayət və ya təklifinizi ətraflı yazın..." rows="5" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px; resize:none;"></textarea>
                 <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer;">Göndər</button>
             </form>
+        </div>
+    </body>
+    </html>
+    '''
+    return render_template_string(page)
+
+@app.route('/idare_merkezi')
+def idare_merkezi():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    has_unread_notifs = cursor.fetchone() is not None
+    conn.close()
+
+    page = f'''
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <title>WİN_WİD - İdarə Mərkəzi</title>
+        {COMMON_STYLE}
+        <style>
+            .control-center-container {{
+                background: rgba(24, 24, 27, 0.85);
+                backdrop-filter: blur(16px);
+                flex: 1;
+                border-radius: 22px;
+                padding: 24px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            }}
+            .notice-text {{
+                color: #ef4444;
+                font-size: 26px;
+                font-weight: 800;
+                line-height: 1.6;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                text-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+                max-width: 800px;
+            }}
+        </style>
+    </head>
+    <body>
+        {get_header_template(has_unread_notifs)}
+        <div class="control-center-container">
+            <div class="notice-text">
+                İDARƏ MƏRZƏKİ TEZLİKLƏ AÇILACAQ VƏ ASAIŞ YÜKSƏK SƏVİYYƏDƏ OLACAQ...!!
+            </div>
         </div>
     </body>
     </html>
