@@ -492,20 +492,32 @@ TERMS_TEMPLATE = '''
             <li>Saxta məlumatlar yaymaq və ya qanunsuz işlərlə məşğul olmaq.</li>
         </ul>
 
-        <h3>4. Mülkiyyət Hüququ</h3>
+        <h3>👮 4. Polis Nəzarəti və Səlahiyyətləri</h3>
+        <p>Saytdakı asayişi və qayda-qanunu qorumaq üçün WİN_WİD rəhbərliyinin təyin etmiş Polis əməkdaşları platformada birbaşa nəzarət hüququna malikdir.</p>
+
+        <h3>🗑️ 5. Mesajların Silinməsi və Arxivi</h3>
+        <p>Qaydaları pozulduqda, təhqiramiz, söyüşlü və ya spam xarakterli mesajlar yazıldıqda... Polislər tərəfindən xəbərdarlıq edilmədən mesajlar silinə bilər. Silinən bütün mesajlar, silən polisin məlumatı ilə birlikdə təhlükəsizlik üçün İdarə Mərkəzində arxiv otaqına düşür.</p>
+
+        <h3>⛔ 6. Keçici Bloklama</h3>
+        <p>Sayt qaydalarını pozan istifadəçilər Polis əməkdaşları tərəfindən 24 saatlıq müvəqqəti bloklana bilər. Bloklanan istifadəçi müddət bitənədək platformadan istifadə edə bilməz.</p>
+
+        <h3>⚖️ 7. Məhkəmə Sistemi</h3>
+        <p>Bloklanan və ya qaydaları kobud şəkildə pozan istifadəçilərin işləri avtomatik olaraq Məhkəmə Bölməsinə yönləndirilir. Yekun qərar və hökm Sayt Rəhbərliyi tərəfindən çıxarılır.</p>
+
+        <h3>8. Mülkiyyət Hüququ</h3>
         <ul>
             <li>WİN_WİD-də olan bütün yazılar, şəkillər, loqolar və dizayn bizə məxsusdur.</li>
             <li>Bizim icazəmiz olmadan saytdakı məlumatları kopyalayıb başqa yerlərdə istifadə etmək olmaz.</li>
         </ul>
 
-        <h3>5. Məsuliyyət və Təhlükəsizlik</h3>
+        <h3>9. Məsuliyyət və Təhlükəsizlik</h3>
         <ul>
             <li>Biz çalışırıq ki, sayt həmişə əla işləsin, lakin texniki nasazlıqlar ola bilər.</li>
             <li>Hər hansı kənar müdaxilə (haker hücumu) nəticəsində sayta məxsus məlumatlar oğurlanarsa və ya yayılarsa, tərəflər qanunvericiliyə uyğun olaraq məsuliyyət daşıyır və pozuntularla bağlı məhkəmə müstəvisində hüquqi addımlar atıla bilər.</li>
             <li>Qaydaları pozduğunuz təqdirdə hesabınızı bloklaya və ya silə bilərik.</li>
         </ul>
 
-        <h3>6. Bizimlə Əlaqə</h3>
+        <h3>10. Bizimlə Əlaqə</h3>
         <p>Suallarınız və ya təklifiniz olarsa, bizə yazmaqdan çəkinməyin:<br>
         E-poçt: <span class="contact-email">winvid30@gmail.com</span></p>
     </div>
@@ -2424,7 +2436,7 @@ CANLI_ROOM_TEMPLATE = '''
 </html>
 '''
 
-# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ (555 Cİ ALAY LƏĞV EDİLDİ VƏ RƏİS ATAMA PANELSİ QURAŞDIRILDI)
+# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ
 IDARE_MERKEZI_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
