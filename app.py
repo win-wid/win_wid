@@ -495,7 +495,7 @@ TERMS_TEMPLATE = '''
         <h3>4. Polis Nəzarəti və Səlahiyyətləri</h3>
         <p>Saytdakı asayişi və qayda-qanunu qorumaq üçün WİN_WİD rəhbərliyinin təyin etmiş Polis əməkdaşları platformada birbaşa nəzarət hüququna malikdir.</p>
 
-        <h3>5. Mesajların Silinməsi və Arxivi</h3>
+        <h3>5. Mesajların Silinməsi və Arxiv</h3>
         <p>Qaydaları pozulduqda, təhqiramiz, söyüşlü və ya spam xarakterli mesajlar yazıldıqda... Polislər tərəfindən xəbərdarlıq edilmədən mesajlar silinə bilər. Silinən bütün mesajlar, silən polisin məlumatı ilə birlikdə təhlükəsizlik üçün İdarə Mərkəzində arxiv otaqına düşür.</p>
 
         <h3>6. Keçici Bloklama</h3>
