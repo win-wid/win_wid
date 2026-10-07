@@ -470,7 +470,7 @@ TERMS_TEMPLATE = '''
 <body>
     <div class="terms-box">
         <h2>WİN_WİD – QAYDALAR VƏ ŞƏRTLƏR</h2>
-        <p>Saytımızdan istifadə etməzdən əvvəl bu sadə qaydalarla tanış olmağınızı xahiş edirik. Sayta girməklə və ya qeydiyyatdan keçməklə bu şərtlərlə razılaşmış olursunuz.</p>
+        <p>Saytımızdan istifadə etməzdən əvvəl bu qaydalarla tanış olmağınızı xahiş edirik. Sayta girməklə və ya qeydiyyatdan keçməklə bu şərtlərlə razılaşmış olursunuz.</p>
         
         <h3>1. Əsas Qaydalar</h3>
         <ul>
