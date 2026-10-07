@@ -2424,7 +2424,7 @@ CANLI_ROOM_TEMPLATE = '''
 </html>
 '''
 
-# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ
+# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ (555 Cİ ALAY LƏĞV EDİLDİ VƏ RƏİS ATAMA PANELSİ QURAŞDIRILDI)
 IDARE_MERKEZI_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2535,6 +2535,15 @@ IDARE_MERKEZI_TEMPLATE = '''
             font-weight: 700;
             cursor: pointer;
         }
+        .btn-add-commander {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -2559,7 +2568,6 @@ IDARE_MERKEZI_TEMPLATE = '''
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 444">🛡️ POLİS ALAYI 444</option>
-                        <option value="POLİS ALAYI 555">🛡️ POLİS ALAYI 555</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
                     </select>
                     <button type="submit">İdarə Mərkəzinə Daxil Ol 🔓</button>
@@ -2574,29 +2582,41 @@ IDARE_MERKEZI_TEMPLATE = '''
             </div>
 
             {% if is_admin %}
+                <!-- 👑 RƏİS ATAMA PANELSİ (YALNIZ WIN_WID) -->
+                <div style="background:rgba(39,39,42,0.8); padding:20px; border-radius:18px; margin-bottom:20px; border:2px solid #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);">
+                    <h4 style="margin:0 0 12px 0; color:#f97316; font-size:16px;">👑 XÜSUSİ ALAY RƏİSİ ATAMA PANELSİ (win_wid)</h4>
+                    <form method="POST" action="/idare_merkezi/add_commander" style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <input type="text" name="officer_name" placeholder="Rəis olacaq istifadəçi (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                        <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                            <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
+                            <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
+                            <option value="POLİS ALAYI 444">POLİS ALAYI 444</option>
+                            <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
+                        </select>
+                        <button type="submit" class="btn-add-commander">👑 Alay Rəisi Təyin Et</button>
+                    </form>
+                </div>
+
+                <!-- 👮 POLİS ƏMƏKDAŞI ƏLAVƏ ETMƏ PANELSİ -->
                 <div style="background:rgba(39,39,42,0.6); padding:20px; border-radius:18px; margin-bottom:24px; border:1px solid #22c55e;">
-                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis / Alay Rəisi Təyin Et (Admin: win_wid)</h4>
+                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis Əməkdaşı Təyin Et (Admin: win_wid)</h4>
                     <form method="POST" action="/idare_merkezi/add_officer" style="display:flex; gap:12px; flex-wrap:wrap;">
                         <input type="text" name="officer_name" placeholder="İstifadəçi adı (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                         <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                             <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
                             <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
                             <option value="POLİS ALAYI 444">POLİS ALAYI 444</option>
-                            <option value="POLİS ALAYI 555">POLİS ALAYI 555</option>
                             <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
                         </select>
-                        <select name="role" style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
-                            <option value="Police">Polis Əməkdaşı</option>
-                            <option value="Commander">Alay Rəisi 👑</option>
-                        </select>
-                        <button type="submit" class="btn-add-officer">Əlavə Et</button>
+                        <input type="hidden" name="role" value="Police">
+                        <button type="submit" class="btn-add-officer">Polis Əlavə Et</button>
                     </form>
                 </div>
             {% endif %}
 
-            <h3 style="color:#f97316;">🛡️ ALAYLAR VƏ HEYƏT STRUKTURU (25 POLİS, 5 RƏİS)</h3>
+            <h3 style="color:#f97316;">🛡️ ALAYLAR VƏ HEYƏT STRUKTURU</h3>
             <div class="regiment-grid">
-                {% set regiments = ['POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 444', 'POLİS ALAYI 555', 'POLİS ALAYI 666'] %}
+                {% set regiments = ['POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 444', 'POLİS ALAYI 666'] %}
                 {% for reg in regiments %}
                     <div class="regiment-card">
                         <div class="regiment-title">
@@ -2731,7 +2751,7 @@ def chat():
     ''')
     messages = cursor.fetchall()
     
-    # YALNIZ win_wid ADMINDIR (EMKA adminlikdən çıxarıldı)
+    # YALNIZ win_wid ADMINDIR
     is_admin = (current_user.lower() == 'win_wid')
     
     conn.close()
@@ -2767,7 +2787,6 @@ def chat_delete(msg_id):
     
     is_admin = (current_user.lower() == 'win_wid')
     
-    # Yalnız mesajın sahibi və ya win_wid silə bilər
     if row[0] == current_user or is_admin:
         cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
         conn.commit()
@@ -3338,7 +3357,6 @@ def bildiris():
     '''
     return render_template_string(page)
 
-# 1. TƏLƏB: BÜTÜN ŞİKAYƏTLƏR BİLDİRİŞ BÖLMƏSİNDƏ win_wid HESABINA GÖRSƏNİR
 @app.route('/sikayet', methods=['GET', 'POST'])
 def sikayet():
     if 'user' not in session:
@@ -3354,7 +3372,6 @@ def sikayet():
         if category and content:
             cursor.execute("INSERT INTO complaints (username, category, content) VALUES (?, ?, ?)", (current_user, category, content))
             
-            # WIN_WID hesabının bildiriş bölməsinə göndərilir
             notif_text = f"📢 Yeni Şikayət! İstifadəçi: @{current_user} | Kateqoriya: {category} | Mətn: {content}"
             cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', ?)", (notif_text,))
             
@@ -3414,7 +3431,6 @@ def idare_merkezi():
     cursor.execute("SELECT id, accused_user, reason, verdict, judge FROM court_cases ORDER BY id DESC")
     cases = cursor.fetchall()
 
-    # YALNIZ win_wid ADMINDIR
     is_admin = (current_user.lower() == 'win_wid')
 
     conn.close()
@@ -3466,14 +3482,36 @@ def idare_merkezi_logout():
     session.pop('active_regiment', None)
     return redirect(url_for('idare_merkezi'))
 
-# 3. TƏLƏB: POLİS ALAYLARININ RƏİSİNİ TƏYİN ETMƏK YALNIZ win_wid HESABINA MƏXSUSDUR
+# 👑 XÜSUSİ ALAY RƏİSİ ATAMA ROUTE-U (YALNIZ WIN_WİD)
+@app.route('/idare_merkezi/add_commander', methods=['POST'])
+def idare_merkezi_add_commander():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    
+    if current_user.lower() == 'win_wid':
+        officer_name = request.form.get('officer_name', '').strip()
+        regiment = request.form.get('regiment')
+        
+        if officer_name and regiment:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            try:
+                # Alaya yeni rəis təyin edilir
+                cursor.execute("INSERT OR REPLACE INTO police_officers (username, regiment, role) VALUES (?, ?, 'Commander')", (officer_name, regiment))
+                conn.commit()
+            except sqlite3.Error:
+                pass
+            conn.close()
+    return redirect(url_for('idare_merkezi'))
+
+# POLİS ƏMƏKDAŞI ƏLAVƏ ETMƏ ROUTE-U
 @app.route('/idare_merkezi/add_officer', methods=['POST'])
 def idare_merkezi_add_officer():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
     
-    # Yalnız win_wid hesabı rəis təyin edə bilər
     if current_user.lower() == 'win_wid':
         officer_name = request.form.get('officer_name', '').strip()
         regiment = request.form.get('regiment')
@@ -3505,14 +3543,12 @@ def idare_merkezi_add_case():
         conn.close()
     return redirect(url_for('idare_merkezi'))
 
-# 4. TƏLƏB: MƏHKƏMƏ HÖKMÜNÜ VERMƏK YALNIZ win_wid HESABINA MƏXSUSDUR
 @app.route('/idare_merkezi/verdict/<int:case_id>', methods=['POST'])
 def idare_merkezi_verdict(case_id):
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
     
-    # Yalnız win_wid hökm verə bilər
     if current_user.lower() == 'win_wid':
         verdict = request.form.get('verdict', '').strip()
         if verdict:
@@ -3559,7 +3595,6 @@ def admin_sikayetler():
     '''
     return render_template_string(page)
 
-# 2. TƏLƏB: İSTİFADƏÇİLƏRİN HESABINI VƏ MESAJLARINI SİLMƏK YALNIZ win_wid HESABINA MƏXSUSDUR
 @app.route('/admin/delete_user/<username>', methods=['POST'])
 def admin_delete_user(username):
     if 'user' not in session:
