@@ -167,6 +167,26 @@ def init_db():
         )
     ''')
 
+    # POLİS SİSTEMİ CƏDVƏLLƏRİ
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS police_officers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            regiment TEXT NOT NULL,
+            role TEXT DEFAULT 'Police'
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS court_cases (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            accused_user TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            verdict TEXT DEFAULT 'Araşdırılır',
+            judge TEXT DEFAULT 'Sayt Rəhbərliyi'
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -2420,6 +2440,248 @@ CANLI_ROOM_TEMPLATE = '''
 </html>
 '''
 
+# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ
+IDARE_MERKEZI_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - İdarə Mərkəzi</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .control-container {
+            background: rgba(24, 24, 27, 0.9);
+            backdrop-filter: blur(16px);
+            flex: 1;
+            border-radius: 22px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        .police-header {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            color: white;
+            padding: 20px;
+            border-radius: 18px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+            letter-spacing: 0.5px;
+        }
+        .login-box {
+            max-width: 420px;
+            margin: 40px auto;
+            background: rgba(39, 39, 42, 0.8);
+            border: 1px solid #ef4444;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .login-box input, .login-box select {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #09090b;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        .login-box button {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .regiment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .regiment-card {
+            background: rgba(39, 39, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 20px;
+        }
+        .regiment-title {
+            color: #f97316;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .officer-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(9, 9, 11, 0.5);
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .court-section {
+            margin-top: 35px;
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 20px;
+        }
+        .btn-add-officer {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="control-container">
+        <div class="police-header">
+            🛡️ 370 SAYLI BAŞ QƏRƏRGAH - POLİS İDARƏ MƏRKƏZİ
+        </div>
+
+        {% if not is_police_logged %}
+            <div class="login-box">
+                <h3 style="margin-top:0; color:#ef4444;">🛡️ POLİS XİDMƏTİ GİRİŞİ</h3>
+                <p style="font-size:14px; color:#d4d4d8;">İdarə mərkəzinə daxil olmaq üçün xüsusi KODU və xidmət etdiyiniz ALAYI qeyd edin.</p>
+                {% if error %}
+                    <p style="color:#ef4444; font-weight:700;">{{ error }}</p>
+                {% endif %}
+                <form method="POST" action="/idare_merkezi/login">
+                    <input type="password" name="code" placeholder="Xüsusi KODU daxil edin..." required>
+                    <select name="regiment" required>
+                        <option value="" disabled selected>Əmrində olduğunuz alayı seçin...</option>
+                        <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
+                        <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
+                        <option value="POLİS ALAYI 444">🛡️ POLİS ALAYI 444</option>
+                        <option value="POLİS ALAYI 555">🛡️ POLİS ALAYI 555</option>
+                        <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
+                    </select>
+                    <button type="submit">İdarə Mərkəzinə Daxil Ol 🔓</button>
+                </form>
+            </div>
+        {% else %}
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(39,39,42,0.8); padding:16px 20px; border-radius:14px; margin-bottom:20px;">
+                <div>
+                    <b>Xoş gəldiniz:</b> @{{ current_user }} | <b>Sizin Alay:</b> <span style="color:#f97316;">{{ active_regiment }}</span>
+                </div>
+                <a href="/idare_merkezi/logout" style="background:#ef4444; color:#fff; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700; font-size:13px;">Çıxış Et</a>
+            </div>
+
+            {% if is_admin %}
+                <div style="background:rgba(39,39,42,0.6); padding:20px; border-radius:18px; margin-bottom:24px; border:1px solid #22c55e;">
+                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis / Alay Rəisi Təyin Et (Admin)</h4>
+                    <form method="POST" action="/idare_merkezi/add_officer" style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <input type="text" name="officer_name" placeholder="İstifadəçi adı (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                        <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                            <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
+                            <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
+                            <option value="POLİS ALAYI 444">POLİS ALAYI 444</option>
+                            <option value="POLİS ALAYI 555">POLİS ALAYI 555</option>
+                            <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
+                        </select>
+                        <select name="role" style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                            <option value="Police">Polis Əməkdaşı</option>
+                            <option value="Commander">Alay Rəisi 👑</option>
+                        </select>
+                        <button type="submit" class="btn-add-officer">Əlavə Et</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <h3 style="color:#f97316;">🛡️ ALAYLAR VƏ HEYƏT STRUKTURU (25 POLİS, 5 RƏİS)</h3>
+            <div class="regiment-grid">
+                {% set regiments = ['POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 444', 'POLİS ALAYI 555', 'POLİS ALAYI 666'] %}
+                {% for reg in regiments %}
+                    <div class="regiment-card">
+                        <div class="regiment-title">
+                            <span>🛡️ {{ reg }}</span>
+                        </div>
+                        
+                        <div style="margin-bottom:10px; font-weight:700; color:#fb923c; font-size:14px;">
+                            👑 Alay Rəisi: 
+                            {% set commander = officers | selectattr(1, 'equalto', reg) | selectattr(2, 'equalto', 'Commander') | list %}
+                            {% if commander %}
+                                <span style="color:#4ade80;">@{{ commander[0][0] }}</span>
+                            {% else %}
+                                <span style="color:#a1a1aa; font-weight:normal;">Təyin edilməyib</span>
+                            {% endif %}
+                        </div>
+
+                        <div style="font-size:13px; color:#d4d4d8; font-weight:700; margin-bottom:6px;">Polis Əməkdaşları:</div>
+                        {% set reg_officers = officers | selectattr(1, 'equalto', reg) | selectattr(2, 'equalto', 'Police') | list %}
+                        {% if reg_officers %}
+                            {% for off in reg_officers %}
+                                <div class="officer-item">
+                                    <span>👮 @{{ off[0] }}</span>
+                                    <span style="color:#22c55e; font-weight:700;">Növbədə</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="font-size:12px; color:#a1a1aa;">Hələ ki bu alayda polis yoxdur.</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="court-section">
+                <h3 style="color:#ef4444; margin-top:0;">⚖️ MƏHKƏMƏ SİSTEMİ VƏ İŞLƏR</h3>
+                <p style="font-size:14px; color:#d4d4d8;">Qaydaları pozub saxlanılan istifadəçilərin işləri Sayt Rəhbərliyi (Hakim) tərəfindən araşdırılır.</p>
+                
+                <form method="POST" action="/idare_merkezi/add_case" style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+                    <input type="text" name="accused_user" placeholder="Təqsirləndirilən istifadəçi (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                    <input type="text" name="reason" placeholder="Pozduğu qayda / Səbəb" required style="flex:2; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                    <button type="submit" style="background:#ef4444; color:#fff; border:none; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">Məhkəməyə Ver ⚖️</button>
+                </form>
+
+                {% if cases %}
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        {% for c in cases %}
+                            <div style="background:rgba(9,9,11,0.7); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <b>Təqsirləndirilən:</b> <span style="color:#f97316;">@{{ c[1] }}</span> | <b>Səbəb:</b> {{ c[2] }}
+                                    <div style="font-size:13px; color:#a1a1aa; margin-top:4px;"><b>Hakim:</b> {{ c[4] }} | <b>Qərar:</b> <span style="color:#eab308;">{{ c[3] }}</span></div>
+                                </div>
+                                {% if is_admin %}
+                                    <form method="POST" action="/idare_merkezi/verdict/{{ c[0] }}" style="display:flex; gap:6px;">
+                                        <input type="text" name="verdict" placeholder="Qərar yaz..." required style="padding:6px; border-radius:8px; background:#18181b; border:1px solid #555; color:#fff; font-size:12px;">
+                                        <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12px;">Təsdiqlə</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color:#a1a1aa; font-size:14px;">Hazırda məhkəmədə aktiv iş yoxdur.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+'''
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -3154,6 +3416,7 @@ def sikayet():
     '''
     return render_template_string(page)
 
+# İDARƏ MƏRKƏZİ ROUTE-LARI
 @app.route('/idare_merkezi')
 def idare_merkezi():
     if 'user' not in session:
@@ -3163,52 +3426,111 @@ def idare_merkezi():
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+
+    is_police_logged = session.get('is_police_logged', False)
+    active_regiment = session.get('active_regiment', '')
+
+    cursor.execute("SELECT username, regiment, role FROM police_officers")
+    officers = cursor.fetchall()
+
+    cursor.execute("SELECT id, accused_user, reason, verdict, judge FROM court_cases ORDER BY id DESC")
+    cases = cursor.fetchall()
+
+    cursor.execute("SELECT nickname FROM users")
+    admins = [r[0] for r in cursor.fetchall()[:1]]
+    is_admin = (current_user in admins)
+
     conn.close()
 
-    page = f'''
-    <!DOCTYPE html>
-    <html lang="az">
-    <head>
-        <meta charset="UTF-8">
-        <title>WİN_WİD - İdarə Mərkəzi</title>
-        {COMMON_STYLE}
-        <style>
-            .control-center-container {{
-                background: rgba(24, 24, 27, 0.85);
-                backdrop-filter: blur(16px);
-                flex: 1;
-                border-radius: 22px;
-                padding: 24px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            }}
-            .notice-text {{
-                color: #ef4444;
-                font-size: 26px;
-                font-weight: 800;
-                line-height: 1.6;
-                letter-spacing: 0.5px;
-                text-transform: uppercase;
-                text-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
-                max-width: 800px;
-            }}
-        </style>
-    </head>
-    <body>
-        {get_header_template(has_unread_notifs)}
-        <div class="control-center-container">
-            <div class="notice-text">
-                İDARƏ MƏRZƏKİ TEZLİKLƏ AÇILACAQ VƏ ASAIŞ YÜKSƏK SƏVİYYƏDƏ OLACAQ...!!
-            </div>
-        </div>
-    </body>
-    </html>
-    '''
-    return render_template_string(page)
+    header_html = get_header_template(has_unread_notifs)
+    return render_template_string(
+        IDARE_MERKEZI_TEMPLATE,
+        header=header_html,
+        is_police_logged=is_police_logged,
+        active_regiment=active_regiment,
+        current_user=current_user,
+        officers=officers,
+        cases=cases,
+        is_admin=is_admin,
+        error=request.args.get('error')
+    )
+
+@app.route('/idare_merkezi/login', methods=['POST'])
+def idare_merkezi_login():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    code = request.form.get('code', '').strip()
+    regiment = request.form.get('regiment', '')
+
+    if code == '370811' and regiment:
+        session['is_police_logged'] = True
+        session['active_regiment'] = regiment
+        return redirect(url_for('idare_merkezi'))
+    else:
+        return redirect(url_for('idare_merkezi', error="Xüsusi KOD və ya Alay yanlışdır!"))
+
+@app.route('/idare_merkezi/logout')
+def idare_merkezi_logout():
+    session.pop('is_police_logged', None)
+    session.pop('active_regiment', None)
+    return redirect(url_for('idare_merkezi'))
+
+@app.route('/idare_merkezi/add_officer', methods=['POST'])
+def idare_merkezi_add_officer():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT nickname FROM users")
+    admins = [r[0] for r in cursor.fetchall()[:1]]
+    if current_user in admins:
+        officer_name = request.form.get('officer_name', '').strip()
+        regiment = request.form.get('regiment')
+        role = request.form.get('role', 'Police')
+        
+        if officer_name and regiment:
+            try:
+                cursor.execute("INSERT OR REPLACE INTO police_officers (username, regiment, role) VALUES (?, ?, ?)", (officer_name, regiment, role))
+                conn.commit()
+            except sqlite3.Error:
+                pass
+    conn.close()
+    return redirect(url_for('idare_merkezi'))
+
+@app.route('/idare_merkezi/add_case', methods=['POST'])
+def idare_merkezi_add_case():
+    if 'user' not in session or not session.get('is_police_logged'):
+        return redirect(url_for('idare_merkezi'))
+    accused_user = request.form.get('accused_user', '').strip()
+    reason = request.form.get('reason', '').strip()
+
+    if accused_user and reason:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO court_cases (accused_user, reason) VALUES (?, ?)", (accused_user, reason))
+        conn.commit()
+        conn.close()
+    return redirect(url_for('idare_merkezi'))
+
+@app.route('/idare_merkezi/verdict/<int:case_id>', methods=['POST'])
+def idare_merkezi_verdict(case_id):
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT nickname FROM users")
+    admins = [r[0] for r in cursor.fetchall()[:1]]
+    if current_user in admins:
+        verdict = request.form.get('verdict', '').strip()
+        if verdict:
+            cursor.execute("UPDATE court_cases SET verdict = ?, judge = ? WHERE id = ?", (verdict, f"Sayt Rəhbərliyi (@{current_user})", case_id))
+            conn.commit()
+    conn.close()
+    return redirect(url_for('idare_merkezi'))
 
 @app.route('/admin/sikayetler')
 def admin_sikayetler():
@@ -3302,6 +3624,8 @@ def magaza():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('is_police_logged', None)
+    session.pop('active_regiment', None)
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
