@@ -492,16 +492,16 @@ TERMS_TEMPLATE = '''
             <li>Saxta məlumatlar yaymaq və ya qanunsuz işlərlə məşğul olmaq.</li>
         </ul>
 
-        <h3>👮 4. Polis Nəzarəti və Səlahiyyətləri</h3>
+        <h3>4. Polis Nəzarəti və Səlahiyyətləri</h3>
         <p>Saytdakı asayişi və qayda-qanunu qorumaq üçün WİN_WİD rəhbərliyinin təyin etmiş Polis əməkdaşları platformada birbaşa nəzarət hüququna malikdir.</p>
 
-        <h3>🗑️ 5. Mesajların Silinməsi və Arxivi</h3>
+        <h3>5. Mesajların Silinməsi və Arxivi</h3>
         <p>Qaydaları pozulduqda, təhqiramiz, söyüşlü və ya spam xarakterli mesajlar yazıldıqda... Polislər tərəfindən xəbərdarlıq edilmədən mesajlar silinə bilər. Silinən bütün mesajlar, silən polisin məlumatı ilə birlikdə təhlükəsizlik üçün İdarə Mərkəzində arxiv otaqına düşür.</p>
 
-        <h3>⛔ 6. Keçici Bloklama</h3>
+        <h3>6. Keçici Bloklama</h3>
         <p>Sayt qaydalarını pozan istifadəçilər Polis əməkdaşları tərəfindən 24 saatlıq müvəqqəti bloklana bilər. Bloklanan istifadəçi müddət bitənədək platformadan istifadə edə bilməz.</p>
 
-        <h3>⚖️ 7. Məhkəmə Sistemi</h3>
+        <h3>7. Məhkəmə Sistemi</h3>
         <p>Bloklanan və ya qaydaları kobud şəkildə pozan istifadəçilərin işləri avtomatik olaraq Məhkəmə Bölməsinə yönləndirilir. Yekun qərar və hökm Sayt Rəhbərliyi tərəfindən çıxarılır.</p>
 
         <h3>8. Mülkiyyət Hüququ</h3>
