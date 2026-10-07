@@ -567,7 +567,7 @@ def get_header_template(has_unread_notifs=False):
             {dot_html}
         </a>
         <a href="/sikayet" class="nav-item">
-            <span class="icon">📢</span>
+            <span class="icon">⚠️</span>
             <span>Şikayət</span>
         </a>
         <a href="/idare_merkezi" class="nav-item">
