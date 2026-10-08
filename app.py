@@ -576,11 +576,11 @@ def get_header_template(has_unread_notifs=False):
             {dot_html}
         </a>
         <a href="/sikayet" class="nav-item">
-            <span class="icon">📢</span>
+            <span class="icon">⚠️</span>
             <span>Şikayət</span>
         </a>
         <a href="/idare_merkezi" class="nav-item">
-            <span class="icon">🛡️</span>
+            <span class="icon">⚙️</span>
             <span>İDARƏ MƏRKƏZİ</span>
         </a>
     </div>
@@ -3020,7 +3020,7 @@ MAGAZA_TEMPLATE = '''
 
         <!-- A) RƏNGLİ NİK BÖLMƏSİ -->
         <div class="shop-section">
-            <div class="shop-section-title">🎨 A) RƏNGLİ NİK (SİZİN ADINIZIN RƏNGİ)</div>
+            <div class="shop-section-title">🎨  RƏNGLİ NİK (SİZİN ADINIZIN RƏNGİ)</div>
             <div class="shop-grid">
                 <div class="shop-item-btn" onclick="openNickModal()">
                     <span style="font-size:32px;">🏷️</span>
@@ -3030,7 +3030,7 @@ MAGAZA_TEMPLATE = '''
             </div>
         </div>
 
-        <!-- B) RƏNGLİ MESAJ BÖLMƏSİ -->
+        <!--  RƏNGLİ MESAJ BÖLMƏSİ -->
         <div class="shop-section">
             <div class="shop-section-title">💬 B) RƏNGLİ MESAJ (ÇAT MESAJLARINIZIN RƏNGİ)</div>
             <div class="shop-grid">
@@ -3042,7 +3042,7 @@ MAGAZA_TEMPLATE = '''
             </div>
         </div>
 
-        <!-- C) HƏDİYYƏ ATMAQ BÖLMƏSİ -->
+        <!--  HƏDİYYƏ ATMAQ BÖLMƏSİ -->
         <div class="shop-section">
             <div class="shop-section-title">🎁 C) İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
             <div class="shop-grid">
