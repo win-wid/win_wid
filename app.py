@@ -2698,6 +2698,305 @@ IDARE_MERKEZI_TEMPLATE = '''
 </html>
 '''
 
+# YENİ MAĞAZA TEMPLATE-İ (PANELLƏR VƏ SATIŞ SİSTEMİ)
+MAGAZA_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Mağaza</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .shop-container {
+            background: rgba(24, 24, 27, 0.85);
+            flex: 1;
+            border-radius: 22px;
+            padding: 28px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 16px;
+        }
+        .shop-header h2 { margin: 0; color: #f97316; font-size: 22px; }
+        .balance-box {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .shop-section {
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px;
+        }
+        .shop-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fb923c;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .shop-item-btn {
+            background: rgba(9, 9, 11, 0.7);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .shop-item-btn:hover {
+            transform: translateY(-3px);
+            border-color: #f97316;
+            background: rgba(249, 115, 22, 0.15);
+        }
+        .shop-item-price {
+            font-size: 13px;
+            font-weight: 800;
+            color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+        
+        /* MODAL PANEL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-panel {
+            background: rgba(24, 24, 27, 0.95);
+            border: 2px solid #f97316;
+            border-radius: 20px;
+            padding: 28px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .modal-panel h3 { margin: 0; color: #f97316; font-size: 20px; text-align: center; }
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .color-btn {
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .gifts-grid-scroll {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(9, 9, 11, 0.6);
+            border-radius: 12px;
+        }
+        .gift-select-btn {
+            font-size: 26px;
+            background: rgba(39, 39, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .gift-select-btn:hover { transform: scale(1.2); border-color: #f97316; }
+        select.modal-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            background: #09090b;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="shop-container">
+        <div class="shop-header">
+            <h2>🛍 WİN_WİD MAĞAZASI</h2>
+            <div class="balance-box">💰 Balansınız: {{ user_points }} Bal</div>
+        </div>
+
+        {% if message %}
+            <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80; padding: 12px 18px; border-radius: 12px; font-weight: 700; text-align: center;">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if error %}
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 12px 18px; border-radius: 12px; font-weight: 700; text-align: center;">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- A) RƏNGLİ NİK BÖLMƏSİ -->
+        <div class="shop-section">
+            <div class="shop-section-title">🎨 A) RƏNGLİ NİK (SİZİN ADINIZIN RƏNGİ)</div>
+            <div class="shop-grid">
+                <div class="shop-item-btn" onclick="openNickModal()">
+                    <span style="font-size:32px;">🏷️</span>
+                    <span style="font-weight:700;">RƏNGLİ NİK AL</span>
+                    <span class="shop-item-price">25 BAL</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- B) RƏNGLİ MESAJ BÖLMƏSİ -->
+        <div class="shop-section">
+            <div class="shop-section-title">💬 B) RƏNGLİ MESAJ (ÇAT MESAJLARINIZIN RƏNGİ)</div>
+            <div class="shop-grid">
+                <div class="shop-item-btn" onclick="openMsgModal()">
+                    <span style="font-size:32px;">✉️</span>
+                    <span style="font-weight:700;">RƏNGLİ MESAJ AL</span>
+                    <span class="shop-item-price">25 BAL</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- C) HƏDİYYƏ ATMAQ BÖLMƏSİ -->
+        <div class="shop-section">
+            <div class="shop-section-title">🎁 C) İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
+            <div class="shop-grid">
+                <div class="shop-item-btn" onclick="openGiftModal()" style="grid-column: 1 / -1;">
+                    <span style="font-size:36px;">🎁</span>
+                    <span style="font-weight:700; font-size:16px;">HƏDİYYƏ PANELSİNİ AÇ VƏ GÖNDƏR</span>
+                    <span class="shop-item-price">HƏDİYYƏ DƏYƏRİ: BALANSINIZDAN</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. RƏNGLİ NİK MODALI -->
+    <div class="modal-overlay" id="nickModal">
+        <div class="modal-panel">
+            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Bal)</h3>
+            <form method="POST" action="/magaza/al_nik">
+                <div class="color-options">
+                    <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
+                    <button type="submit" name="color" value="#ef4444" class="color-btn" style="background:#ef4444;">QIRMIZI</button>
+                    <button type="submit" name="color" value="#3b82f6" class="color-btn" style="background:#3b82f6;">GÖY</button>
+                    <button type="submit" name="color" value="#a855f7" class="color-btn" style="background:#a855f7;">BƏNÖVŞƏYİ</button>
+                    <button type="submit" name="color" value="#22c55e" class="color-btn" style="background:#22c55e;">YAŞIL</button>
+                </div>
+            </form>
+            <button type="button" onclick="closeModals()" style="background:rgba(255,255,255,0.1); color:#fff; border:none; padding:10px; border-radius:10px; cursor:pointer;">Bağla</button>
+        </div>
+    </div>
+
+    <!-- 2. RƏNGLİ MESAJ MODALI -->
+    <div class="modal-overlay" id="msgModal">
+        <div class="modal-panel">
+            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Bal)</h3>
+            <form method="POST" action="/magaza/al_mesaj">
+                <div class="color-options">
+                    <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
+                    <button type="submit" name="color" value="#ef4444" class="color-btn" style="background:#ef4444;">QIRMIZI</button>
+                    <button type="submit" name="color" value="#3b82f6" class="color-btn" style="background:#3b82f6;">GÖY</button>
+                    <button type="submit" name="color" value="#a855f7" class="color-btn" style="background:#a855f7;">BƏNÖVŞƏYİ</button>
+                    <button type="submit" name="color" value="#22c55e" class="color-btn" style="background:#22c55e;">YAŞIL</button>
+                </div>
+            </form>
+            <button type="button" onclick="closeModals()" style="background:rgba(255,255,255,0.1); color:#fff; border:none; padding:10px; border-radius:10px; cursor:pointer;">Bağla</button>
+        </div>
+    </div>
+
+    <!-- 3. HƏDİYYƏ ATMAQ MODALI -->
+    <div class="modal-overlay" id="giftModal">
+        <div class="modal-panel">
+            <h3>🎁 İSTİFADƏÇİYƏ HƏDİYYƏ GÖNDƏR</h3>
+            <form method="POST" action="/magaza/gonder_hediyye" style="display:flex; flex-direction:column; gap:14px;">
+                <label style="font-size:14px; color:#d4d4d8;">Göndəriləcək İstifadəçi:</label>
+                <select name="receiver" class="modal-input" required>
+                    <option value="" disabled selected>İstifadəçi seçin...</option>
+                    {% for u in all_users %}
+                        {% if u != current_user %}
+                            <option value="{{ u }}">@{{ u }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                <label style="font-size:14px; color:#d4d4d8;">Hədiyyə Seçin:</label>
+                <input type="hidden" name="selected_gift" id="selectedGiftInput" required>
+                <div class="gifts-grid-scroll">
+                    {% set gift_list = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','🤕','😎','😱','🥺','🥳','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰'] %}
+                    {% for g in gift_list %}
+                        <button type="button" class="gift-select-btn" onclick="selectGift('{{ g }}', this)">{{ g }}</button>
+                    {% endfor %}
+                </div>
+                <div id="selectedGiftPreview" style="text-align:center; font-weight:700; color:#f97316;">Seçilmiş Hədiyyə: Yoxdur</div>
+
+                <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer;">Hədiyyəni Göndər (10 Bal)</button>
+            </form>
+            <button type="button" onclick="closeModals()" style="background:rgba(255,255,255,0.1); color:#fff; border:none; padding:10px; border-radius:10px; cursor:pointer;">Bağla</button>
+        </div>
+    </div>
+
+    <script>
+        function openNickModal() { document.getElementById('nickModal').style.display = 'flex'; }
+        function openMsgModal() { document.getElementById('msgModal').style.display = 'flex'; }
+        function openGiftModal() { document.getElementById('giftModal').style.display = 'flex'; }
+        function closeModals() {
+            document.getElementById('nickModal').style.display = 'none';
+            document.getElementById('msgModal').style.display = 'none';
+            document.getElementById('giftModal').style.display = 'none';
+        }
+
+        function selectGift(gift, btn) {
+            document.getElementById('selectedGiftInput').value = gift;
+            document.getElementById('selectedGiftPreview').innerText = 'Seçilmiş Hədiyyə: ' + gift;
+            let btns = document.querySelectorAll('.gift-select-btn');
+            btns.forEach(b => b.style.borderColor = 'rgba(255,255,255,0.1)');
+            btn.style.borderColor = '#f97316';
+        }
+    </script>
+</body>
+</html>
+'''
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -3509,7 +3808,6 @@ def idare_merkezi_add_commander():
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
             try:
-                # Alaya yeni rəis təyin edilir
                 cursor.execute("INSERT OR REPLACE INTO police_officers (username, regiment, role) VALUES (?, ?, 'Commander')", (officer_name, regiment))
                 conn.commit()
             except sqlite3.Error:
@@ -3624,6 +3922,7 @@ def admin_delete_user(username):
         return jsonify({'success': True})
     return jsonify({'success': False})
 
+# YENİLƏNMİŞ MAĞAZA ROUTE-LARI
 @app.route('/magaza')
 def magaza():
     if 'user' not in session:
@@ -3636,27 +3935,99 @@ def magaza():
     user_points = res[0] if res else 0
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    
+    cursor.execute("SELECT nickname FROM users")
+    all_users = [u[0] for u in cursor.fetchall()]
     conn.close()
     
-    page = f'''
-    <!DOCTYPE html>
-    <html lang="az">
-    <head>
-        <meta charset="UTF-8">
-        <title>WİN_WİD - Mağaza</title>
-        {COMMON_STYLE}
-    </head>
-    <body>
-        {get_header_template(has_unread_notifs)}
-        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:28px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); text-align:center;">
-            <h2 style="color:#f97316; margin-top:0;">🛍 MAQAZİN / HƏDİYYƏLƏR</h2>
-            <p style="font-size:16px; color:#4ade80; font-weight:700;">Balansınız: {user_points} bal</p>
-            <p style="color:#d4d4d8; font-size:15px;">TEZLİKLƏ MAĞAZA BÖLMƏSİ İŞLƏYƏCƏKDİR!! </p>
-        </div>
-    </body>
-    </html>
-    '''
-    return render_template_string(page)
+    header_html = get_header_template(has_unread_notifs)
+    return render_template_string(
+        MAGAZA_TEMPLATE,
+        user_points=user_points,
+        all_users=all_users,
+        current_user=current_user,
+        message=request.args.get('message'),
+        error=request.args.get('error'),
+        header=header_html
+    )
+
+@app.route('/magaza/al_nik', methods=['POST'])
+def magaza_al_nik():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    color = request.form.get('color')
+    
+    if not color:
+        return redirect(url_for('magaza', error="Rəng seçilmədi!"))
+        
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    points = cursor.fetchone()[0]
+    
+    if points < 25:
+        conn.close()
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (25 Bal lazımdır)!"))
+        
+    cursor.execute("UPDATE users SET points = points - 25, name_color = ? WHERE nickname = ?", (color, current_user))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('magaza', message="Rəngli Nik uğurla alındı! Çatda nikinizin rəngi yeniləndi."))
+
+@app.route('/magaza/al_mesaj', methods=['POST'])
+def magaza_al_mesaj():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    color = request.form.get('color')
+    
+    if not color:
+        return redirect(url_for('magaza', error="Rəng seçilmədi!"))
+        
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    points = cursor.fetchone()[0]
+    
+    if points < 25:
+        conn.close()
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (25 Bal lazımdır)!"))
+        
+    cursor.execute("UPDATE users SET points = points - 25, msg_color = ? WHERE nickname = ?", (color, current_user))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('magaza', message="Rəngli Mesaj uğurla alındı! Çatdakı mesajlarınızın rəngi yeniləndi."))
+
+@app.route('/magaza/gonder_hediyye', methods=['POST'])
+def magaza_gonder_hediyye():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    receiver = request.form.get('receiver')
+    selected_gift = request.form.get('selected_gift')
+    
+    if not receiver or not selected_gift:
+        return redirect(url_for('magaza', error="Məlumatlar tam seçilmədi!"))
+        
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    points = cursor.fetchone()[0]
+    
+    if points < 10:
+        conn.close()
+        return redirect(url_for('magaza', error="Hədiyyə göndərmək üçün ən azı 10 balınız olmalıdır!"))
+        
+    cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = ?", (current_user,))
+    cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, selected_gift))
+    
+    notif_text = f"🎁 @{current_user} sizə mağazadan hədiyyə göndərdi: {selected_gift}"
+    cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, notif_text))
+    
+    conn.commit()
+    conn.close()
+    return redirect(url_for('magaza', message=f"{selected_gift} hədiyyəsi @{receiver} istifadəçisinə uğurla göndərildi!"))
 
 @app.route('/logout')
 def logout():
