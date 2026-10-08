@@ -4,6 +4,7 @@ import base64
 import os
 import random
 import tempfile
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -183,6 +184,18 @@ def init_db():
             reason TEXT NOT NULL,
             verdict TEXT DEFAULT 'Araşdırılır',
             judge TEXT DEFAULT 'Sayt Rəhbərliyi'
+        )
+    ''')
+
+    # ARXİV OTAQI CƏDVƏLİ (Silinən mesajlar və bloklanan istifadəçilər)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS archived_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            log_type TEXT NOT NULL,
+            target_info TEXT NOT NULL,
+            police_name TEXT NOT NULL,
+            regiment TEXT NOT NULL,
+            created_at TEXT NOT NULL
         )
     ''')
 
@@ -792,7 +805,7 @@ CHAT_TEMPLATE = '''
                         <div class="msg-user" style="color: {{ m[3] if m[3] and m[3] != 'inherit' else ('#fed7aa' if m[1] == current_user else '#f97316') }};">@{{ m[1] }} {{ m[5] }}</div>
                         <p class="msg-text" id="msg-text-{{ m[0] }}" style="color: {{ m[4] if m[4] and m[4] != '#eab308' else '#f8fafc' }};">{{ m[2] }}</p>
                         
-                        {% if m[1] == current_user or is_admin %}
+                        {% if m[1] == current_user or is_admin or is_police %}
                             <div class="msg-actions">
                                 {% if m[1] == current_user %}
                                     <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
@@ -1139,7 +1152,7 @@ USERS_TEMPLATE = '''
                     <div class="user-right-actions">
                         {% if u[0] != current_user %}
                             <a href="/ozel_mesaj/{{ u[0] }}" class="msg-btn">💬 MESAJ YAZ</a>
-                            {% if is_admin %}
+                            {% if is_admin or is_police %}
                                 <button class="admin-action-btn" onclick="deleteUserAccount('{{ u[0] }}')">Sil / Bloka at</button>
                             {% endif %}
                         {% endif %}
@@ -1558,7 +1571,7 @@ VIDYO_TEMPLATE = '''
 
                     <div class="shorts-info">
                         <div class="shorts-username" style="color: {{ v[6] if v[6] and v[6] != 'inherit' and v[6] != '#eab308' else '#fff' }};">@{{ v[1] }}</div>
-                        {% if v[1] == current_user or is_admin %}
+                        {% if v[1] == current_user or is_admin or is_police %}
                             <button class="delete-short-btn" onclick="deleteVideo('{{ v[0] }}')">Sil 🗑️</button>
                         {% endif %}
                     </div>
@@ -2436,7 +2449,7 @@ CANLI_ROOM_TEMPLATE = '''
 </html>
 '''
 
-# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ
+# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ (ARXİV OTAQI İLƏ)
 IDARE_MERKEZI_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2454,6 +2467,7 @@ IDARE_MERKEZI_TEMPLATE = '''
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
         .police-header {
             background: linear-gradient(135deg, #ef4444, #991b1b);
@@ -2466,7 +2480,44 @@ IDARE_MERKEZI_TEMPLATE = '''
             margin-bottom: 24px;
             box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
             letter-spacing: 0.5px;
+            position: relative;
         }
+        
+        /* SAĞ KÜNCDƏ QIRMIZI KVADRAT ARXİV DÜYMƏSİ */
+        .archive-btn-square {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            background: #dc2626;
+            border: 2px solid #fca5a5;
+            border-radius: 14px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6);
+            transition: all 0.2s ease;
+            z-index: 50;
+        }
+        .archive-btn-square:hover {
+            transform: scale(1.08);
+            background: #b91c1c;
+            border-color: #ffffff;
+        }
+        .archive-btn-square span {
+            font-size: 22px;
+        }
+        .archive-btn-square p {
+            margin: 2px 0 0 0;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
         .login-box {
             max-width: 420px;
             margin: 40px auto;
@@ -2556,12 +2607,67 @@ IDARE_MERKEZI_TEMPLATE = '''
             font-weight: 700;
             cursor: pointer;
         }
+
+        /* ARXİV OTAQI MODALI */
+        .archive-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .archive-modal-box {
+            background: rgba(24, 24, 27, 0.98);
+            border: 2px solid #ef4444;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 750px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+        }
+        .archive-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .archive-list {
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .archive-item {
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
     </style>
 </head>
 <body>
     {{ header|safe }}
 
     <div class="control-container">
+        <!-- QIRMIZI KVADRAT ARXİV OTAQI DÜYMƏSİ (SAĞ KÜNCDƏ) -->
+        <div class="archive-btn-square" onclick="openArchiveModal()">
+            <span>📦</span>
+            <p>Arxiv</p>
+        </div>
+
         <div class="police-header">
             🛡️ 370 SAYLI BAŞ QƏRƏRGAH - POLİS İDARƏ MƏRKƏZİ
         </div>
@@ -2694,11 +2800,50 @@ IDARE_MERKEZI_TEMPLATE = '''
             </div>
         {% endif %}
     </div>
+
+    <!-- ARXİV OTAQI MODAL PƏNCƏRƏSİ -->
+    <div class="archive-modal" id="archiveModal">
+        <div class="archive-modal-box">
+            <div class="archive-modal-header">
+                <h3 style="margin:0; color:#ef4444;">📦 ARXİV OTAQI (POLİS ƏMƏLİYYATLARI VƏ SİLİNƏNLƏR)</h3>
+                <button type="button" onclick="closeArchiveModal()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer;">✕</button>
+            </div>
+            <div class="archive-list">
+                {% if archives %}
+                    {% for a in archives %}
+                        <div class="archive-item">
+                            <div>
+                                <span style="background:{% if a[1] == 'MESAJ_SILINDI' %}#ef4444{% else %}#f97316{% endif %}; color:#fff; padding:2px 8px; border-radius:6px; font-weight:800; font-size:11px;">
+                                    {{ a[1] }}
+                                </span>
+                                <span style="color:#a1a1aa; font-size:12px; margin-left:8px;">⏱️ {{ a[5] }}</span>
+                            </div>
+                            <div style="font-size:15px; color:#fff;"><b>Məzmun / Təfərrüat:</b> {{ a[2] }}</div>
+                            <div style="font-size:13px; color:#4ade80;">
+                                👮 <b>Polis:</b> @{{ a[3] }} | 🛡️ <b>Alay:</b> {{ a[4] }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align:center; color:#a1a1aa; padding:30px;">Arxiv otağında hələ ki heç bir qeyd yoxdur.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openArchiveModal() {
+            document.getElementById('archiveModal').style.display = 'flex';
+        }
+        function closeArchiveModal() {
+            document.getElementById('archiveModal').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
 '''
 
-# YENİ MAĞAZA TEMPLATE-İ (PANELLƏR VƏ SATIŞ SİSTEMİ)
+# YENİLƏNMİŞ MAĞAZA TEMPLATE-İ (PANELLƏR VƏ SATIŞ SİSTEMİ)
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -3062,13 +3207,14 @@ def chat():
     ''')
     messages = cursor.fetchall()
     
-    # YALNIZ win_wid ADMINDIR
+    # YALNIZ win_wid ADMINDIR, HƏMÇİNİN POLİS STATUSU
     is_admin = (current_user.lower() == 'win_wid')
+    is_police = session.get('is_police_logged', False)
     
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(CHAT_TEMPLATE, messages=messages, current_user=current_user, is_admin=is_admin, user_points=user_points, header=header_html)
+    return render_template_string(CHAT_TEMPLATE, messages=messages, current_user=current_user, is_admin=is_admin, is_police=is_police, user_points=user_points, header=header_html)
 
 @app.route('/chat/send', methods=['POST'])
 def chat_send():
@@ -3090,16 +3236,29 @@ def chat_delete(msg_id):
     current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
+    cursor.execute("SELECT sender, content FROM messages WHERE id = ?", (msg_id,))
     row = cursor.fetchone()
     if not row:
         conn.close()
         return jsonify({'success': False, 'error': 'Mesaj tapılmadı'})
     
     is_admin = (current_user.lower() == 'win_wid')
+    is_police = session.get('is_police_logged', False)
+    police_regiment = session.get('active_regiment', 'POLİS İDARƏSİ')
     
-    if row[0] == current_user or is_admin:
+    if row[0] == current_user or is_admin or is_police:
+        # Mesajı sil
         cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
+        
+        # Əgər Polis və ya Admin tərəfindən silinibsə Arxiv Otağına yaz
+        if is_police or is_admin:
+            now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_text = f"Silinən mesaj: '@{row[0]}: {row[1]}'"
+            cursor.execute('''
+                INSERT INTO archived_logs (log_type, target_info, police_name, regiment, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            ''', ('MESAJ_SILINDI', log_text, current_user, police_regiment, now_str))
+
         conn.commit()
         conn.close()
         return jsonify({'success': True})
@@ -3201,13 +3360,14 @@ def istifadeciler():
     has_unread_notifs = cursor.fetchone() is not None
     
     is_admin = (current_user.lower() == 'win_wid')
+    is_police = session.get('is_police_logged', False)
     
     cursor.execute("SELECT nickname, profile_pic, name_color, profile_sticker FROM users")
     all_users = cursor.fetchall()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(USERS_TEMPLATE, all_users=all_users, current_user=current_user, is_admin=is_admin, header=header_html)
+    return render_template_string(USERS_TEMPLATE, all_users=all_users, current_user=current_user, is_admin=is_admin, is_police=is_police, header=header_html)
 
 @app.route('/ozel_mesaj/<receiver>', methods=['GET', 'POST'])
 def ozel_mesaj(receiver):
@@ -3248,6 +3408,7 @@ def vidyo():
     has_unread_notifs = cursor.fetchone() is not None
     
     is_admin = (current_user.lower() == 'win_wid')
+    is_police = session.get('is_police_logged', False)
     
     cursor.execute('''
         SELECT v.id, v.uploader, v.video_data, u.name_color 
@@ -3273,7 +3434,7 @@ def vidyo():
         
     conn.close()
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(VIDYO_TEMPLATE, videos=videos, current_user=current_user, is_admin=is_admin, header=header_html)
+    return render_template_string(VIDYO_TEMPLATE, videos=videos, current_user=current_user, is_admin=is_admin, is_police=is_police, header=header_html)
 
 @app.route('/vidyo/upload', methods=['POST'])
 def vidyo_upload():
@@ -3372,7 +3533,8 @@ def vidyo_delete(video_id):
         return jsonify({'success': False})
     
     is_admin = (current_user.lower() == 'win_wid')
-    if row[0] == current_user or is_admin:
+    is_police = session.get('is_police_logged', False)
+    if row[0] == current_user or is_admin or is_police:
         cursor.execute("DELETE FROM videos WHERE id = ?", (video_id,))
         conn.commit()
         conn.close()
@@ -3742,6 +3904,10 @@ def idare_merkezi():
     cursor.execute("SELECT id, accused_user, reason, verdict, judge FROM court_cases ORDER BY id DESC")
     cases = cursor.fetchall()
 
+    # ARXİV QEYDLƏRİNİ ÇƏK
+    cursor.execute("SELECT id, log_type, target_info, police_name, regiment, created_at FROM archived_logs ORDER BY id DESC")
+    archives = cursor.fetchall()
+
     is_admin = (current_user.lower() == 'win_wid')
 
     conn.close()
@@ -3755,6 +3921,7 @@ def idare_merkezi():
         current_user=current_user,
         officers=officers,
         cases=cases,
+        archives=archives,
         is_admin=is_admin,
         error=request.args.get('error')
     )
@@ -3910,13 +4077,25 @@ def admin_delete_user(username):
     if 'user' not in session:
         return jsonify({'success': False})
     current_user = session['user']
+    is_admin = (current_user.lower() == 'win_wid')
+    is_police = session.get('is_police_logged', False)
+    police_regiment = session.get('active_regiment', 'POLİS İDARƏSİ')
     
-    if current_user.lower() == 'win_wid' and username.lower() != 'win_wid':
+    if (is_admin or is_police) and username.lower() != 'win_wid':
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("DELETE FROM users WHERE nickname = ?", (username,))
         cursor.execute("DELETE FROM messages WHERE sender = ?", (username,))
         cursor.execute("DELETE FROM private_messages WHERE sender = ? OR receiver = ?", (username, username))
+        
+        # Arxivə əlavə et
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_text = f"Bloklanan / Silinən istifadəçi: '@{username}'"
+        cursor.execute('''
+            INSERT INTO archived_logs (log_type, target_info, police_name, regiment, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        ''', ('ISTIFADECI_BLOKLANDI', log_text, current_user, police_regiment, now_str))
+
         conn.commit()
         conn.close()
         return jsonify({'success': True})
