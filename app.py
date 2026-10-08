@@ -3018,7 +3018,7 @@ MAGAZA_TEMPLATE = '''
             </div>
         {% endif %}
 
-        <!-- A) RƏNGLİ NİK BÖLMƏSİ -->
+        <!--  RƏNGLİ NİK BÖLMƏSİ -->
         <div class="shop-section">
             <div class="shop-section-title">🎨  RƏNGLİ NİK (SİZİN ADINIZIN RƏNGİ)</div>
             <div class="shop-grid">
@@ -3032,7 +3032,7 @@ MAGAZA_TEMPLATE = '''
 
         <!--  RƏNGLİ MESAJ BÖLMƏSİ -->
         <div class="shop-section">
-            <div class="shop-section-title">💬 B) RƏNGLİ MESAJ (ÇAT MESAJLARINIZIN RƏNGİ)</div>
+            <div class="shop-section-title">💬  RƏNGLİ MESAJ (ÇAT MESAJLARINIZIN RƏNGİ)</div>
             <div class="shop-grid">
                 <div class="shop-item-btn" onclick="openMsgModal()">
                     <span style="font-size:32px;">✉️</span>
@@ -3044,7 +3044,7 @@ MAGAZA_TEMPLATE = '''
 
         <!--  HƏDİYYƏ ATMAQ BÖLMƏSİ -->
         <div class="shop-section">
-            <div class="shop-section-title">🎁 C) İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
+            <div class="shop-section-title">🎁  İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
             <div class="shop-grid">
                 <div class="shop-item-btn" onclick="openGiftModal()" style="grid-column: 1 / -1;">
                     <span style="font-size:36px;">🎁</span>
