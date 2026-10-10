@@ -1295,6 +1295,25 @@ USERS_TEMPLATE = '''
             gap: 10px;
             align-items: center;
         }
+        .profile-btn {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-btn:hover {
+            transform: translateY(-2px);
+        }
         .msg-btn {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
@@ -1345,6 +1364,7 @@ USERS_TEMPLATE = '''
                     </div>
                     <div class="user-right-actions">
                         {% if u[0] != current_user %}
+                            <a href="/istifadeci_profil/{{ u[0] }}" class="profile-btn">👤 PROFİL BAX</a>
                             <a href="/ozel_mesaj/{{ u[0] }}" class="msg-btn">💬 MESAJ YAZ</a>
                             {% if is_admin or is_police %}
                                 <button class="admin-action-btn" onclick="deleteUserAccount('{{ u[0] }}')">Sil / Bloka at</button>
@@ -1373,6 +1393,151 @@ USERS_TEMPLATE = '''
             }
         }
     </script>
+</body>
+</html>
+'''
+
+PUBLIC_PROFILE_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - @{{ target_user }} Profili</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .profile-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .profile-container {
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+            max-width: 580px;
+            box-sizing: border-box;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+        }
+        .profile-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 14px;
+            margin: 0;
+            text-align: center;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(39, 39, 42, 0.6);
+            padding: 18px 22px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .avatar-wrapper {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid #f97316;
+            overflow: hidden;
+            background: #111;
+            flex-shrink: 0;
+        }
+        .avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .profile-info h3 {
+            margin: 0 0 6px 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+        .gifts-box {
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            min-height: 50px;
+            align-items: center;
+        }
+        .gift-item {
+            font-size: 24px;
+            background: rgba(24, 24, 27, 0.9);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(249, 115, 22, 0.4);
+        }
+        .back-btn {
+            background: rgba(39, 39, 42, 0.9);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+        .back-btn:hover { background: rgba(39, 39, 42, 1); }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="profile-wrapper">
+        <div class="profile-container">
+            <p class="profile-title">@{{ target_user }} - İstifadəçi Profili</p>
+            
+            <div class="profile-header">
+                <div class="avatar-wrapper">
+                    <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
+                </div>
+                <div class="profile-info">
+                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ target_user }} {{ profile_sticker }} 👑</h3>
+                    <p style="color: #4ade80; font-size: 14px; font-weight: 600; margin: 0;">● Aktivdir</p>
+                </div>
+            </div>
+
+            <div>
+                <p style="font-size: 14px; margin: 0 0 8px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
+                <div class="gifts-box">
+                    {% if gifts %}
+                        {% for g in gifts %}
+                            <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span style="font-size: 14px; color: #a1a1aa;">Hələ ki hədiyyə yoxdur.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <a href="/ozel_mesaj/{{ target_user }}" class="back-btn" style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; font-weight: 700;">💬 Mesaj Göndər</a>
+            <a href="/istifadeciler" class="back-btn">← İstifadəçilərə Qayıt</a>
+        </div>
+    </div>
 </body>
 </html>
 '''
@@ -2323,7 +2488,6 @@ CANLI_TEMPLATE = '''
 </html>
 '''
 
-# CANLI Otağı (Kamera, Söhbət, Bəyənmə və Hədiyyələr daxil olmaqla)
 CANLI_ROOM_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2643,7 +2807,6 @@ CANLI_ROOM_TEMPLATE = '''
 </html>
 '''
 
-# İDARƏ MƏRKƏZİ VƏ POLİS SİSTEMİ TEMPLATE-İ (ARXİV OTAQI İLƏ)
 IDARE_MERKEZI_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2677,7 +2840,6 @@ IDARE_MERKEZI_TEMPLATE = '''
             position: relative;
         }
         
-        /* SAĞ KÜNCDƏ QIRMIZI KVADRAT ARXİV DÜYMƏSİ */
         .archive-btn-square {
             position: absolute;
             top: 20px;
@@ -2802,7 +2964,6 @@ IDARE_MERKEZI_TEMPLATE = '''
             cursor: pointer;
         }
 
-        /* ARXİV OTAQI MODALI */
         .archive-modal {
             display: none;
             position: fixed;
@@ -2856,7 +3017,6 @@ IDARE_MERKEZI_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="control-container">
-        <!-- QIRMIZI KVADRAT ARXİV OTAQI DÜYMƏSİ (SAĞ KÜNCDƏ) -->
         <div class="archive-btn-square" onclick="openArchiveModal()">
             <span>📦</span>
             <p>Arxiv</p>
@@ -2893,7 +3053,6 @@ IDARE_MERKEZI_TEMPLATE = '''
             </div>
 
             {% if is_admin %}
-                <!-- 👑 RƏİS ATAMA PANELSİ (YALNIZ WIN_WID) -->
                 <div style="background:rgba(39,39,42,0.8); padding:20px; border-radius:18px; margin-bottom:20px; border:2px solid #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);">
                     <h4 style="margin:0 0 12px 0; color:#f97316; font-size:16px;">👑 XÜSUSİ ALAY RƏİSİ ATAMA PANELSİ (win_wid)</h4>
                     <form method="POST" action="/idare_merkezi/add_commander" style="display:flex; gap:12px; flex-wrap:wrap;">
@@ -2907,7 +3066,6 @@ IDARE_MERKEZI_TEMPLATE = '''
                     </form>
                 </div>
 
-                <!-- 👮 POLİS ƏMƏKDAŞI ƏLAVƏ ETMƏ PANELSİ -->
                 <div style="background:rgba(39,39,42,0.6); padding:20px; border-radius:18px; margin-bottom:24px; border:1px solid #22c55e;">
                     <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis Əməkdaşı Təyin Et (Admin: win_wid)</h4>
                     <form method="POST" action="/idare_merkezi/add_officer" style="display:flex; gap:12px; flex-wrap:wrap;">
@@ -2992,7 +3150,6 @@ IDARE_MERKEZI_TEMPLATE = '''
         {% endif %}
     </div>
 
-    <!-- ARXİV OTAQI MODAL PƏNCƏRƏSİ -->
     <div class="archive-modal" id="archiveModal">
         <div class="archive-modal-box">
             <div class="archive-modal-header">
@@ -3034,7 +3191,6 @@ IDARE_MERKEZI_TEMPLATE = '''
 </html>
 '''
 
-# YENİLƏNMİŞ MAĞAZA TEMPLATE-İ (PANELLƏR VƏ SATIŞ SİSTEMİ)
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -3119,7 +3275,6 @@ MAGAZA_TEMPLATE = '''
             border-radius: 8px;
         }
         
-        /* MODAL PANEL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -3209,7 +3364,6 @@ MAGAZA_TEMPLATE = '''
             </div>
         {% endif %}
 
-        <!--  RƏNGLİ NİK BÖLMƏSİ -->
         <div class="shop-section">
             <div class="shop-section-title">🎨  RƏNGLİ NİK (SİZİN ADINIZIN RƏNGİ)</div>
             <div class="shop-grid">
@@ -3221,7 +3375,6 @@ MAGAZA_TEMPLATE = '''
             </div>
         </div>
 
-        <!--  RƏNGLİ MESAJ BÖLMƏSİ -->
         <div class="shop-section">
             <div class="shop-section-title">💬  RƏNGLİ MESAJ (ÇAT MESAJLARINIZIN RƏNGİ)</div>
             <div class="shop-grid">
@@ -3233,7 +3386,6 @@ MAGAZA_TEMPLATE = '''
             </div>
         </div>
 
-        <!--  HƏDİYYƏ ATMAQ BÖLMƏSİ -->
         <div class="shop-section">
             <div class="shop-section-title">🎁  İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
             <div class="shop-grid">
@@ -3246,7 +3398,6 @@ MAGAZA_TEMPLATE = '''
         </div>
     </div>
 
-    <!-- 1. RƏNGLİ NİK MODALI -->
     <div class="modal-overlay" id="nickModal">
         <div class="modal-panel">
             <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Bal)</h3>
@@ -3263,7 +3414,6 @@ MAGAZA_TEMPLATE = '''
         </div>
     </div>
 
-    <!-- 2. RƏNGLİ MESAJ MODALI -->
     <div class="modal-overlay" id="msgModal">
         <div class="modal-panel">
             <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Bal)</h3>
@@ -3280,7 +3430,6 @@ MAGAZA_TEMPLATE = '''
         </div>
     </div>
 
-    <!-- 3. HƏDİYYƏ ATMAQ MODALI -->
     <div class="modal-overlay" id="giftModal">
         <div class="modal-panel">
             <h3>🎁 İSTİFADƏÇİYƏ HƏDİYYƏ GÖNDƏR</h3>
@@ -3475,8 +3624,6 @@ def chat_edit(msg_id):
     conn.close()
     return jsonify({'success': False, 'error': 'İcazəniz yoxdur'})
 
-# --- YENİ OYUN ROUTE-LARI ---
-
 @app.route('/oyun')
 def oyun():
     if 'user' not in session:
@@ -3491,7 +3638,6 @@ def oyun():
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(OYUN_MENU_TEMPLATE, header=header_html)
 
-# 1. WOW OYUNU ROUTES
 @app.route('/oyun/wow')
 def oyun_wow():
     if 'user' not in session:
@@ -3508,7 +3654,6 @@ def oyun_wow():
     words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYE", "İDMAN", "TARİX"]
     full_word = random.choice(words_list)
     
-    # 1 hərfi gizlədək
     idx = random.randint(0, len(full_word) - 1)
     hidden_letter = full_word[idx]
     masked_word = full_word[:idx] + "_" + full_word[idx+1:]
@@ -3539,7 +3684,6 @@ def oyun_wow_cavabla():
     
     header_html = get_header_template(has_unread_notifs)
     
-    # Yeni söz hazırlayaq və ya nəticəni göstərib növbəti sözə keçək
     words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYE", "İDMAN", "TARİX"]
     next_word = random.choice(words_list)
     idx = random.randint(0, len(next_word) - 1)
@@ -3548,7 +3692,6 @@ def oyun_wow_cavabla():
     
     return render_template_string(WOW_OYUNU_TEMPLATE, header=header_html, masked_word=next_masked, full_word=next_word, hidden_letter=next_hidden, message=message, success=success)
 
-# 2. SUAL-CAVAB OYUNU ROUTES (40 Dinamik Sual Bankı ilə)
 @app.route('/oyun/sual')
 def oyun_sual():
     if 'user' not in session:
@@ -3562,7 +3705,6 @@ def oyun_sual():
     
     header_html = get_header_template(has_unread_notifs)
     
-    # 40 müxtəlif sualdan ibarət dinamik bank
     q_bank = [
         ("Azərbaycanın paytaxtı haradır?", "Bakı", "Coğrafiya"),
         ("Dünyanın ən böyük okeanı hansıdır?", "Sakit okean", "Coğrafiya"),
@@ -3574,7 +3716,7 @@ def oyun_sual():
         ("Azərbaycanın bayrağındakı rənglərin sayı neçədir?", "3", "Mədəniyyət"),
         ("Dünyanın ən uzun çayı hansıdır?", "Nil", "Coğrafiya"),
         ("Su kimyəvi olaraq necə işarələnir?", "H2O", "Elm"),
-        ("Azərbaycan Respublikasının dövlət himninin musiqisini kim bəstələyib?", "Üzeyir Hacıbəyov", "Mədəniyyət"),
+        ("Azərbaycanın dövlət himninin musiqisini kim bəstələyib?", "Üzeyir Hacıbəyov", "Mədəniyyət"),
         ("Kompüterin əsas beyini nə adlanır?", "Prosessor", "Texnologiya"),
         ("İşıq sürəti təqribən saniyədə neçə kilometrdir?", "300000", "Elm"),
         ("Dünyanın ən hündür dağı hansıdır?", "Everest", "Coğrafiya"),
@@ -3591,7 +3733,7 @@ def oyun_sual():
         ("İnsan bədənində ən güclü əzələ hansıdır?", "Çənə əzələsi", "Elm"),
         ("Dünyanın ən dərin gölü hansıdır?", "Baykal", "Coğrafiya"),
         ("Azərbaycan nefti ilk dəfə sənaye üsulu ilə harada çıxarılıb?", "Bibiheybət", "Tarix"),
-        ("Dünyanın ən qədim qədim şəhərlərindən biri olan Naxçıvanın yaşı təxminən neçə illikdir?", "5000", "Tarix"),
+        ("Dünyanın ən qədim şəhərlərindən biri olan Naxçıvanın yaşı təxminən neçə illikdir?", "5000", "Tarix"),
         ("Şahmat oyununda ümumi xana sayı neçədir?", "64", "İdman"),
         ("Kompüter klaviaturasında əsas hərflərin yazıldığı rejim necə adlanır?", "Qwerty", "Texnologiya"),
         ("Atatürk neçənci ildə anadan olub?", "1881", "Tarix"),
@@ -3634,8 +3776,6 @@ def oyun_sual_cavabla():
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(SUAL_CAVAB_TEMPLATE, header=header_html, question="Növbəti sual üçün aşağıdan davam edin və ya yeniləyin.", answer="", topic="Dinamik Sual", message=message, success=success)
 
-# --- DIGƏR BÖLMƏLƏR ---
-
 @app.route('/istifadeciler')
 def istifadeciler():
     if 'user' not in session:
@@ -3655,6 +3795,34 @@ def istifadeciler():
     
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(USERS_TEMPLATE, all_users=all_users, current_user=current_user, is_admin=is_admin, is_police=is_police, header=header_html)
+
+@app.route('/istifadeci_profil/<username>')
+def istifadeci_profil(username):
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT profile_pic, name_color, profile_sticker FROM users WHERE nickname = ?", (username,))
+    user_res = cursor.fetchone()
+    if not user_res:
+        conn.close()
+        return redirect(url_for('istifadeciler'))
+        
+    pic = user_res[0]
+    name_color = user_res[1]
+    profile_sticker = user_res[2]
+    
+    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (username,))
+    gifts = cursor.fetchall()
+    
+    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    has_unread_notifs = cursor.fetchone() is not None
+    conn.close()
+    
+    header_html = get_header_template(has_unread_notifs)
+    return render_template_string(PUBLIC_PROFILE_TEMPLATE, target_user=username, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, header=header_html)
 
 @app.route('/ozel_mesaj/<receiver>', methods=['GET', 'POST'])
 def ozel_mesaj(receiver):
@@ -4171,7 +4339,6 @@ def sikayet():
     '''
     return render_template_string(page)
 
-# İDARƏ MƏRKƏZİ ROUTE-LARI
 @app.route('/idare_merkezi')
 def idare_merkezi():
     if 'user' not in session:
