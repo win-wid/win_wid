@@ -28,7 +28,8 @@ def init_db():
             points INTEGER DEFAULT 0,
             name_color TEXT DEFAULT 'inherit',
             msg_color TEXT DEFAULT '#f8fafc',
-            profile_sticker TEXT DEFAULT ''
+            profile_sticker TEXT DEFAULT '',
+            has_entry_effect INTEGER DEFAULT 0
         )
     ''')
     
@@ -50,6 +51,10 @@ def init_db():
         pass
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN profile_sticker TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN has_entry_effect INTEGER DEFAULT 0")
     except sqlite3.OperationalError:
         pass
         
@@ -3404,6 +3409,18 @@ MAGAZA_TEMPLATE = '''
             </div>
         {% endif %}
 
+        <!-- GİRİŞ EFEKTİ SEKSİYASI -->
+        <div class="shop-section">
+            <div class="shop-section-title">⚡ GİRİŞ EFEKTİ (ÇATA DAXİLDƏ XÜSUSİ BİLDİRİŞ)</div>
+            <div class="shop-grid">
+                <div class="shop-item-btn" onclick="openEntryEffectModal()">
+                    <span style="font-size:32px;">⚡</span>
+                    <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
+                    <span class="shop-item-price">500 BAL</span>
+                </div>
+            </div>
+        </div>
+
         <div class="shop-section">
             <div class="shop-section-title">🎨  RƏNGLİ NİK (SİZİN ADINIZIN RƏNGİ)</div>
             <div class="shop-grid">
@@ -3435,6 +3452,21 @@ MAGAZA_TEMPLATE = '''
                     <span class="shop-item-price">HƏDİYYƏ DƏYƏRİ: BALANSINIZDAN</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- GİRİŞ EFEKTİ MODALI -->
+    <div class="modal-overlay" id="entryEffectModal">
+        <div class="modal-panel" style="text-align: center;">
+            <h3>⚡ GİRİŞ EFEKTİ (500 Bal)</h3>
+            <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5;">
+                Hər dəfə çata daxil olduğunuzda bütün istifadəçilərə xüsusi bildiriş mesajı görünəcək:<br>
+                <code style="color: #f97316; font-weight: bold;">⚡ @nik çat otağına daxil oldu!</code>
+            </p>
+            <form method="POST" action="/magaza/al_entry_effect">
+                <button type="submit" style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 16px;">Giriş Effektivini Al (500 Bal)</button>
+            </form>
+            <button type="button" onclick="closeModals()" style="background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 10px; border-radius: 10px; cursor: pointer; margin-top: 10px;">Bağla</button>
         </div>
     </div>
 
@@ -3501,6 +3533,7 @@ MAGAZA_TEMPLATE = '''
     </div>
 
     <script>
+        function openEntryEffectModal() { document.getElementById('entryEffectModal').style.display = 'flex'; }
         function openNickModal() { document.getElementById('nickModal').style.display = 'flex'; }
         function openMsgModal() { document.getElementById('msgModal').style.display = 'flex'; }
         function openGiftModal() { document.getElementById('giftModal').style.display = 'flex'; }
@@ -3508,6 +3541,7 @@ MAGAZA_TEMPLATE = '''
             document.getElementById('nickModal').style.display = 'none';
             document.getElementById('msgModal').style.display = 'none';
             document.getElementById('giftModal').style.display = 'none';
+            document.getElementById('entryEffectModal').style.display = 'none';
         }
 
         function selectGift(gift, btn) {
@@ -3572,10 +3606,20 @@ def chat():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points, has_entry_effect FROM users WHERE nickname = ?", (current_user,))
     res = cursor.fetchone()
     user_points = res[0] if res else 0
+    has_entry_effect = res[1] if res else 0
     
+    # Giriş effekti aktivdirsə və bu sessiyada hələ bildiriş atılmayıbsa, çata avtomatik mesaj yazılır
+    if has_entry_effect == 1:
+        session_key = f'entry_notified_{current_user}'
+        if not session.get(session_key):
+            entry_msg = f"⚡ @{current_user} çat otağına daxil oldu!"
+            cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (current_user, entry_msg))
+            conn.commit()
+            session[session_key] = True
+
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
@@ -4618,6 +4662,35 @@ def magaza():
         error=request.args.get('error'),
         header=header_html
     )
+
+@app.route('/magaza/al_entry_effect', methods=['POST'])
+def magaza_al_entry_effect():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT points, has_entry_effect FROM users WHERE nickname = ?", (current_user,))
+    res = cursor.fetchone()
+    if not res:
+        conn.close()
+        return redirect(url_for('magaza', error="İstifadəçi tapılmadı!"))
+        
+    points, has_effect = res[0], res[1]
+    
+    if has_effect:
+        conn.close()
+        return redirect(url_for('magaza', error="Sizdə artıq Giriş Effekti mövcuddur!"))
+        
+    if points < 500:
+        conn.close()
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (500 Bal lazımdır)!"))
+        
+    cursor.execute("UPDATE users SET points = points - 500, has_entry_effect = 1 WHERE nickname = ?", (current_user,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('magaza', message="Giriş Effekti uğurla alındı! Artıq çata daxil olanda hər kəsə bildiriş gedəcək."))
 
 @app.route('/magaza/al_nik', methods=['POST'])
 def magaza_al_nik():
