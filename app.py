@@ -2664,6 +2664,20 @@ CANLI_ROOM_TEMPLATE = '''
             cursor: pointer;
             font-size: 13px;
         }
+        .btn-flip-screen {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        .btn-flip-screen:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -2680,9 +2694,12 @@ CANLI_ROOM_TEMPLATE = '''
             </div>
             
             {% if current_user == host %}
-                <form method="POST" action="/canli/bitir/{{ live_id }}" style="margin:0;">
-                    <button type="submit" class="btn-end-stream">Canlıyı Bitir ⏹️</button>
-                </form>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
+                    <form method="POST" action="/canli/bitir/{{ live_id }}" style="margin:0;">
+                        <button type="submit" class="btn-end-stream">Canlıyı Bitir ⏹️</button>
+                    </form>
+                    <button type="button" class="btn-flip-screen" onclick="flipCamera()">Ekranı Çevir 🔄</button>
+                </div>
             {% else %}
                 <a href="/canli" style="color: #a1a1aa; text-decoration: none; font-weight: 600; font-size: 14px;">Çıxış ✕</a>
             {% endif %}
@@ -2725,16 +2742,39 @@ CANLI_ROOM_TEMPLATE = '''
     <script>
         const isHost = {{ 'true' if current_user == host else 'false' }};
         const liveId = '{{ live_id }}';
+        
+        let currentFacingMode = 'user'; // default front camera
+        let currentStream = null;
 
-        if (isHost) {
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        function startCamera(facingMode) {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: true })
                 .then(stream => {
+                    currentStream = stream;
                     const videoEl = document.getElementById('webcamVideo');
-                    videoEl.srcObject = stream;
+                    if (videoEl) {
+                        videoEl.srcObject = stream;
+                        if (facingMode === 'user') {
+                            videoEl.style.transform = 'scaleX(-1)';
+                        } else {
+                            videoEl.style.transform = 'scaleX(1)';
+                        }
+                    }
                 })
                 .catch(err => {
                     alert("Kameraya girişə icazə verilmədi və ya kamera tapılmadı!");
                 });
+        }
+
+        function flipCamera() {
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            startCamera(currentFacingMode);
+        }
+
+        if (isHost) {
+            startCamera(currentFacingMode);
         }
 
         function sendLike() {
