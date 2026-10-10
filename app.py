@@ -2685,7 +2685,6 @@ IDARE_MERKEZI_TEMPLATE = '''
                         <option value="" disabled selected>Əmrində olduğunuz alayı seçin...</option>
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
-                        <option value="POLİS ALAYI 444">🛡️ POLİS ALAYI 444</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
                     </select>
                     <button type="submit">İdarə Mərkəzinə Daxil Ol 🔓</button>
@@ -2708,7 +2707,6 @@ IDARE_MERKEZI_TEMPLATE = '''
                         <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                             <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
                             <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
-                            <option value="POLİS ALAYI 444">POLİS ALAYI 444</option>
                             <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
                         </select>
                         <button type="submit" class="btn-add-commander">👑 Alay Rəisi Təyin Et</button>
@@ -2723,7 +2721,6 @@ IDARE_MERKEZI_TEMPLATE = '''
                         <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                             <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
                             <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
-                            <option value="POLİS ALAYI 444">POLİS ALAYI 444</option>
                             <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
                         </select>
                         <input type="hidden" name="role" value="Police">
@@ -2734,7 +2731,7 @@ IDARE_MERKEZI_TEMPLATE = '''
 
             <h3 style="color:#f97316;">🛡️ ALAYLAR VƏ HEYƏT STRUKTURU</h3>
             <div class="regiment-grid">
-                {% set regiments = ['POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 444', 'POLİS ALAYI 666'] %}
+                {% set regiments = ['POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 666'] %}
                 {% for reg in regiments %}
                     <div class="regiment-card">
                         <div class="regiment-title">
@@ -3207,7 +3204,6 @@ def chat():
     ''')
     messages = cursor.fetchall()
     
-    # YALNIZ win_wid ADMINDIR, HƏMÇİNİN POLİS STATUSU
     is_admin = (current_user.lower() == 'win_wid')
     is_police = session.get('is_police_logged', False)
     
@@ -3247,10 +3243,8 @@ def chat_delete(msg_id):
     police_regiment = session.get('active_regiment', 'POLİS İDARƏSİ')
     
     if row[0] == current_user or is_admin or is_police:
-        # Mesajı sil
         cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
         
-        # Əgər Polis və ya Admin tərəfindən silinibsə Arxiv Otağına yaz
         if is_police or is_admin:
             now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_text = f"Silinən mesaj: '@{row[0]}: {row[1]}'"
@@ -3904,7 +3898,6 @@ def idare_merkezi():
     cursor.execute("SELECT id, accused_user, reason, verdict, judge FROM court_cases ORDER BY id DESC")
     cases = cursor.fetchall()
 
-    # ARXİV QEYDLƏRİNİ ÇƏK
     cursor.execute("SELECT id, log_type, target_info, police_name, regiment, created_at FROM archived_logs ORDER BY id DESC")
     archives = cursor.fetchall()
 
@@ -3960,7 +3953,6 @@ def idare_merkezi_logout():
     session.pop('active_regiment', None)
     return redirect(url_for('idare_merkezi'))
 
-# 👑 XÜSUSİ ALAY RƏİSİ ATAMA ROUTE-U (YALNIZ WIN_WİD)
 @app.route('/idare_merkezi/add_commander', methods=['POST'])
 def idare_merkezi_add_commander():
     if 'user' not in session:
@@ -3982,7 +3974,6 @@ def idare_merkezi_add_commander():
             conn.close()
     return redirect(url_for('idare_merkezi'))
 
-# POLİS ƏMƏKDAŞI ƏLAVƏ ETMƏ ROUTE-U
 @app.route('/idare_merkezi/add_officer', methods=['POST'])
 def idare_merkezi_add_officer():
     if 'user' not in session:
@@ -4088,7 +4079,6 @@ def admin_delete_user(username):
         cursor.execute("DELETE FROM messages WHERE sender = ?", (username,))
         cursor.execute("DELETE FROM private_messages WHERE sender = ? OR receiver = ?", (username, username))
         
-        # Arxivə əlavə et
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_text = f"Bloklanan / Silinən istifadəçi: '@{username}'"
         cursor.execute('''
@@ -4101,7 +4091,6 @@ def admin_delete_user(username):
         return jsonify({'success': True})
     return jsonify({'success': False})
 
-# YENİLƏNMİŞ MAĞAZA ROUTE-LARI
 @app.route('/magaza')
 def magaza():
     if 'user' not in session:
