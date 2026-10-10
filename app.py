@@ -885,7 +885,212 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-OYUN_TEMPLATE = '''
+# OYUNLARIN MENYU VƏ OYUN TEMPLATELƏRİ
+OYUN_MENU_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - Oyunlar Bölməsi</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .games-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 700px;
+        }
+        .game-card {
+            background: rgba(24, 24, 27, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #f97316;
+        }
+        .game-icon {
+            font-size: 50px;
+        }
+        .game-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f97316;
+            margin: 0;
+        }
+        .game-desc {
+            font-size: 14px;
+            color: #d4d4d8;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .play-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="games-container">
+        <h2 style="color: #f97316; margin-bottom: 30px; font-size: 26px; text-align: center;">🎮 OYUNLAR MƏRKƏZİ</h2>
+        
+        <div class="games-grid">
+            <!-- 1. WOW OYUNU -->
+            <div class="game-card">
+                <div class="game-icon">🔤</div>
+                <h3 class="game-title">1. WOW OYUNU</h3>
+                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 bal qazanın və növbəti sözə keçin!</p>
+                <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
+            </div>
+
+            <!-- 2. SUAL CAVAB OYUNU -->
+            <div class="game-card">
+                <div class="game-icon">❓</div>
+                <h3 class="game-title">2. SUAL CAVAB OYUNU</h3>
+                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 bal!</p>
+                <a href="/oyun/sual" class="play-btn">Oyna 🚀</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+WOW_OYUNU_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - WOW Oyunu</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .game-card {
+            background: rgba(24, 24, 27, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 35px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.7);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .masked-word {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: #f97316;
+            margin: 20px 0;
+            background: rgba(9, 9, 11, 0.6);
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(9, 9, 11, 0.8);
+            border: 1px solid #f97316;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 18px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .game-btn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .back-link:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
+
+    <div class="game-wrapper">
+        <div class="game-card">
+            <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">🔤 WOW OYUNU (HƏRFİ TAP)</h2>
+            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 bal):</p>
+            
+            <div class="masked-word">{{ masked_word }}</div>
+
+            <form method="POST" action="/oyun/wow/cavabla">
+                <input type="hidden" name="hidden_letter" value="{{ hidden_letter }}">
+                <input type="hidden" name="full_word" value="{{ full_word }}">
+                <input type="text" name="user_letter" placeholder="Əskik hərf..." maxlength="1" required autocomplete="off" autofocus>
+                <button type="submit" class="game-btn">Hərfi Yoxla 🎯</button>
+            </form>
+
+            {% if message %}
+                <p style="margin-top: 15px; font-weight: 700; color: {% if success %}#4ade80{% else %}#f87171{% endif %};">{{ message }}</p>
+            {% endif %}
+
+            <a href="/oyun" class="back-link">← Oyunlar Menyusuna Qayıt</a>
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+SUAL_CAVAB_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -931,16 +1136,6 @@ OYUN_TEMPLATE = '''
             margin-bottom: 20px;
             line-height: 1.5;
         }
-        .hint-text {
-            font-size: 15px;
-            color: #fb923c;
-            margin-bottom: 25px;
-            font-weight: 600;
-            background: rgba(249, 115, 22, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid rgba(249, 115, 22, 0.2);
-        }
         input[type="text"] {
             width: 100%;
             padding: 15px 20px;
@@ -965,15 +1160,22 @@ OYUN_TEMPLATE = '''
             font-size: 16px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
-            transition: transform 0.2s;
         }
-        .game-btn:hover { transform: translateY(-2px); }
         .score-badge {
-            margin-top: 20px;
-            font-size: 16px;
-            font-weight: 700;
+            margin-top: 15px;
+            font-size: 15px;
+            font-weight: 600;
             color: #4ade80;
         }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .back-link:hover { color: #fff; }
     </style>
 </head>
 <body>
@@ -981,46 +1183,38 @@ OYUN_TEMPLATE = '''
 
     <div class="game-wrapper">
         <div class="game-card">
-            <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">🎮 SUAL-CAVAB OYUNU</h2>
+            <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">❓ SUAL-CAVAB OYUNU</h2>
             
-            {% if not question %}
-                <form method="POST">
-                    <p style="color: #d4d4d8; font-size: 15px; margin-bottom: 20px;">Oynamaq istədiyiniz mövzunu qeyd edin (məsələn: Tarix, Coğrafiya, İdman, Elm və s.):</p>
-                    <input type="text" name="topic" placeholder="Mövzu daxil edin..." required autocomplete="off">
-                    <button type="submit" class="game-btn">Oyuna Başla 🚀</button>
-                </form>
-            {% else %}
-                <div class="timer-box" id="timer">30</div>
-                <p class="question-text">❓ {{ question }}</p>
-                <div class="hint-text">💡 İpucu: {{ hint }}</div>
+            <div class="timer-box" id="timer">30</div>
+            <p class="question-text">❓ {{ question }}</p>
 
-                <form method="POST" action="/oyun/cavabla" id="answerForm">
-                    <input type="hidden" name="correct_answer" value="{{ answer }}">
-                    <input type="hidden" name="topic" value="{{ topic }}">
-                    <input type="text" name="user_answer" placeholder="Cavabınızı yazın..." required autocomplete="off" autofocus>
-                    <button type="submit" class="game-btn">Cavabı Göndər (Düzgün cavab: +5 bal)</button>
-                </form>
+            <form method="POST" action="/oyun/sual/cavabla" id="answerForm">
+                <input type="hidden" name="correct_answer" value="{{ answer }}">
+                <input type="text" name="user_answer" placeholder="Cavabınızı yazın..." required autocomplete="off" autofocus>
+                <button type="submit" class="game-btn">Cavabı Göndər (+5 bal)</button>
+            </form>
 
-                <p class="score-badge">Seçilən Mövzu: {{ topic }}</p>
+            <p class="score-badge">Mövzu: {{ topic }} (Sual saylı bank: 40 Dinamik)</p>
 
-                <script>
-                    let timeLeft = 30;
-                    let timerElement = document.getElementById('timer');
-                    let countdown = setInterval(function() {
-                        timeLeft--;
-                        timerElement.innerText = timeLeft;
-                        if(timeLeft <= 0) {
-                            clearInterval(countdown);
-                            alert("Vaxt bitdi! Növbəti suala keçilir.");
-                            window.location.href = "/oyun?topic={{ topic }}";
-                        }
-                    }, 1000);
-                </script>
-            {% endif %}
-            
             {% if message %}
                 <p style="margin-top: 15px; font-weight: 700; color: {% if success %}#4ade80{% else %}#f87171{% endif %};">{{ message }}</p>
             {% endif %}
+
+            <a href="/oyun" class="back-link">← Oyunlar Menyusuna Qayıt</a>
+
+            <script>
+                let timeLeft = 30;
+                let timerElement = document.getElementById('timer');
+                let countdown = setInterval(function() {
+                    timeLeft--;
+                    timerElement.innerText = timeLeft;
+                    if(timeLeft <= 0) {
+                        clearInterval(countdown);
+                        alert("Vaxt bitdi! Növbəti suala keçilir.");
+                        window.location.href = "/oyun/sual";
+                    }
+                }, 1000);
+            </script>
         </div>
     </div>
 </body>
@@ -3281,11 +3475,27 @@ def chat_edit(msg_id):
     conn.close()
     return jsonify({'success': False, 'error': 'İcazəniz yoxdur'})
 
-@app.route('/oyun', methods=['GET', 'POST'])
+# --- YENİ OYUN ROUTE-LARI ---
+
+@app.route('/oyun')
 def oyun():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    has_unread_notifs = cursor.fetchone() is not None
+    conn.close()
+    
+    header_html = get_header_template(has_unread_notifs)
+    return render_template_string(OYUN_MENU_TEMPLATE, header=header_html)
+
+# 1. WOW OYUNU ROUTES
+@app.route('/oyun/wow')
+def oyun_wow():
+    if 'user' not in session:
+        return redirect(url_for('index'))
     current_user = session['user']
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -3295,45 +3505,32 @@ def oyun():
     
     header_html = get_header_template(has_unread_notifs)
     
-    questions_bank = {
-        "tarix": [
-            ("Azərbaycan Demokratik Respublikası neçənci ildə yaradılıb?", "1918", "XX əsrin əvvəlləri"),
-            ("İkinci Dünya müharibəsi neçənci ildə bitmişdir?", "1945", "1940-cı illərin ortaları")
-        ],
-        "cografiya": [
-            ("Azərbaycanın ən hündür zirvəsi hansıdır?", "Bazardüzü", "B hərfi ilə başlayır"),
-            ("Dünyanın ən böyük okeanı hansıdır?", "Sakit okean", "Adı sakitliklə bağlıdır")
-        ]
-    }
+    words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYE", "İDMAN", "TARİX"]
+    full_word = random.choice(words_list)
     
-    topic = request.form.get('topic') or request.args.get('topic')
-    if topic:
-        topic_lower = topic.strip().lower()
-        q_list = questions_bank.get(topic_lower, [
-            ("Azərbaycan Respublikasının paytaxtı haradır?", "Bakı", "Xəzər dənizi sahilindədir")
-        ])
-        q_data = random.choice(q_list)
-        return render_template_string(OYUN_TEMPLATE, header=header_html, topic=topic, question=q_data[0], answer=q_data[1], hint=q_data[2])
-        
-    return render_template_string(OYUN_TEMPLATE, header=header_html)
+    # 1 hərfi gizlədək
+    idx = random.randint(0, len(full_word) - 1)
+    hidden_letter = full_word[idx]
+    masked_word = full_word[:idx] + "_" + full_word[idx+1:]
+    
+    return render_template_string(WOW_OYUNU_TEMPLATE, header=header_html, masked_word=masked_word, full_word=full_word, hidden_letter=hidden_letter)
 
-@app.route('/oyun/cavabla', methods=['POST'])
-def oyun_cavabla():
+@app.route('/oyun/wow/cavabla', methods=['POST'])
+def oyun_wow_cavabla():
     if 'user' not in session:
         return redirect(url_for('index'))
-        
     current_user = session['user']
-    user_answer = request.form.get('user_answer', '').strip().lower()
-    correct_answer = request.form.get('correct_answer', '').strip().lower()
-    topic = request.form.get('topic', '')
+    user_letter = request.form.get('user_letter', '').strip().upper()
+    hidden_letter = request.form.get('hidden_letter', '').strip().upper()
+    full_word = request.form.get('full_word', '')
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
-    success = (user_answer == correct_answer)
-    message = "Təbriklər! Düzgün cavab (+5 bal)" if success else f"Səhvdir! Düzgün cavab: {correct_answer}"
+    success = (user_letter == hidden_letter)
+    message = "Təbriklər! Hərfi düz tapdınız (+5 bal) 🎉" if success else f"Səhvdir! Gizli hərf '{hidden_letter}' idi."
     
     if success:
         cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (current_user,))
@@ -3341,7 +3538,103 @@ def oyun_cavabla():
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(OYUN_TEMPLATE, header=header_html, topic=topic, message=message, success=success)
+    
+    # Yeni söz hazırlayaq və ya nəticəni göstərib növbəti sözə keçək
+    words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYE", "İDMAN", "TARİX"]
+    next_word = random.choice(words_list)
+    idx = random.randint(0, len(next_word) - 1)
+    next_hidden = next_word[idx]
+    next_masked = next_word[:idx] + "_" + next_word[idx+1:]
+    
+    return render_template_string(WOW_OYUNU_TEMPLATE, header=header_html, masked_word=next_masked, full_word=next_word, hidden_letter=next_hidden, message=message, success=success)
+
+# 2. SUAL-CAVAB OYUNU ROUTES (40 Dinamik Sual Bankı ilə)
+@app.route('/oyun/sual')
+def oyun_sual():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    has_unread_notifs = cursor.fetchone() is not None
+    conn.close()
+    
+    header_html = get_header_template(has_unread_notifs)
+    
+    # 40 müxtəlif sualdan ibarət dinamik bank
+    q_bank = [
+        ("Azərbaycanın paytaxtı haradır?", "Bakı", "Coğrafiya"),
+        ("Dünyanın ən böyük okeanı hansıdır?", "Sakit okean", "Coğrafiya"),
+        ("Azərbaycan Demokratik Respublikası neçənci ildə yaradılıb?", "1918", "Tarix"),
+        ("İkinci Dünya müharibəsi neçənci ildə bitmişdir?", "1945", "Tarix"),
+        ("İnsanda neçə əsas qrup qan var?", "4", "Elm"),
+        ("Günəş sisteminin ən böyük planet hansıdır?", "Yupiter", "Elm"),
+        ("DNT-nin açılımı neçə hərflidir və ya forması necədir?", "Spiral", "Elm"),
+        ("Azərbaycanın bayrağındakı rənglərin sayı neçədir?", "3", "Mədəniyyət"),
+        ("Dünyanın ən uzun çayı hansıdır?", "Nil", "Coğrafiya"),
+        ("Su kimyəvi olaraq necə işarələnir?", "H2O", "Elm"),
+        ("Azərbaycan Respublikasının dövlət himninin musiqisini kim bəstələyib?", "Üzeyir Hacıbəyov", "Mədəniyyət"),
+        ("Kompüterin əsas beyini nə adlanır?", "Prosessor", "Texnologiya"),
+        ("İşıq sürəti təqribən saniyədə neçə kilometrdir?", "300000", "Elm"),
+        ("Dünyanın ən hündür dağı hansıdır?", "Everest", "Coğrafiya"),
+        ("Azərbaycanın milli valyutası necə adlanır?", "Manat", "İqtisadiyyat"),
+        ("Qız qalası hansı şəhərdə yerləşir?", "Bakı", "Mədəniyyət"),
+        ("Dünyanın ən kiçik ölkəsi hansıdır?", "Vatikan", "Coğrafiya"),
+        ("Futbol oyununda bir komandada meydanda neçə oyunçu olur?", "11", "İdman"),
+        ("Basketbol səbətinin hündürlüyü neçə metrdir?", "3", "İdman"),
+        ("Yer kürəsinin neçə faizi sudan ibarətdir?", "71", "Coğrafiya"),
+        ("Kitabi-Dədə Qorqud dastanının neçə boyu var?", "12", "Ədəbiyyat"),
+        ("Nizami Gəncəvinin məşhur əsəri 'Xəmsə' neçə poemadan ibarətdir?", "5", "Ədəbiyyat"),
+        ("Azərbaycanın ilk dəmir yolu xətti hansı şəhərlər arasında çəkilib?", "Bakı Sabunçu", "Tarix"),
+        ("Periodik cədvəlin banisi kimdir?", "Mendeleyev", "Elm"),
+        ("İnsan bədənində ən güclü əzələ hansıdır?", "Çənə əzələsi", "Elm"),
+        ("Dünyanın ən dərin gölü hansıdır?", "Baykal", "Coğrafiya"),
+        ("Azərbaycan nefti ilk dəfə sənaye üsulu ilə harada çıxarılıb?", "Bibiheybət", "Tarix"),
+        ("Dünyanın ən qədim qədim şəhərlərindən biri olan Naxçıvanın yaşı təxminən neçə illikdir?", "5000", "Tarix"),
+        ("Şahmat oyununda ümumi xana sayı neçədir?", "64", "İdman"),
+        ("Kompüter klaviaturasında əsas hərflərin yazıldığı rejim necə adlanır?", "Qwerty", "Texnologiya"),
+        ("Atatürk neçənci ildə anadan olub?", "1881", "Tarix"),
+        ("Azərbaycanın ilk peyki necə adlanır?", "Azerspace", "Texnologiya"),
+        ("Dünyanın ən böyük səhrası hansıdır?", "Saxara", "Coğrafiya"),
+        ("İnsan skeletində təxminən neçə sümük var?", "206", "Elm"),
+        ("Fransanın paytaxtı haradır?", "Paris", "Coğrafiya"),
+        ("İtaliyanın paytaxtı hansı şəhərdir?", "Roma", "Coğrafiya"),
+        ("Azərbaycanın ərazisi neçə kvadrat kilometrdir?", "86600", "Coğrafiya"),
+        ("Dünyanın ən böyük materiki hansıdır?", "Asiya", "Coğrafiya"),
+        ("Almaniyanın paytaxtı hansıdır?", "Berlin", "Coğrafiya"),
+        ("İlk dəfə internet neçənci ildə yaradılıb?", "1969", "Texnologiya")
+    ]
+    
+    q_item = random.choice(q_bank)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header_html, question=q_item[0], answer=q_item[1], topic=q_item[2])
+
+@app.route('/oyun/sual/cavabla', methods=['POST'])
+def oyun_sual_cavabla():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+        
+    current_user = session['user']
+    user_answer = request.form.get('user_answer', '').strip().lower()
+    correct_answer = request.form.get('correct_answer', '').strip().lower()
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    has_unread_notifs = cursor.fetchone() is not None
+    
+    success = (user_answer == correct_answer)
+    message = "Təbriklər! Düzgün cavab (+5 bal) 🎉" if success else f"Səhvdir! Düzgün cavab: {correct_answer}"
+    
+    if success:
+        cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (current_user,))
+        conn.commit()
+    conn.close()
+    
+    header_html = get_header_template(has_unread_notifs)
+    return render_template_string(SUAL_CAVAB_TEMPLATE, header=header_html, question="Növbəti sual üçün aşağıdan davam edin və ya yeniləyin.", answer="", topic="Dinamik Sual", message=message, success=success)
+
+# --- DIGƏR BÖLMƏLƏR ---
 
 @app.route('/istifadeciler')
 def istifadeciler():
