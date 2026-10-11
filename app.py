@@ -62,7 +62,44 @@ def init_db():
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sender TEXT NOT NULL,
-            content TEXT NOT NULL
+            content TEXT NOT NULL,
+            reply_to_id INTEGER DEFAULT NULL,
+            reply_to_user TEXT DEFAULT NULL,
+            reply_to_content TEXT DEFAULT NULL
+        )
+    ''')
+
+    # Mövcud bazalarda sütunlar yoxdursa əlavə etmək üçün
+    try:
+        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to_id INTEGER DEFAULT NULL")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to_user TEXT DEFAULT NULL")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to_content TEXT DEFAULT NULL")
+    except sqlite3.OperationalError:
+        pass
+    
+    # MESAJ REAKSİYALARI CƏDVƏLİ
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS message_reactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id INTEGER NOT NULL,
+            username TEXT NOT NULL,
+            reaction TEXT NOT NULL,
+            UNIQUE(message_id, username)
+        )
+    ''')
+
+    # YAZILIR INDIKATORU CƏDVƏLİ
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS typing_status (
+            username TEXT PRIMARY KEY,
+            is_typing INTEGER DEFAULT 0,
+            updated_at TIMESTAMP
         )
     ''')
     
@@ -124,7 +161,6 @@ def init_db():
         )
     ''')
 
-    # BİLDİRİŞLƏR CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,7 +170,6 @@ def init_db():
         )
     ''')
 
-    # CANLI YAYIM CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lives (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -143,7 +178,6 @@ def init_db():
         )
     ''')
 
-    # CANLI HƏDİYƏLƏRİ CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS live_gifts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -153,7 +187,6 @@ def init_db():
         )
     ''')
 
-    # CANLI MESAJLARI CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS live_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -163,7 +196,6 @@ def init_db():
         )
     ''')
 
-    # CANLI BƏYƏNMƏLƏR CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS live_likes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -172,7 +204,6 @@ def init_db():
         )
     ''')
 
-    # POLİS SİSTEMİ CƏDVƏLLƏRİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS police_officers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -192,7 +223,6 @@ def init_db():
         )
     ''')
 
-    # ARXİV OTAQI CƏDVƏLİ (Silinən mesajlar və bloklanan istifadəçilər)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS archived_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -668,6 +698,7 @@ CHAT_TEMPLATE = '''
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative;
         }
         .chat-header-title {
             background: rgba(9, 9, 11, 0.7);
@@ -754,6 +785,91 @@ CHAT_TEMPLATE = '''
             color: #fff;
             text-decoration: underline;
         }
+        /* REAKSİYA SİSTEMİ STİLLƏRİ */
+        .reactions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .reaction-pill {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #fff;
+            transition: transform 0.1s;
+        }
+        .reaction-pill:hover { transform: scale(1.1); }
+        .add-reaction-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px dashed rgba(255,255,255,0.3);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            color: #fff;
+            margin-top: 8px;
+        }
+        .reaction-picker {
+            display: none;
+            position: absolute;
+            background: rgba(15,15,18,0.95);
+            border: 1px solid #f97316;
+            border-radius: 14px;
+            padding: 6px 10px;
+            gap: 6px;
+            z-index: 50;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+        }
+        .reaction-picker span {
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .reaction-picker span:hover { transform: scale(1.3); }
+
+        /* CAVAB VERMƏ QUTUSU STİLİ */
+        .reply-preview-box {
+            display: none;
+            background: rgba(9,9,11,0.85);
+            padding: 10px 16px;
+            border-left: 4px solid #f97316;
+            font-size: 13px;
+            color: #d4d4d8;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .quoted-box {
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid #f97316;
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        /* YAZIYOR INDIKATORU */
+        .typing-indicator-bar {
+            padding: 6px 20px;
+            font-size: 13px;
+            color: #a1a1aa;
+            font-style: italic;
+            background: rgba(9,9,11,0.5);
+            min-height: 22px;
+        }
+
         .chat-form {
             display: flex;
             padding: 18px;
@@ -761,6 +877,12 @@ CHAT_TEMPLATE = '''
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             gap: 14px;
             align-items: center;
+            flex-direction: column;
+        }
+        .chat-form-row {
+            display: flex;
+            width: 100%;
+            gap: 14px;
         }
         .chat-input {
             flex: 1;
@@ -807,17 +929,50 @@ CHAT_TEMPLATE = '''
             {% if messages %}
                 {% for m in messages %}
                     <div class="message-bubble {% if m[1] == current_user %}my-message{% endif %}" id="msg-{{ m[0] }}">
+                        {% if m[6] %}
+                            <div class="quoted-box">
+                                <b>@{{ m[7] }}</b>: {{ m[8] }}
+                            </div>
+                        {% endif %}
+
                         <div class="msg-user" style="color: {{ m[3] if m[3] and m[3] != 'inherit' else ('#fed7aa' if m[1] == current_user else '#f97316') }};">@{{ m[1] }} {{ m[5] }}</div>
                         <p class="msg-text" id="msg-text-{{ m[0] }}" style="color: {{ m[4] if m[4] and m[4] != '#eab308' else '#f8fafc' }};">{{ m[2] }}</p>
                         
-                        {% if m[1] == current_user or is_admin or is_police %}
-                            <div class="msg-actions">
+                        <!-- Reaksiyaların siyahısı -->
+                        <div class="reactions-container" id="reactions-list-{{ m[0] }}">
+                            {% if m[9] %}
+                                {% for emoji, count in m[9].items() %}
+                                    <span class="reaction-pill" onclick="toggleReaction('{{ m[0] }}', '{{ emoji }}')">{{ emoji }} {{ count }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="msg-actions">
+                            <button onclick="prepareReply('{{ m[0] }}', '{{ m[1] }}', '{{ m[2]|e }}')">Cavab ver</button>
+                            <button class="add-reaction-btn" onclick="togglePicker('picker-{{ m[0] }}')">😊</button>
+                            
+                            <div class="reaction-picker" id="picker-{{ m[0] }}">
+                                <span onclick="addReaction('{{ m[0] }}', '👍')">👍</span>
+                                <span onclick="addReaction('{{ m[0] }}', '❤️')">❤️</span>
+                                <span onclick="addReaction('{{ m[0] }}', '😂')">😂</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🔥')">🔥</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🗿')">🗿</span>
+                                <span onclick="addReaction('{{ m[0] }}', '😎')">😎</span>
+                                <span onclick="addReaction('{{ m[0] }}', '😱')">😱</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🤘')">🤘</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🤔')">🤔</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🤯')">🤯</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🤠')">🤠</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🤬')">🤬</span>
+                            </div>
+
+                            {% if m[1] == current_user or is_admin or is_police %}
                                 {% if m[1] == current_user %}
                                     <button onclick="editMessage('{{ m[0] }}')">Redaktə et</button>
                                 {% endif %}
                                 <button onclick="deleteMessage('{{ m[0] }}')" style="color: #fca5a5;">Sil</button>
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             {% else %}
@@ -825,9 +980,18 @@ CHAT_TEMPLATE = '''
             {% endif %}
         </div>
 
-        <form class="chat-form" method="POST" action="/chat/send">
-            <input type="text" name="content" class="chat-input" placeholder="Mesajınızı yazın..." required autocomplete="off">
-            <button type="submit" class="chat-submit">Göndər</button>
+        <div class="typing-indicator-bar" id="typingIndicator"></div>
+
+        <form class="chat-form" method="POST" action="/chat/send" id="chatForm">
+            <div class="reply-preview-box" id="replyPreviewBox">
+                <div><span id="replyUserText" style="font-weight: bold; color: #f97316;"></span> istifadəçisinə cavab yazılır: <span id="replyContentText"></span></div>
+                <button type="button" onclick="cancelReply()" style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            <input type="hidden" name="reply_to_id" id="replyToIdInput" value="">
+            <div class="chat-form-row">
+                <input type="text" name="content" id="chatInput" class="chat-input" placeholder="Mesajınızı yazın..." required autocomplete="off" oninput="notifyTyping()">
+                <button type="submit" class="chat-submit">Göndər</button>
+            </div>
         </form>
     </div>
 
@@ -849,6 +1013,77 @@ CHAT_TEMPLATE = '''
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // Reaksiya menyusunu aç/bağla
+        function togglePicker(pickerId) {
+            let picker = document.getElementById(pickerId);
+            picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function addReaction(msgId, emoji) {
+            fetch('/chat/reaction/' + msgId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emoji: emoji })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById('picker-' + msgId).style.display = 'none';
+                    updateReactionsUI(msgId, data.reactions);
+                }
+            });
+        }
+
+        function toggleReaction(msgId, emoji) {
+            addReaction(msgId, emoji);
+        }
+
+        function updateReactionsUI(msgId, reactionsObj) {
+            let container = document.getElementById('reactions-list-' + msgId);
+            container.innerHTML = '';
+            for (let [emoji, count] of Object.entries(reactionsObj)) {
+                container.innerHTML += `<span class="reaction-pill" onclick="toggleReaction('${msgId}', '${emoji}')">${emoji} ${count}</span>`;
+            }
+        }
+
+        // Cavab vermək funksiyaları
+        function prepareReply(msgId, username, content) {
+            document.getElementById('replyToIdInput').value = msgId;
+            document.getElementById('replyUserText').innerText = '@' + username;
+            document.getElementById('replyContentText').innerText = content;
+            document.getElementById('replyPreviewBox').style.display = 'flex';
+            document.getElementById('chatInput').focus();
+        }
+
+        function cancelReply() {
+            document.getElementById('replyToIdInput').value = '';
+            document.getElementById('replyPreviewBox').style.display = 'none';
+        }
+
+        // Yazıyor... funksiyası
+        let typingTimeout;
+        function notifyTyping() {
+            fetch('/chat/typing', { method: 'POST' });
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                fetch('/chat/stop_typing', { method: 'POST' });
+            }, 2000);
+        }
+
+        function checkTypingStatus() {
+            fetch('/chat/get_typing')
+            .then(res => res.json())
+            .then(data => {
+                let indicator = document.getElementById('typingIndicator');
+                if(data.typing_users && data.typing_users.length > 0) {
+                    indicator.innerText = "@" + data.typing_users.join(', ') + " YAZIYOR....";
+                } else {
+                    indicator.innerText = "";
+                }
+            });
+        }
+        setInterval(checkTypingStatus, 2500);
 
         function deleteMessage(msgId) {
             if(confirm("Bu mesajı silmək istədiyinizə əminsinizmi?")) {
@@ -971,7 +1206,6 @@ OYUN_MENU_TEMPLATE = '''
         <h2 style="color: #f97316; margin-bottom: 30px; font-size: 26px; text-align: center;">🎮 OYUNLAR MƏRKƏZİ</h2>
         
         <div class="games-grid">
-            <!-- 1. WOW OYUNU -->
             <div class="game-card">
                 <div class="game-icon">🔤</div>
                 <h3 class="game-title">1. WOW OYUNU</h3>
@@ -979,7 +1213,6 @@ OYUN_MENU_TEMPLATE = '''
                 <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
             </div>
 
-            <!-- 2. SUAL CAVAB OYUNU -->
             <div class="game-card">
                 <div class="game-icon">❓</div>
                 <h3 class="game-title">2. SUAL CAVAB OYUNU</h3>
@@ -2360,7 +2593,6 @@ PROFIL_TEMPLATE = '''
 </html>
 '''
 
-# CANLI SƏHİFƏSİ TEMPLATE-İ
 CANLI_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -2748,7 +2980,7 @@ CANLI_ROOM_TEMPLATE = '''
         const isHost = {{ 'true' if current_user == host else 'false' }};
         const liveId = '{{ live_id }}';
         
-        let currentFacingMode = 'user'; // default front camera
+        let currentFacingMode = 'user';
         let currentStream = null;
 
         function startCamera(facingMode) {
@@ -3409,7 +3641,6 @@ MAGAZA_TEMPLATE = '''
             </div>
         {% endif %}
 
-        <!-- GİRİŞ EFEKTİ SEKSİYASI -->
         <div class="shop-section">
             <div class="shop-section-title">⚡ GİRİŞ EFEKTİ (ÇATA DAXİLDƏ XÜSUSİ BİLDİRİŞ)</div>
             <div class="shop-grid">
@@ -3455,7 +3686,6 @@ MAGAZA_TEMPLATE = '''
         </div>
     </div>
 
-    <!-- GİRİŞ EFEKTİ MODALI -->
     <div class="modal-overlay" id="entryEffectModal">
         <div class="modal-panel" style="text-align: center;">
             <h3>⚡ GİRİŞ EFEKTİ (500 Bal)</h3>
@@ -3611,7 +3841,6 @@ def chat():
     user_points = res[0] if res else 0
     has_entry_effect = res[1] if res else 0
     
-    # Giriş effekti aktivdirsə və bu sessiyada hələ bildiriş atılmayıbsa, çata avtomatik mesaj yazılır
     if has_entry_effect == 1:
         session_key = f'entry_notified_{current_user}'
         if not session.get(session_key):
@@ -3624,12 +3853,20 @@ def chat():
     has_unread_notifs = cursor.fetchone() is not None
     
     cursor.execute('''
-        SELECT m.id, m.sender, m.content, u.name_color, u.msg_color, u.profile_sticker 
+        SELECT m.id, m.sender, m.content, u.name_color, u.msg_color, u.profile_sticker,
+               m.reply_to_id, m.reply_to_user, m.reply_to_content
         FROM messages m 
         LEFT JOIN users u ON m.sender = u.nickname 
         ORDER BY m.id ASC
     ''')
-    messages = cursor.fetchall()
+    raw_messages = cursor.fetchall()
+    
+    messages = []
+    for m in raw_messages:
+        msg_id = m[0]
+        cursor.execute("SELECT reaction, COUNT(*) FROM message_reactions WHERE message_id = ? GROUP BY reaction", (msg_id,))
+        reactions_data = {row[0]: row[1] for row in cursor.fetchall()}
+        messages.append((m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], reactions_data))
     
     is_admin = (current_user.lower() == 'win_wid')
     is_police = session.get('is_police_logged', False)
@@ -3644,13 +3881,99 @@ def chat_send():
     if 'user' not in session:
         return redirect(url_for('index'))
     content = request.form.get('content', '').strip()
+    reply_to_id = request.form.get('reply_to_id')
+    
     if content:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (session['user'], content))
+        
+        reply_user = None
+        reply_content = None
+        if reply_to_id and reply_to_id.isdigit():
+            cursor.execute("SELECT sender, content FROM messages WHERE id = ?", (int(reply_to_id),))
+            r_msg = cursor.fetchone()
+            if r_msg:
+                reply_user = r_msg[0]
+                reply_content = r_msg[1]
+        
+        cursor.execute('''
+            INSERT INTO messages (sender, content, reply_to_id, reply_to_user, reply_to_content) 
+            VALUES (?, ?, ?, ?, ?)
+        ''', (session['user'], content, reply_to_id if reply_to_id else None, reply_user, reply_content))
         conn.commit()
         conn.close()
     return redirect(url_for('chat'))
+
+@app.route('/chat/reaction/<int:msg_id>', methods=['POST'])
+def chat_reaction(msg_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    current_user = session['user']
+    data = request.get_json()
+    emoji = data.get('emoji')
+    if not emoji:
+        return jsonify({'success': False})
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, reaction FROM message_reactions WHERE message_id = ? AND username = ?", (msg_id, current_user))
+    existing = cursor.fetchone()
+
+    if existing:
+        if existing[1] == emoji:
+            cursor.execute("DELETE FROM message_reactions WHERE id = ?", (existing[0],))
+        else:
+            cursor.execute("UPDATE message_reactions SET reaction = ? WHERE id = ?", (emoji, existing[0]))
+    else:
+        cursor.execute("INSERT INTO message_reactions (message_id, username, reaction) VALUES (?, ?, ?)", (msg_id, current_user, emoji))
+    
+    conn.commit()
+
+    cursor.execute("SELECT reaction, COUNT(*) FROM message_reactions WHERE message_id = ? GROUP BY reaction", (msg_id,))
+    reactions_data = {row[0]: row[1] for row in cursor.fetchall()}
+    conn.close()
+
+    return jsonify({'success': True, 'reactions': reactions_data})
+
+@app.route('/chat/typing', methods=['POST'])
+def chat_typing():
+    if 'user' not in session:
+        return jsonify({'success': False})
+    current_user = session['user']
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO typing_status (username, is_typing, updated_at) VALUES (?, 1, ?)
+        ON CONFLICT(username) DO UPDATE SET is_typing = 1, updated_at = ?
+    ''', (current_user, now_str, now_str))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/chat/stop_typing', methods=['POST'])
+def chat_stop_typing():
+    if 'user' not in session:
+        return jsonify({'success': False})
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE typing_status SET is_typing = 0 WHERE username = ?", (current_user,))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/chat/get_typing')
+def chat_get_typing():
+    if 'user' not in session:
+        return jsonify({'typing_users': []})
+    current_user = session['user']
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT username FROM typing_status WHERE is_typing = 1 AND username != ?", (current_user,))
+    typing_users = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return jsonify({'typing_users': typing_users})
 
 @app.route('/chat/delete/<int:msg_id>', methods=['POST'])
 def chat_delete(msg_id):
@@ -3671,6 +3994,7 @@ def chat_delete(msg_id):
     
     if row[0] == current_user or is_admin or is_police:
         cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
+        cursor.execute("DELETE FROM message_reactions WHERE message_id = ?", (msg_id,))
         
         if is_police or is_admin:
             now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
