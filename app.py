@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import base64
 import os
 import random
@@ -9,15 +10,14 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
-# Bazanın həmişə eyni yerdə və təhlükəsiz qalması üçün mütləq yol təyini
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'win_wid.db')
+# Neon PostgreSQL Connection String
+DATABASE_URL = 'postgresql://neondb_owner:npg_6bXlKpZOS3cP@ep-blue-sea-b4jbcx92-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
 
 def init_db():
-    if not os.path.exists(BASE_DIR):
-        os.makedirs(BASE_DIR)
-        
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -33,34 +33,24 @@ def init_db():
         )
     ''')
     
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN profile_pic TEXT")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 0")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN name_color TEXT DEFAULT 'inherit'")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN msg_color TEXT DEFAULT '#f8fafc'")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN profile_sticker TEXT DEFAULT ''")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN has_entry_effect INTEGER DEFAULT 0")
-    except sqlite3.OperationalError:
-        pass
-        
+    columns_users = [
+        ("profile_pic", "TEXT"),
+        ("points", "INTEGER DEFAULT 0"),
+        ("name_color", "TEXT DEFAULT 'inherit'"),
+        ("msg_color", "TEXT DEFAULT '#f8fafc'"),
+        ("profile_sticker", "TEXT DEFAULT ''"),
+        ("has_entry_effect", "INTEGER DEFAULT 0")
+    ]
+    for col_name, col_type in columns_users:
+        try:
+            cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
+            conn.commit()
+        except psycopg2.errors.DuplicateColumn:
+            conn.rollback()
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             sender TEXT NOT NULL,
             content TEXT NOT NULL,
             reply_to_id INTEGER DEFAULT NULL,
@@ -69,24 +59,21 @@ def init_db():
         )
     ''')
 
-    # Mövcud bazalarda sütunlar yoxdursa əlavə etmək üçün
-    try:
-        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to_id INTEGER DEFAULT NULL")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to_user TEXT DEFAULT NULL")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        cursor.execute("ALTER TABLE messages ADD COLUMN reply_to_content TEXT DEFAULT NULL")
-    except sqlite3.OperationalError:
-        pass
+    columns_messages = [
+        ("reply_to_id", "INTEGER DEFAULT NULL"),
+        ("reply_to_user", "TEXT DEFAULT NULL"),
+        ("reply_to_content", "TEXT DEFAULT NULL")
+    ]
+    for col_name, col_type in columns_messages:
+        try:
+            cursor.execute(f"ALTER TABLE messages ADD COLUMN {col_name} {col_type}")
+            conn.commit()
+        except psycopg2.errors.DuplicateColumn:
+            conn.rollback()
     
-    # MESAJ REAKSİYALARI CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS message_reactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             message_id INTEGER NOT NULL,
             username TEXT NOT NULL,
             reaction TEXT NOT NULL,
@@ -94,7 +81,6 @@ def init_db():
         )
     ''')
 
-    # YAZILIR INDIKATORU CƏDVƏLİ
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS typing_status (
             username TEXT PRIMARY KEY,
@@ -105,7 +91,7 @@ def init_db():
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS private_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             sender TEXT NOT NULL,
             receiver TEXT NOT NULL,
             content TEXT NOT NULL
@@ -114,7 +100,7 @@ def init_db():
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gifts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             sender TEXT NOT NULL,
             receiver TEXT NOT NULL,
             gift TEXT NOT NULL
@@ -123,7 +109,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS videos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             uploader TEXT NOT NULL,
             video_data TEXT NOT NULL
         )
@@ -137,7 +123,7 @@ def init_db():
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS video_comments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             video_id INTEGER,
             username TEXT,
             comment TEXT
@@ -145,7 +131,7 @@ def init_db():
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS video_shares (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             video_id INTEGER,
             sender TEXT,
             receiver TEXT
@@ -154,7 +140,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS complaints (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             username TEXT NOT NULL,
             category TEXT NOT NULL,
             content TEXT NOT NULL
@@ -163,7 +149,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             username TEXT NOT NULL,
             content TEXT NOT NULL,
             is_read INTEGER DEFAULT 0
@@ -172,7 +158,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lives (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             host TEXT NOT NULL,
             is_active INTEGER DEFAULT 1
         )
@@ -180,7 +166,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS live_gifts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             live_id INTEGER,
             sender TEXT,
             gift TEXT
@@ -189,7 +175,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS live_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             live_id INTEGER,
             sender TEXT,
             content TEXT
@@ -198,7 +184,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS live_likes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             live_id INTEGER,
             username TEXT
         )
@@ -206,7 +192,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS police_officers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             regiment TEXT NOT NULL,
             role TEXT DEFAULT 'Police'
@@ -215,7 +201,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS court_cases (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             accused_user TEXT NOT NULL,
             reason TEXT NOT NULL,
             verdict TEXT DEFAULT 'Araşdırılır',
@@ -225,7 +211,7 @@ def init_db():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS archived_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             log_type TEXT NOT NULL,
             target_info TEXT NOT NULL,
             police_name TEXT NOT NULL,
@@ -235,6 +221,7 @@ def init_db():
     ''')
 
     conn.commit()
+    cursor.close()
     conn.close()
 
 init_db()
@@ -785,7 +772,6 @@ CHAT_TEMPLATE = '''
             color: #fff;
             text-decoration: underline;
         }
-        /* REAKSİYA SİSTEMİ STİLLƏRİ */
         .reactions-container {
             display: flex;
             flex-wrap: wrap;
@@ -838,7 +824,6 @@ CHAT_TEMPLATE = '''
         }
         .reaction-picker span:hover { transform: scale(1.3); }
 
-        /* CAVAB VERMƏ QUTUSU STİLİ */
         .reply-preview-box {
             display: none;
             background: rgba(9,9,11,0.85);
@@ -860,7 +845,6 @@ CHAT_TEMPLATE = '''
             color: #cbd5e1;
         }
 
-        /* YAZIYOR INDIKATORU */
         .typing-indicator-bar {
             padding: 6px 20px;
             font-size: 13px;
@@ -938,7 +922,6 @@ CHAT_TEMPLATE = '''
                         <div class="msg-user" style="color: {{ m[3] if m[3] and m[3] != 'inherit' else ('#fed7aa' if m[1] == current_user else '#f97316') }};">@{{ m[1] }} {{ m[5] }}</div>
                         <p class="msg-text" id="msg-text-{{ m[0] }}" style="color: {{ m[4] if m[4] and m[4] != '#eab308' else '#f8fafc' }};">{{ m[2] }}</p>
                         
-                        <!-- Reaksiyaların siyahısı -->
                         <div class="reactions-container" id="reactions-list-{{ m[0] }}">
                             {% if m[9] %}
                                 {% for emoji, count in m[9].items() %}
@@ -1014,7 +997,6 @@ CHAT_TEMPLATE = '''
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Reaksiya menyusunu aç/bağla
         function togglePicker(pickerId) {
             let picker = document.getElementById(pickerId);
             picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
@@ -1047,7 +1029,6 @@ CHAT_TEMPLATE = '''
             }
         }
 
-        // Cavab vermək funksiyaları
         function prepareReply(msgId, username, content) {
             document.getElementById('replyToIdInput').value = msgId;
             document.getElementById('replyUserText').innerText = '@' + username;
@@ -1061,7 +1042,6 @@ CHAT_TEMPLATE = '''
             document.getElementById('replyPreviewBox').style.display = 'none';
         }
 
-        // Yazıyor... funksiyası
         let typingTimeout;
         function notifyTyping() {
             fetch('/chat/typing', { method: 'POST' });
@@ -1125,7 +1105,6 @@ CHAT_TEMPLATE = '''
 </html>
 '''
 
-# OYUNLARIN MENYU VƏ OYUN TEMPLATELƏRİ
 OYUN_MENU_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -3796,24 +3775,27 @@ def index():
         if not nickname or not password:
             return render_template_string(INDEX_TEMPLATE, error="Bütün xanaları doldurun!")
             
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         if action == 'register':
-            cursor.execute("SELECT * FROM users WHERE nickname = ?", (nickname,))
+            cursor.execute("SELECT * FROM users WHERE nickname = %s", (nickname,))
             if cursor.fetchone():
+                cursor.close()
                 conn.close()
                 return render_template_string(INDEX_TEMPLATE, error="Bu nik artıq istifadə olunur!")
             
-            cursor.execute("INSERT INTO users (nickname, password, points) VALUES (?, ?, ?)", (nickname, password, 20))
+            cursor.execute("INSERT INTO users (nickname, password, points) VALUES (%s, %s, %s)", (nickname, password, 20))
             conn.commit()
+            cursor.close()
             conn.close()
             session['user'] = nickname
             return redirect(url_for('chat'))
             
         elif action == 'login':
-            cursor.execute("SELECT * FROM users WHERE nickname = ? AND password = ?", (nickname, password))
+            cursor.execute("SELECT * FROM users WHERE nickname = %s AND password = %s", (nickname, password))
             user = cursor.fetchone()
+            cursor.close()
             conn.close()
             if user:
                 session['user'] = nickname
@@ -3833,10 +3815,10 @@ def chat():
         return redirect(url_for('index'))
         
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT points, has_entry_effect FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points, has_entry_effect FROM users WHERE nickname = %s", (current_user,))
     res = cursor.fetchone()
     user_points = res[0] if res else 0
     has_entry_effect = res[1] if res else 0
@@ -3845,11 +3827,11 @@ def chat():
         session_key = f'entry_notified_{current_user}'
         if not session.get(session_key):
             entry_msg = f"⚡ @{current_user} çat otağına daxil oldu!"
-            cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (current_user, entry_msg))
+            cursor.execute("INSERT INTO messages (sender, content) VALUES (%s, %s)", (current_user, entry_msg))
             conn.commit()
             session[session_key] = True
 
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     cursor.execute('''
@@ -3864,13 +3846,14 @@ def chat():
     messages = []
     for m in raw_messages:
         msg_id = m[0]
-        cursor.execute("SELECT reaction, COUNT(*) FROM message_reactions WHERE message_id = ? GROUP BY reaction", (msg_id,))
+        cursor.execute("SELECT reaction, COUNT(*) FROM message_reactions WHERE message_id = %s GROUP BY reaction", (msg_id,))
         reactions_data = {row[0]: row[1] for row in cursor.fetchall()}
         messages.append((m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], reactions_data))
     
     is_admin = (current_user.lower() == 'win_wid')
     is_police = session.get('is_police_logged', False)
     
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -3884,13 +3867,13 @@ def chat_send():
     reply_to_id = request.form.get('reply_to_id')
     
     if content:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         reply_user = None
         reply_content = None
         if reply_to_id and reply_to_id.isdigit():
-            cursor.execute("SELECT sender, content FROM messages WHERE id = ?", (int(reply_to_id),))
+            cursor.execute("SELECT sender, content FROM messages WHERE id = %s", (int(reply_to_id),))
             r_msg = cursor.fetchone()
             if r_msg:
                 reply_user = r_msg[0]
@@ -3898,9 +3881,10 @@ def chat_send():
         
         cursor.execute('''
             INSERT INTO messages (sender, content, reply_to_id, reply_to_user, reply_to_content) 
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s)
         ''', (session['user'], content, reply_to_id if reply_to_id else None, reply_user, reply_content))
         conn.commit()
+        cursor.close()
         conn.close()
     return redirect(url_for('chat'))
 
@@ -3914,23 +3898,24 @@ def chat_reaction(msg_id):
     if not emoji:
         return jsonify({'success': False})
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, reaction FROM message_reactions WHERE message_id = ? AND username = ?", (msg_id, current_user))
+    cursor.execute("SELECT id, reaction FROM message_reactions WHERE message_id = %s AND username = %s", (msg_id, current_user))
     existing = cursor.fetchone()
 
     if existing:
         if existing[1] == emoji:
-            cursor.execute("DELETE FROM message_reactions WHERE id = ?", (existing[0],))
+            cursor.execute("DELETE FROM message_reactions WHERE id = %s", (existing[0],))
         else:
-            cursor.execute("UPDATE message_reactions SET reaction = ? WHERE id = ?", (emoji, existing[0]))
+            cursor.execute("UPDATE message_reactions SET reaction = %s WHERE id = %s", (emoji, existing[0]))
     else:
-        cursor.execute("INSERT INTO message_reactions (message_id, username, reaction) VALUES (?, ?, ?)", (msg_id, current_user, emoji))
+        cursor.execute("INSERT INTO message_reactions (message_id, username, reaction) VALUES (%s, %s, %s)", (msg_id, current_user, emoji))
     
     conn.commit()
 
-    cursor.execute("SELECT reaction, COUNT(*) FROM message_reactions WHERE message_id = ? GROUP BY reaction", (msg_id,))
+    cursor.execute("SELECT reaction, COUNT(*) FROM message_reactions WHERE message_id = %s GROUP BY reaction", (msg_id,))
     reactions_data = {row[0]: row[1] for row in cursor.fetchall()}
+    cursor.close()
     conn.close()
 
     return jsonify({'success': True, 'reactions': reactions_data})
@@ -3941,13 +3926,14 @@ def chat_typing():
         return jsonify({'success': False})
     current_user = session['user']
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO typing_status (username, is_typing, updated_at) VALUES (?, 1, ?)
-        ON CONFLICT(username) DO UPDATE SET is_typing = 1, updated_at = ?
+        INSERT INTO typing_status (username, is_typing, updated_at) VALUES (%s, 1, %s)
+        ON CONFLICT(username) DO UPDATE SET is_typing = 1, updated_at = %s
     ''', (current_user, now_str, now_str))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'success': True})
 
@@ -3956,10 +3942,11 @@ def chat_stop_typing():
     if 'user' not in session:
         return jsonify({'success': False})
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE typing_status SET is_typing = 0 WHERE username = ?", (current_user,))
+    cursor.execute("UPDATE typing_status SET is_typing = 0 WHERE username = %s", (current_user,))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'success': True})
 
@@ -3968,10 +3955,11 @@ def chat_get_typing():
     if 'user' not in session:
         return jsonify({'typing_users': []})
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT username FROM typing_status WHERE is_typing = 1 AND username != ?", (current_user,))
+    cursor.execute("SELECT username FROM typing_status WHERE is_typing = 1 AND username != %s", (current_user,))
     typing_users = [row[0] for row in cursor.fetchall()]
+    cursor.close()
     conn.close()
     return jsonify({'typing_users': typing_users})
 
@@ -3980,11 +3968,12 @@ def chat_delete(msg_id):
     if 'user' not in session:
         return jsonify({'success': False, 'error': 'Giriş edilməyib'})
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT sender, content FROM messages WHERE id = ?", (msg_id,))
+    cursor.execute("SELECT sender, content FROM messages WHERE id = %s", (msg_id,))
     row = cursor.fetchone()
     if not row:
+        cursor.close()
         conn.close()
         return jsonify({'success': False, 'error': 'Mesaj tapılmadı'})
     
@@ -3993,20 +3982,22 @@ def chat_delete(msg_id):
     police_regiment = session.get('active_regiment', 'POLİS İDARƏSİ')
     
     if row[0] == current_user or is_admin or is_police:
-        cursor.execute("DELETE FROM messages WHERE id = ?", (msg_id,))
-        cursor.execute("DELETE FROM message_reactions WHERE message_id = ?", (msg_id,))
+        cursor.execute("DELETE FROM messages WHERE id = %s", (msg_id,))
+        cursor.execute("DELETE FROM message_reactions WHERE message_id = %s", (msg_id,))
         
         if is_police or is_admin:
             now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_text = f"Silinən mesaj: '@{row[0]}: {row[1]}'"
             cursor.execute('''
                 INSERT INTO archived_logs (log_type, target_info, police_name, regiment, created_at)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
             ''', ('MESAJ_SILINDI', log_text, current_user, police_regiment, now_str))
 
         conn.commit()
+        cursor.close()
         conn.close()
         return jsonify({'success': True})
+    cursor.close()
     conn.close()
     return jsonify({'success': False, 'error': 'İcazəniz yoxdur'})
 
@@ -4020,15 +4011,17 @@ def chat_edit(msg_id):
         return jsonify({'success': False, 'error': 'Mətn boş ola bilməz'})
         
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT sender FROM messages WHERE id = ?", (msg_id,))
+    cursor.execute("SELECT sender FROM messages WHERE id = %s", (msg_id,))
     row = cursor.fetchone()
     if row and row[0] == current_user:
-        cursor.execute("UPDATE messages SET content = ? WHERE id = ?", (new_content, msg_id))
+        cursor.execute("UPDATE messages SET content = %s WHERE id = %s", (new_content, msg_id))
         conn.commit()
+        cursor.close()
         conn.close()
         return jsonify({'success': True, 'content': new_content})
+    cursor.close()
     conn.close()
     return jsonify({'success': False, 'error': 'İcazəniz yoxdur'})
 
@@ -4037,10 +4030,11 @@ def oyun():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4051,10 +4045,11 @@ def oyun_wow():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4077,17 +4072,18 @@ def oyun_wow_cavabla():
     hidden_letter = request.form.get('hidden_letter', '').strip().upper()
     full_word = request.form.get('full_word', '')
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     success = (user_letter == hidden_letter)
     message = "Təbriklər! Hərfi düz tapdınız (+5 bal) 🎉" if success else f"Səhvdir! Gizli hərf '{hidden_letter}' idi."
     
     if success:
-        cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (current_user,))
+        cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = %s", (current_user,))
         conn.commit()
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4105,10 +4101,11 @@ def oyun_sual():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4168,17 +4165,18 @@ def oyun_sual_cavabla():
     user_answer = request.form.get('user_answer', '').strip().lower()
     correct_answer = request.form.get('correct_answer', '').strip().lower()
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     success = (user_answer == correct_answer)
     message = "Təbriklər! Düzgün cavab (+5 bal) 🎉" if success else f"Səhvdir! Düzgün cavab: {correct_answer}"
     
     if success:
-        cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = ?", (current_user,))
+        cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = %s", (current_user,))
         conn.commit()
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4189,9 +4187,9 @@ def istifadeciler():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     is_admin = (current_user.lower() == 'win_wid')
@@ -4199,6 +4197,7 @@ def istifadeciler():
     
     cursor.execute("SELECT nickname, profile_pic, name_color, profile_sticker FROM users")
     all_users = cursor.fetchall()
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4209,12 +4208,13 @@ def istifadeci_profil(username):
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT profile_pic, name_color, profile_sticker FROM users WHERE nickname = ?", (username,))
+    cursor.execute("SELECT profile_pic, name_color, profile_sticker FROM users WHERE nickname = %s", (username,))
     user_res = cursor.fetchone()
     if not user_res:
+        cursor.close()
         conn.close()
         return redirect(url_for('istifadeciler'))
         
@@ -4222,11 +4222,12 @@ def istifadeci_profil(username):
     name_color = user_res[1]
     profile_sticker = user_res[2]
     
-    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (username,))
+    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = %s", (username,))
     gifts = cursor.fetchall()
     
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4237,24 +4238,25 @@ def ozel_mesaj(receiver):
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
     if request.method == 'POST':
         content = request.form.get('content', '').strip()
         if content:
-            cursor.execute("INSERT INTO private_messages (sender, receiver, content) VALUES (?, ?, ?)", (current_user, receiver, content))
+            cursor.execute("INSERT INTO private_messages (sender, receiver, content) VALUES (%s, %s, %s)", (current_user, receiver, content))
             conn.commit()
             
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     cursor.execute('''
         SELECT id, sender, receiver, content FROM private_messages 
-        WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) 
+        WHERE (sender = %s AND receiver = %s) OR (sender = %s AND receiver = %s) 
         ORDER BY id ASC
     ''', (current_user, receiver, receiver, current_user))
     messages = cursor.fetchall()
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4265,9 +4267,9 @@ def vidyo():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     is_admin = (current_user.lower() == 'win_wid')
@@ -4284,17 +4286,18 @@ def vidyo():
     videos = []
     for v in raw_videos:
         v_id = v[0]
-        cursor.execute("SELECT * FROM video_likes WHERE video_id = ? AND username = ?", (v_id, current_user))
+        cursor.execute("SELECT * FROM video_likes WHERE video_id = %s AND username = %s", (v_id, current_user))
         liked = cursor.fetchone() is not None
         
-        cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (v_id,))
+        cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = %s", (v_id,))
         like_count = cursor.fetchone()[0]
         
-        cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = ? ORDER BY id ASC", (v_id,))
+        cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = %s ORDER BY id ASC", (v_id,))
         comments = cursor.fetchall()
         
         videos.append((v[0], v[1], v[2], liked, like_count, comments, v[3]))
         
+    cursor.close()
     conn.close()
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(VIDYO_TEMPLATE, videos=videos, current_user=current_user, is_admin=is_admin, is_police=is_police, header=header_html)
@@ -4322,10 +4325,11 @@ def vidyo_upload():
         os.unlink(temp_path)
         
         b64_str = "data:video/mp4;base64," + base64.b64encode(vid_bytes).decode('utf-8')
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO videos (uploader, video_data) VALUES (?, ?)", (session['user'], b64_str))
+        cursor.execute("INSERT INTO videos (uploader, video_data) VALUES (%s, %s)", (session['user'], b64_str))
         conn.commit()
+        cursor.close()
         conn.close()
     return redirect(url_for('vidyo'))
 
@@ -4334,18 +4338,19 @@ def vidyo_like(video_id):
     if 'user' not in session:
         return jsonify({'success': False})
     user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM video_likes WHERE video_id = ? AND username = ?", (video_id, user))
+    cursor.execute("SELECT * FROM video_likes WHERE video_id = %s AND username = %s", (video_id, user))
     if cursor.fetchone():
-        cursor.execute("DELETE FROM video_likes WHERE video_id = ? AND username = ?", (video_id, user))
+        cursor.execute("DELETE FROM video_likes WHERE video_id = %s AND username = %s", (video_id, user))
         liked = False
     else:
-        cursor.execute("INSERT INTO video_likes (video_id, username) VALUES (?, ?)", (video_id, user))
+        cursor.execute("INSERT INTO video_likes (video_id, username) VALUES (%s, %s)", (video_id, user))
         liked = True
     conn.commit()
-    cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = ?", (video_id,))
+    cursor.execute("SELECT COUNT(*) FROM video_likes WHERE video_id = %s", (video_id,))
     count = cursor.fetchone()[0]
+    cursor.close()
     conn.close()
     return jsonify({'success': True, 'liked': liked, 'count': count})
 
@@ -4358,10 +4363,11 @@ def vidyo_comment(video_id):
     if not comment:
         return jsonify({'success': False})
     user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (?, ?, ?)", (video_id, user, comment))
+    cursor.execute("INSERT INTO video_comments (video_id, username, comment) VALUES (%s, %s, %s)", (video_id, user, comment))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'success': True, 'user': user, 'comment': comment})
 
@@ -4371,14 +4377,16 @@ def vidyo_share(video_id):
         return jsonify({'success': False})
     data = request.get_json()
     receiver = data.get('receiver', '').strip()
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE nickname = ?", (receiver,))
+    cursor.execute("SELECT * FROM users WHERE nickname = %s", (receiver,))
     if not cursor.fetchone():
+        cursor.close()
         conn.close()
         return jsonify({'success': False, 'error': 'İstifadəçi tapılmadı'})
-    cursor.execute("INSERT INTO video_shares (video_id, sender, receiver) VALUES (?, ?, ?)", (video_id, session['user'], receiver))
+    cursor.execute("INSERT INTO video_shares (video_id, sender, receiver) VALUES (%s, %s, %s)", (video_id, session['user'], receiver))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'success': True})
 
@@ -4387,21 +4395,24 @@ def vidyo_delete(video_id):
     if 'user' not in session:
         return jsonify({'success': False})
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT uploader FROM videos WHERE id = ?", (video_id,))
+    cursor.execute("SELECT uploader FROM videos WHERE id = %s", (video_id,))
     row = cursor.fetchone()
     if not row:
+        cursor.close()
         conn.close()
         return jsonify({'success': False})
     
     is_admin = (current_user.lower() == 'win_wid')
     is_police = session.get('is_police_logged', False)
     if row[0] == current_user or is_admin or is_police:
-        cursor.execute("DELETE FROM videos WHERE id = ?", (video_id,))
+        cursor.execute("DELETE FROM videos WHERE id = %s", (video_id,))
         conn.commit()
+        cursor.close()
         conn.close()
         return jsonify({'success': True})
+    cursor.close()
     conn.close()
     return jsonify({'success': False})
 
@@ -4410,7 +4421,7 @@ def profil():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
     message = None
@@ -4424,14 +4435,14 @@ def profil():
                 message = "Nik adı 7 hərfdən çox ola bilməz!"
                 error = True
             else:
-                cursor.execute("SELECT * FROM users WHERE nickname = ?", (new_name,))
+                cursor.execute("SELECT * FROM users WHERE nickname = %s", (new_name,))
                 if cursor.fetchone():
                     message = "Bu nik artıq istifadə olunur!"
                     error = True
                 else:
-                    cursor.execute("UPDATE users SET nickname = ? WHERE nickname = ?", (new_name, current_user))
-                    cursor.execute("UPDATE messages SET sender = ? WHERE sender = ?", (new_name, current_user))
-                    cursor.execute("UPDATE videos SET uploader = ? WHERE uploader = ?", (new_name, current_user))
+                    cursor.execute("UPDATE users SET nickname = %s WHERE nickname = %s", (new_name, current_user))
+                    cursor.execute("UPDATE messages SET sender = %s WHERE sender = %s", (new_name, current_user))
+                    cursor.execute("UPDATE videos SET uploader = %s WHERE uploader = %s", (new_name, current_user))
                     conn.commit()
                     session['user'] = new_name
                     current_user = new_name
@@ -4441,31 +4452,33 @@ def profil():
             if file:
                 img_bytes = file.read()
                 b64_str = "data:image/jpeg;base64," + base64.b64encode(img_bytes).decode('utf-8')
-                cursor.execute("UPDATE users SET profile_pic = ? WHERE nickname = ?", (b64_str, current_user))
+                cursor.execute("UPDATE users SET profile_pic = %s WHERE nickname = %s", (b64_str, current_user))
                 conn.commit()
                 message = "Profil şəkli yeniləndi!"
         elif action == 'delete_account':
-            cursor.execute("DELETE FROM users WHERE nickname = ?", (current_user,))
+            cursor.execute("DELETE FROM users WHERE nickname = %s", (current_user,))
             conn.commit()
+            cursor.close()
             conn.close()
             session.pop('user', None)
             return redirect(url_for('index'))
 
-    cursor.execute("SELECT points, profile_pic, name_color, profile_sticker FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points, profile_pic, name_color, profile_sticker FROM users WHERE nickname = %s", (current_user,))
     user_data = cursor.fetchone()
     points = user_data[0] if user_data else 0
     pic = user_data[1] if user_data else None
     name_color = user_data[2] if user_data else 'inherit'
     profile_sticker = user_data[3] if user_data else ''
     
-    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = ?", (current_user,))
+    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = %s", (current_user,))
     gifts = cursor.fetchall()
     
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     is_admin = (current_user.lower() == 'win_wid')
     
+    cursor.close()
     conn.close()
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(PROFIL_TEMPLATE, user=current_user, points=points, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, is_admin=is_admin, message=message, error=error, header=header_html)
@@ -4475,9 +4488,9 @@ def canli():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     cursor.execute('''
@@ -4487,6 +4500,7 @@ def canli():
         WHERE l.is_active = 1
     ''')
     lives = cursor.fetchall()
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4497,10 +4511,10 @@ def canli_ac():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     res = cursor.fetchone()
     points = res[0] if res else 0
     
@@ -4512,12 +4526,14 @@ def canli_ac():
             WHERE l.is_active = 1
         ''')
         lives = cursor.fetchall()
+        cursor.close()
         conn.close()
         return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, error="Canlı açmaq üçün balansınızda ən azı 60 bal olmalıdır!", header=get_header_template(False))
         
-    cursor.execute("INSERT INTO lives (host, is_active) VALUES (?, 1)", (current_user,))
-    live_id = cursor.lastrowid
+    cursor.execute("INSERT INTO lives (host, is_active) VALUES (%s, 1) RETURNING id", (current_user,))
+    live_id = cursor.fetchone()[0]
     conn.commit()
+    cursor.close()
     conn.close()
     return redirect(url_for('canli_izle', live_id=live_id))
 
@@ -4526,25 +4542,27 @@ def canli_izle(live_id):
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT host FROM lives WHERE id = ? AND is_active = 1", (live_id,))
+    cursor.execute("SELECT host FROM lives WHERE id = %s AND is_active = 1", (live_id,))
     live = cursor.fetchone()
     if not live:
+        cursor.close()
         conn.close()
         return redirect(url_for('canli'))
     host = live[0]
     
-    cursor.execute("SELECT profile_pic FROM users WHERE nickname = ?", (host,))
+    cursor.execute("SELECT profile_pic FROM users WHERE nickname = %s", (host,))
     p_res = cursor.fetchone()
     host_pic = p_res[0] if p_res else None
     
-    cursor.execute("SELECT id, sender, gift FROM live_gifts WHERE live_id = ?", (live_id,))
+    cursor.execute("SELECT id, sender, gift FROM live_gifts WHERE live_id = %s", (live_id,))
     gifts = cursor.fetchall()
     
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4555,14 +4573,15 @@ def canli_like(live_id):
     if 'user' not in session:
         return jsonify({'success': False})
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("INSERT INTO live_likes (live_id, username) VALUES (?, ?)", (live_id, current_user))
+    cursor.execute("INSERT INTO live_likes (live_id, username) VALUES (%s, %s)", (live_id, current_user))
     conn.commit()
     
-    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = ?", (live_id,))
+    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
     likes_count = cursor.fetchone()[0]
+    cursor.close()
     conn.close()
     return jsonify({'success': True, 'likes_count': likes_count})
 
@@ -4575,10 +4594,11 @@ def canli_mesaj(live_id):
     if not content:
         return jsonify({'success': False})
         
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO live_messages (live_id, sender, content) VALUES (?, ?, ?)", (live_id, session['user'], content))
+    cursor.execute("INSERT INTO live_messages (live_id, sender, content) VALUES (%s, %s, %s)", (live_id, session['user'], content))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'success': True})
 
@@ -4586,14 +4606,15 @@ def canli_mesaj(live_id):
 def canli_yenile(live_id):
     if 'user' not in session:
         return jsonify({'success': False})
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = ?", (live_id,))
+    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
     likes_count = cursor.fetchone()[0]
     
-    cursor.execute("SELECT sender, content FROM live_messages WHERE live_id = ? ORDER BY id ASC", (live_id,))
+    cursor.execute("SELECT sender, content FROM live_messages WHERE live_id = %s ORDER BY id ASC", (live_id,))
     messages = [{'sender': r[0], 'content': r[1]} for r in cursor.fetchall()]
+    cursor.close()
     conn.close()
     
     return jsonify({'success': True, 'likes_count': likes_count, 'messages': messages})
@@ -4606,31 +4627,34 @@ def canli_hediyye(live_id):
     data = request.get_json()
     gift = data.get('gift')
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     res = cursor.fetchone()
     user_points = res[0] if res else 0
     
     if user_points < 10:
+        cursor.close()
         conn.close()
         return jsonify({'success': False, 'error': 'Balınız kifayət etmir (Hədiyyə 10 baldır)'})
         
-    cursor.execute("SELECT host FROM lives WHERE id = ?", (live_id,))
+    cursor.execute("SELECT host FROM lives WHERE id = %s", (live_id,))
     live = cursor.fetchone()
     if not live:
+        cursor.close()
         conn.close()
         return jsonify({'success': False, 'error': 'Canlı tapılmadı'})
     host = live[0]
     
-    cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = ?", (current_user,))
-    cursor.execute("UPDATE users SET points = points + 10 WHERE nickname = ?", (host,))
-    cursor.execute("INSERT INTO live_gifts (live_id, sender, gift) VALUES (?, ?, ?)", (live_id, current_user, gift))
+    cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = %s", (current_user,))
+    cursor.execute("UPDATE users SET points = points + 10 WHERE nickname = %s", (host,))
+    cursor.execute("INSERT INTO live_gifts (live_id, sender, gift) VALUES (%s, %s, %s)", (live_id, current_user, gift))
     conn.commit()
     
-    cursor.execute("SELECT COUNT(*) FROM live_gifts WHERE live_id = ?", (live_id,))
+    cursor.execute("SELECT COUNT(*) FROM live_gifts WHERE live_id = %s", (live_id,))
     gifts_count = cursor.fetchone()[0]
+    cursor.close()
     conn.close()
     
     return jsonify({'success': True, 'gifts_count': gifts_count})
@@ -4640,22 +4664,23 @@ def canli_bitir(live_id):
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT host FROM lives WHERE id = ? AND is_active = 1", (live_id,))
+    cursor.execute("SELECT host FROM lives WHERE id = %s AND is_active = 1", (live_id,))
     live = cursor.fetchone()
     if live and live[0] == current_user:
-        cursor.execute("UPDATE lives SET is_active = 0 WHERE id = ?", (live_id,))
+        cursor.execute("UPDATE lives SET is_active = 0 WHERE id = %s", (live_id,))
         
-        cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = ?", (live_id,))
+        cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
         likes_count = cursor.fetchone()[0]
         
         bonus_points = (likes_count // 50) * 10
         if bonus_points > 0:
-            cursor.execute("UPDATE users SET points = points + ? WHERE nickname = ?", (bonus_points, current_user))
+            cursor.execute("UPDATE users SET points = points + %s WHERE nickname = %s", (bonus_points, current_user))
             
         conn.commit()
+    cursor.close()
     conn.close()
     return redirect(url_for('canli'))
 
@@ -4664,12 +4689,13 @@ def bildiris():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE notifications SET is_read = 1 WHERE username = ?", (current_user,))
-    cursor.execute("SELECT id, content FROM notifications WHERE username = ? ORDER BY id DESC", (current_user,))
+    cursor.execute("UPDATE notifications SET is_read = 1 WHERE username = %s", (current_user,))
+    cursor.execute("SELECT id, content FROM notifications WHERE username = %s ORDER BY id DESC", (current_user,))
     notifs = cursor.fetchall()
     conn.commit()
+    cursor.close()
     conn.close()
     
     notifs_html = "".join([f"<div style='background:rgba(39,39,42,0.8); padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08); font-size:15px;'>{n[1]}</div>" for n in notifs]) or "<p style='text-align:center; color:#a1a1aa;'>Bildiriş yoxdur.</p>"
@@ -4698,7 +4724,7 @@ def sikayet():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
     message = None
@@ -4706,16 +4732,17 @@ def sikayet():
         category = request.form.get('category')
         content = request.form.get('content')
         if category and content:
-            cursor.execute("INSERT INTO complaints (username, category, content) VALUES (?, ?, ?)", (current_user, category, content))
+            cursor.execute("INSERT INTO complaints (username, category, content) VALUES (%s, %s, %s)", (current_user, category, content))
             
             notif_text = f"📢 Yeni Şikayət! İstifadəçi: @{current_user} | Kateqoriya: {category} | Mətn: {content}"
-            cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', ?)", (notif_text,))
+            cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', %s)", (notif_text,))
             
             conn.commit()
             message = "Şikayətiniz uğurla göndərildi!"
             
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
     
     page = f'''
@@ -4752,9 +4779,9 @@ def idare_merkezi():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
 
     is_police_logged = session.get('is_police_logged', False)
@@ -4771,6 +4798,7 @@ def idare_merkezi():
 
     is_admin = (current_user.lower() == 'win_wid')
 
+    cursor.close()
     conn.close()
 
     header_html = get_header_template(has_unread_notifs)
@@ -4797,16 +4825,17 @@ def idare_merkezi_login():
     regiment = request.form.get('regiment', '')
 
     if code.isdigit() and len(code) == 6 and code == '370811' and regiment:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
             INSERT INTO police_officers (username, regiment, role) 
-            VALUES (?, ?, 'Police')
-            ON CONFLICT(username) DO UPDATE SET regiment = excluded.regiment
+            VALUES (%s, %s, 'Police')
+            ON CONFLICT(username) DO UPDATE SET regiment = EXCLUDED.regiment
         ''', (current_user, regiment))
         
         conn.commit()
+        cursor.close()
         conn.close()
 
         session['is_police_logged'] = True
@@ -4832,13 +4861,18 @@ def idare_merkezi_add_commander():
         regiment = request.form.get('regiment')
         
         if officer_name and regiment:
-            conn = sqlite3.connect(DB_PATH)
+            conn = get_db_connection()
             cursor = conn.cursor()
             try:
-                cursor.execute("INSERT OR REPLACE INTO police_officers (username, regiment, role) VALUES (?, ?, 'Commander')", (officer_name, regiment))
+                cursor.execute('''
+                    INSERT INTO police_officers (username, regiment, role) 
+                    VALUES (%s, %s, 'Commander')
+                    ON CONFLICT(username) DO UPDATE SET regiment = EXCLUDED.regiment, role = EXCLUDED.role
+                ''', (officer_name, regiment))
                 conn.commit()
-            except sqlite3.Error:
+            except Exception:
                 pass
+            cursor.close()
             conn.close()
     return redirect(url_for('idare_merkezi'))
 
@@ -4854,13 +4888,18 @@ def idare_merkezi_add_officer():
         role = request.form.get('role', 'Police')
         
         if officer_name and regiment:
-            conn = sqlite3.connect(DB_PATH)
+            conn = get_db_connection()
             cursor = conn.cursor()
             try:
-                cursor.execute("INSERT OR REPLACE INTO police_officers (username, regiment, role) VALUES (?, ?, ?)", (officer_name, regiment, role))
+                cursor.execute('''
+                    INSERT INTO police_officers (username, regiment, role) 
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT(username) DO UPDATE SET regiment = EXCLUDED.regiment, role = EXCLUDED.role
+                ''', (officer_name, regiment, role))
                 conn.commit()
-            except sqlite3.Error:
+            except Exception:
                 pass
+            cursor.close()
             conn.close()
     return redirect(url_for('idare_merkezi'))
 
@@ -4872,10 +4911,11 @@ def idare_merkezi_add_case():
     reason = request.form.get('reason', '').strip()
 
     if accused_user and reason:
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO court_cases (accused_user, reason) VALUES (?, ?)", (accused_user, reason))
+        cursor.execute("INSERT INTO court_cases (accused_user, reason) VALUES (%s, %s)", (accused_user, reason))
         conn.commit()
+        cursor.close()
         conn.close()
     return redirect(url_for('idare_merkezi'))
 
@@ -4888,10 +4928,11 @@ def idare_merkezi_verdict(case_id):
     if current_user.lower() == 'win_wid':
         verdict = request.form.get('verdict', '').strip()
         if verdict:
-            conn = sqlite3.connect(DB_PATH)
+            conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("UPDATE court_cases SET verdict = ?, judge = ? WHERE id = ?", (verdict, f"Sayt Rəhbərliyi (@{current_user})", case_id))
+            cursor.execute("UPDATE court_cases SET verdict = %s, judge = %s WHERE id = %s", (verdict, f"Sayt Rəhbərliyi (@{current_user})", case_id))
             conn.commit()
+            cursor.close()
             conn.close()
     return redirect(url_for('idare_merkezi'))
 
@@ -4904,10 +4945,11 @@ def admin_sikayetler():
     if current_user.lower() != 'win_wid':
         return redirect(url_for('chat'))
         
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, username, category, content FROM complaints ORDER BY id DESC")
     comps = cursor.fetchall()
+    cursor.close()
     conn.close()
     
     rows = "".join([f"<div style='background:rgba(39,39,42,0.8); padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);'><b>@{c[1]}</b> ({c[2]}):<p style='margin:8px 0 0 0; color:#d4d4d8;'>{c[3]}</p></div>" for c in comps]) or "<p style='text-align:center; color:#a1a1aa;'>Şikayət yoxdur.</p>"
@@ -4941,20 +4983,21 @@ def admin_delete_user(username):
     police_regiment = session.get('active_regiment', 'POLİS İDARƏSİ')
     
     if (is_admin or is_police) and username.lower() != 'win_wid':
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM users WHERE nickname = ?", (username,))
-        cursor.execute("DELETE FROM messages WHERE sender = ?", (username,))
-        cursor.execute("DELETE FROM private_messages WHERE sender = ? OR receiver = ?", (username, username))
+        cursor.execute("DELETE FROM users WHERE nickname = %s", (username,))
+        cursor.execute("DELETE FROM messages WHERE sender = %s", (username,))
+        cursor.execute("DELETE FROM private_messages WHERE sender = %s OR receiver = %s", (username, username))
         
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_text = f"Bloklanan / Silinən istifadəçi: '@{username}'"
         cursor.execute('''
             INSERT INTO archived_logs (log_type, target_info, police_name, regiment, created_at)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s)
         ''', ('ISTIFADECI_BLOKLANDI', log_text, current_user, police_regiment, now_str))
 
         conn.commit()
+        cursor.close()
         conn.close()
         return jsonify({'success': True})
     return jsonify({'success': False})
@@ -4964,16 +5007,17 @@ def magaza():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     res = cursor.fetchone()
     user_points = res[0] if res else 0
-    cursor.execute("SELECT id FROM notifications WHERE username = ? AND is_read = 0", (current_user,))
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
     cursor.execute("SELECT nickname FROM users")
     all_users = [u[0] for u in cursor.fetchall()]
+    cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
@@ -4993,26 +5037,30 @@ def magaza_al_entry_effect():
         return redirect(url_for('index'))
     current_user = session['user']
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT points, has_entry_effect FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points, has_entry_effect FROM users WHERE nickname = %s", (current_user,))
     res = cursor.fetchone()
     if not res:
+        cursor.close()
         conn.close()
         return redirect(url_for('magaza', error="İstifadəçi tapılmadı!"))
         
     points, has_effect = res[0], res[1]
     
     if has_effect:
+        cursor.close()
         conn.close()
         return redirect(url_for('magaza', error="Sizdə artıq Giriş Effekti mövcuddur!"))
         
     if points < 500:
+        cursor.close()
         conn.close()
         return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (500 Bal lazımdır)!"))
         
-    cursor.execute("UPDATE users SET points = points - 500, has_entry_effect = 1 WHERE nickname = ?", (current_user,))
+    cursor.execute("UPDATE users SET points = points - 500, has_entry_effect = 1 WHERE nickname = %s", (current_user,))
     conn.commit()
+    cursor.close()
     conn.close()
     return redirect(url_for('magaza', message="Giriş Effekti uğurla alındı! Artıq çata daxil olanda hər kəsə bildiriş gedəcək."))
 
@@ -5026,17 +5074,19 @@ def magaza_al_nik():
     if not color:
         return redirect(url_for('magaza', error="Rəng seçilmədi!"))
         
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     points = cursor.fetchone()[0]
     
     if points < 25:
+        cursor.close()
         conn.close()
         return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (25 Bal lazımdır)!"))
         
-    cursor.execute("UPDATE users SET points = points - 25, name_color = ? WHERE nickname = ?", (color, current_user))
+    cursor.execute("UPDATE users SET points = points - 25, name_color = %s WHERE nickname = %s", (color, current_user))
     conn.commit()
+    cursor.close()
     conn.close()
     return redirect(url_for('magaza', message="Rəngli Nik uğurla alındı! Çatda nikinizin rəngi yeniləndi."))
 
@@ -5050,17 +5100,19 @@ def magaza_al_mesaj():
     if not color:
         return redirect(url_for('magaza', error="Rəng seçilmədi!"))
         
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     points = cursor.fetchone()[0]
     
     if points < 25:
+        cursor.close()
         conn.close()
         return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (25 Bal lazımdır)!"))
         
-    cursor.execute("UPDATE users SET points = points - 25, msg_color = ? WHERE nickname = ?", (color, current_user))
+    cursor.execute("UPDATE users SET points = points - 25, msg_color = %s WHERE nickname = %s", (color, current_user))
     conn.commit()
+    cursor.close()
     conn.close()
     return redirect(url_for('magaza', message="Rəngli Mesaj uğurla alındı! Çatdakı mesajlarınızın rəngi yeniləndi."))
 
@@ -5075,22 +5127,24 @@ def magaza_gonder_hediyye():
     if not receiver or not selected_gift:
         return redirect(url_for('magaza', error="Məlumatlar tam seçilmədi!"))
         
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = ?", (current_user,))
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     points = cursor.fetchone()[0]
     
     if points < 10:
+        cursor.close()
         conn.close()
         return redirect(url_for('magaza', error="Hədiyyə göndərmək üçün ən azı 10 balınız olmalıdır!"))
         
-    cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = ?", (current_user,))
-    cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (?, ?, ?)", (current_user, receiver, selected_gift))
+    cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = %s", (current_user,))
+    cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (%s, %s, %s)", (current_user, receiver, selected_gift))
     
     notif_text = f"🎁 @{current_user} sizə mağazadan hədiyyə göndərdi: {selected_gift}"
-    cursor.execute("INSERT INTO notifications (username, content) VALUES (?, ?)", (receiver, notif_text))
+    cursor.execute("INSERT INTO notifications (username, content) VALUES (%s, %s)", (receiver, notif_text))
     
     conn.commit()
+    cursor.close()
     conn.close()
     return redirect(url_for('magaza', message=f"{selected_gift} hədiyyəsi @{receiver} istifadəçisinə uğurla göndərildi!"))
 
