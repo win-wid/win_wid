@@ -11,219 +11,223 @@ app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
 # Neon PostgreSQL Connection String
-DATABASE_URL = 'postgresql://neondb_owner:npg_6bXlKpZOS3cP@ep-blue-sea-b4jbcx92-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+DATABASE_URL = 'postgresql://neondb_owner:npg_6bXlKpZOS3cP@ep-blue-sea-b4jbcx92-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require'
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
 def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            nickname TEXT PRIMARY KEY,
-            password TEXT NOT NULL,
-            profile_pic TEXT,
-            points INTEGER DEFAULT 0,
-            name_color TEXT DEFAULT 'inherit',
-            msg_color TEXT DEFAULT '#f8fafc',
-            profile_sticker TEXT DEFAULT '',
-            has_entry_effect INTEGER DEFAULT 0
-        )
-    ''')
-    
-    columns_users = [
-        ("profile_pic", "TEXT"),
-        ("points", "INTEGER DEFAULT 0"),
-        ("name_color", "TEXT DEFAULT 'inherit'"),
-        ("msg_color", "TEXT DEFAULT '#f8fafc'"),
-        ("profile_sticker", "TEXT DEFAULT ''"),
-        ("has_entry_effect", "INTEGER DEFAULT 0")
-    ]
-    for col_name, col_type in columns_users:
-        try:
-            cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
-            conn.commit()
-        except psycopg2.errors.DuplicateColumn:
-            conn.rollback()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                nickname TEXT PRIMARY KEY,
+                password TEXT NOT NULL,
+                profile_pic TEXT,
+                points INTEGER DEFAULT 0,
+                name_color TEXT DEFAULT 'inherit',
+                msg_color TEXT DEFAULT '#f8fafc',
+                profile_sticker TEXT DEFAULT '',
+                has_entry_effect INTEGER DEFAULT 0
+            )
+        ''')
+        
+        columns_users = [
+            ("profile_pic", "TEXT"),
+            ("points", "INTEGER DEFAULT 0"),
+            ("name_color", "TEXT DEFAULT 'inherit'"),
+            ("msg_color", "TEXT DEFAULT '#f8fafc'"),
+            ("profile_sticker", "TEXT DEFAULT ''"),
+            ("has_entry_effect", "INTEGER DEFAULT 0")
+        ]
+        for col_name, col_type in columns_users:
+            try:
+                cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
+                conn.commit()
+            except Exception:
+                conn.rollback()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS messages (
-            id SERIAL PRIMARY KEY,
-            sender TEXT NOT NULL,
-            content TEXT NOT NULL,
-            reply_to_id INTEGER DEFAULT NULL,
-            reply_to_user TEXT DEFAULT NULL,
-            reply_to_content TEXT DEFAULT NULL
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS messages (
+                id SERIAL PRIMARY KEY,
+                sender TEXT NOT NULL,
+                content TEXT NOT NULL,
+                reply_to_id INTEGER DEFAULT NULL,
+                reply_to_user TEXT DEFAULT NULL,
+                reply_to_content TEXT DEFAULT NULL
+            )
+        ''')
 
-    columns_messages = [
-        ("reply_to_id", "INTEGER DEFAULT NULL"),
-        ("reply_to_user", "TEXT DEFAULT NULL"),
-        ("reply_to_content", "TEXT DEFAULT NULL")
-    ]
-    for col_name, col_type in columns_messages:
-        try:
-            cursor.execute(f"ALTER TABLE messages ADD COLUMN {col_name} {col_type}")
-            conn.commit()
-        except psycopg2.errors.DuplicateColumn:
-            conn.rollback()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS message_reactions (
-            id SERIAL PRIMARY KEY,
-            message_id INTEGER NOT NULL,
-            username TEXT NOT NULL,
-            reaction TEXT NOT NULL,
-            UNIQUE(message_id, username)
-        )
-    ''')
+        columns_messages = [
+            ("reply_to_id", "INTEGER DEFAULT NULL"),
+            ("reply_to_user", "TEXT DEFAULT NULL"),
+            ("reply_to_content", "TEXT DEFAULT NULL")
+        ]
+        for col_name, col_type in columns_messages:
+            try:
+                cursor.execute(f"ALTER TABLE messages ADD COLUMN {col_name} {col_type}")
+                conn.commit()
+            except Exception:
+                conn.rollback()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS message_reactions (
+                id SERIAL PRIMARY KEY,
+                message_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                reaction TEXT NOT NULL,
+                UNIQUE(message_id, username)
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS typing_status (
-            username TEXT PRIMARY KEY,
-            is_typing INTEGER DEFAULT 0,
-            updated_at TIMESTAMP
-        )
-    ''')
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS private_messages (
-            id SERIAL PRIMARY KEY,
-            sender TEXT NOT NULL,
-            receiver TEXT NOT NULL,
-            content TEXT NOT NULL
-        )
-    ''')
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS gifts (
-            id SERIAL PRIMARY KEY,
-            sender TEXT NOT NULL,
-            receiver TEXT NOT NULL,
-            gift TEXT NOT NULL
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS typing_status (
+                username TEXT PRIMARY KEY,
+                is_typing INTEGER DEFAULT 0,
+                updated_at TIMESTAMP
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS private_messages (
+                id SERIAL PRIMARY KEY,
+                sender TEXT NOT NULL,
+                receiver TEXT NOT NULL,
+                content TEXT NOT NULL
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS gifts (
+                id SERIAL PRIMARY KEY,
+                sender TEXT NOT NULL,
+                receiver TEXT NOT NULL,
+                gift TEXT NOT NULL
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS videos (
-            id SERIAL PRIMARY KEY,
-            uploader TEXT NOT NULL,
-            video_data TEXT NOT NULL
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS video_likes (
-            video_id INTEGER,
-            username TEXT,
-            PRIMARY KEY (video_id, username)
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS video_comments (
-            id SERIAL PRIMARY KEY,
-            video_id INTEGER,
-            username TEXT,
-            comment TEXT
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS video_shares (
-            id SERIAL PRIMARY KEY,
-            video_id INTEGER,
-            sender TEXT,
-            receiver TEXT
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS videos (
+                id SERIAL PRIMARY KEY,
+                uploader TEXT NOT NULL,
+                video_data TEXT NOT NULL
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS video_likes (
+                video_id INTEGER,
+                username TEXT,
+                PRIMARY KEY (video_id, username)
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS video_comments (
+                id SERIAL PRIMARY KEY,
+                video_id INTEGER,
+                username TEXT,
+                comment TEXT
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS video_shares (
+                id SERIAL PRIMARY KEY,
+                video_id INTEGER,
+                sender TEXT,
+                receiver TEXT
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS complaints (
-            id SERIAL PRIMARY KEY,
-            username TEXT NOT NULL,
-            category TEXT NOT NULL,
-            content TEXT NOT NULL
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS complaints (
+                id SERIAL PRIMARY KEY,
+                username TEXT NOT NULL,
+                category TEXT NOT NULL,
+                content TEXT NOT NULL
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS notifications (
-            id SERIAL PRIMARY KEY,
-            username TEXT NOT NULL,
-            content TEXT NOT NULL,
-            is_read INTEGER DEFAULT 0
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS notifications (
+                id SERIAL PRIMARY KEY,
+                username TEXT NOT NULL,
+                content TEXT NOT NULL,
+                is_read INTEGER DEFAULT 0
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS lives (
-            id SERIAL PRIMARY KEY,
-            host TEXT NOT NULL,
-            is_active INTEGER DEFAULT 1
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS lives (
+                id SERIAL PRIMARY KEY,
+                host TEXT NOT NULL,
+                is_active INTEGER DEFAULT 1
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS live_gifts (
-            id SERIAL PRIMARY KEY,
-            live_id INTEGER,
-            sender TEXT,
-            gift TEXT
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS live_gifts (
+                id SERIAL PRIMARY KEY,
+                live_id INTEGER,
+                sender TEXT,
+                gift TEXT
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS live_messages (
-            id SERIAL PRIMARY KEY,
-            live_id INTEGER,
-            sender TEXT,
-            content TEXT
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS live_messages (
+                id SERIAL PRIMARY KEY,
+                live_id INTEGER,
+                sender TEXT,
+                content TEXT
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS live_likes (
-            id SERIAL PRIMARY KEY,
-            live_id INTEGER,
-            username TEXT
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS live_likes (
+                id SERIAL PRIMARY KEY,
+                live_id INTEGER,
+                username TEXT
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS police_officers (
-            id SERIAL PRIMARY KEY,
-            username TEXT UNIQUE NOT NULL,
-            regiment TEXT NOT NULL,
-            role TEXT DEFAULT 'Police'
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS police_officers (
+                id SERIAL PRIMARY KEY,
+                username TEXT UNIQUE NOT NULL,
+                regiment TEXT NOT NULL,
+                role TEXT DEFAULT 'Police'
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS court_cases (
-            id SERIAL PRIMARY KEY,
-            accused_user TEXT NOT NULL,
-            reason TEXT NOT NULL,
-            verdict TEXT DEFAULT 'Araşdırılır',
-            judge TEXT DEFAULT 'Sayt Rəhbərliyi'
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS court_cases (
+                id SERIAL PRIMARY KEY,
+                accused_user TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                verdict TEXT DEFAULT 'Araşdırılır',
+                judge TEXT DEFAULT 'Sayt Rəhbərliyi'
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS archived_logs (
-            id SERIAL PRIMARY KEY,
-            log_type TEXT NOT NULL,
-            target_info TEXT NOT NULL,
-            police_name TEXT NOT NULL,
-            regiment TEXT NOT NULL,
-            created_at TEXT NOT NULL
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS archived_logs (
+                id SERIAL PRIMARY KEY,
+                log_type TEXT NOT NULL,
+                target_info TEXT NOT NULL,
+                police_name TEXT NOT NULL,
+                regiment TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        ''')
 
-    conn.commit()
-    cursor.close()
-    conn.close()
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"DB Init Error: {e}")
 
+# Tətbiq başlayan kimi bazanı və cədvəlləri avtomatik yaradır
 init_db()
 
 INDEX_TEMPLATE = '''
