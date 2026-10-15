@@ -221,6 +221,18 @@ def init_db():
             )
         ''')
 
+        # Yeni əlavə olunan Hakimlər və Polislər İdarə Mərkəzi Qrup Yazışma Cədvəli
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS police_chat_messages (
+                id SERIAL PRIMARY KEY,
+                sender TEXT NOT NULL,
+                regiment TEXT NOT NULL,
+                content TEXT,
+                image_data TEXT,
+                created_at TEXT NOT NULL
+            )
+        ''')
+
         conn.commit()
         cursor.close()
         conn.close()
@@ -3356,6 +3368,26 @@ IDARE_MERKEZI_TEMPLATE = '''
                 <a href="/idare_merkezi/logout" style="background:#ef4444; color:#fff; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700; font-size:13px;">Çıxış Et</a>
             </div>
 
+            <!-- Yeni Əlavə Edilmiş İdarə Mərkəzi Qrup Çatı Bölməsi -->
+            <div style="background:rgba(24,24,27,0.95); border:1px solid #f97316; border-radius:18px; padding:20px; margin-bottom:25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <h3 style="margin:0 0 15px 0; color:#f97316; font-size:18px; text-align:center;">💬 HAKİMLƏR VƏ POLİSLƏR ÜÇÜN RƏSMİ QURUP YAZIŞMASI</h3>
+                
+                <div id="policeChatMessagesBox" style="background:#09090b; border:1px solid rgba(255,255,255,0.1); border-radius:14px; height:280px; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; margin-bottom:15px;">
+                    <!-- Mesajlar JS ilə yenilənir -->
+                </div>
+
+                <form id="policeChatForm" onsubmit="sendPoliceChatMessage(event)" style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="policeChatInput" placeholder="İdarə mərkəzi qrupuna mesaj yaz..." style="flex:1; padding:12px; border-radius:12px; background:#18181b; border:1px solid #f97316; color:#fff; font-size:15px;" autocomplete="off">
+                        <label style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:0 16px; border-radius:12px; display:flex; align-items:center; cursor:pointer; font-weight:700; font-size:14px; color:#fff;">
+                            📷 Şəkil <input type="file" id="policeChatImgInput" accept="image/*" style="display:none;">
+                        </label>
+                        <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:0 24px; border-radius:12px; font-weight:700; cursor:pointer;">Göndər</button>
+                    </div>
+                    <div id="selectedImgName" style="font-size:12px; color:#4ade80;"></div>
+                </form>
+            </div>
+
             {% if is_admin %}
                 <div style="background:rgba(39,39,42,0.8); padding:20px; border-radius:18px; margin-bottom:20px; border:2px solid #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);">
                     <h4 style="margin:0 0 12px 0; color:#f97316; font-size:16px;">👑 XÜSUSİ ALAY RƏİSİ ATAMA PANELSİ (win_wid)</h4>
@@ -3489,6 +3521,83 @@ IDARE_MERKEZI_TEMPLATE = '''
         }
         function closeArchiveModal() {
             document.getElementById('archiveModal').style.display = 'none';
+        }
+
+        // İdarə Mərkəzi Qrup Yazışmaları üçün JavaScript skriptləri
+        const policeChatImgInput = document.getElementById('policeChatImgInput');
+        if(policeChatImgInput) {
+            policeChatImgInput.addEventListener('change', function() {
+                if(this.files && this.files[0]) {
+                    document.getElementById('selectedImgName').innerText = 'Şəkil seçildi: ' + this.files[0].name;
+                }
+            });
+        }
+
+        function sendPoliceChatMessage(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('policeChatInput');
+            const fileEl = document.getElementById('policeChatImgInput');
+            const content = inputEl.value.trim();
+            const file = fileEl.files[0];
+
+            if(!content && !file) return;
+
+            const formData = new FormData();
+            formData.append('content', content);
+            if(file) {
+                formData.append('image_file', file);
+            }
+
+            fetch('/idare_merkezi/chat/send', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    inputEl.value = '';
+                    fileEl.value = '';
+                    document.getElementById('selectedImgName').innerText = '';
+                    fetchPoliceChatMessages();
+                } else {
+                    alert(data.error || "Xəta baş verdi!");
+                }
+            });
+        }
+
+        function fetchPoliceChatMessages() {
+            fetch('/idare_merkezi/chat/get')
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    const box = document.getElementById('policeChatMessagesBox');
+                    if(!box) return;
+                    box.innerHTML = '';
+                    if(data.messages.length === 0) {
+                        box.innerHTML = '<p style="text-align:center; color:#a1a1aa; font-size:14px; margin:auto;">Hələ ki İdarə Mərkəzi qrupunda mesaj yoxdur.</p>';
+                        return;
+                    }
+                    data.messages.forEach(m => {
+                        let imgHtml = m.image_data ? `<br><img src="${m.image_data}" style="max-width:200px; max-height:200px; border-radius:10px; margin-top:8px;">` : '';
+                        box.innerHTML += `
+                            <div style="background:rgba(39,39,42,0.6); padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+                                <div style="display:flex; justify-content:space-between; font-size:12px; color:#f97316; margin-bottom:4px; font-weight:700;">
+                                    <span>👮 @${m.sender} (${m.regiment})</span>
+                                    <span style="color:#a1a1aa;">⏱️ ${m.created_at}</span>
+                                </div>
+                                <div style="font-size:15px; color:#fff; word-break:break-all;">${m.content}</div>
+                                ${imgHtml}
+                            </div>
+                        `;
+                    });
+                    box.scrollTop = box.scrollHeight;
+                }
+            });
+        }
+
+        if(document.getElementById('policeChatMessagesBox')) {
+            setInterval(fetchPoliceChatMessages, 2500);
+            fetchPoliceChatMessages();
         }
     </script>
 </body>
@@ -4289,7 +4398,6 @@ def blok_et(username):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Bloklanan istifadəçi üçün şikayət/arxiv qeydi və ya bildiriş yaradıla bilər
     notif_text = f"⚠️ Diqqət: @{current_user} tərəfindən bloklandınız!"
     cursor.execute("INSERT INTO notifications (username, content) VALUES (%s, %s)", (username, notif_text))
     conn.commit()
@@ -4931,6 +5039,66 @@ def idare_merkezi_logout():
     session.pop('is_police_logged', None)
     session.pop('active_regiment', None)
     return redirect(url_for('idare_merkezi'))
+
+# Yeni Əlavə Edilmiş İdarə Mərkəzi Qrup Mesajları End-pointləri
+@app.route('/idare_merkezi/chat/send', methods=['POST'])
+def idare_merkezi_chat_send():
+    if 'user' not in session or not session.get('is_police_logged'):
+        return jsonify({'success': False, 'error': 'İcazə yoxdur'})
+    
+    current_user = session['user']
+    regiment = session.get('active_regiment', 'İDARƏ MƏRKƏZİ')
+    content = request.form.get('content', '').strip()
+    file = request.files.get('image_file')
+    
+    image_b64 = None
+    if file:
+        try:
+            img_bytes = file.read()
+            image_b64 = "data:image/jpeg;base64," + base64.b64encode(img_bytes).decode('utf-8')
+        except Exception:
+            pass
+
+    if not content and not image_b64:
+        return jsonify({'success': False, 'error': 'Boş mesaj göndərilə bilməz'})
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO police_chat_messages (sender, regiment, content, image_data, created_at)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (current_user, regiment, content, image_b64, now_str))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/idare_merkezi/chat/get')
+def idare_merkezi_chat_get():
+    if 'user' not in session or not session.get('is_police_logged'):
+        return jsonify({'success': False, 'messages': []})
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT sender, regiment, content, image_data, created_at 
+        FROM police_chat_messages 
+        ORDER BY id ASC
+    ''')
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    messages = [{
+        'sender': r[0],
+        'regiment': r[1],
+        'content': r[2],
+        'image_data': r[3],
+        'created_at': r[4]
+    } for r in rows]
+
+    return jsonify({'success': True, 'messages': messages})
 
 @app.route('/idare_merkezi/add_commander', methods=['POST'])
 def idare_merkezi_add_commander():
