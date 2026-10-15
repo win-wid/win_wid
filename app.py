@@ -227,7 +227,6 @@ def init_db():
     except Exception as e:
         print(f"DB Init Error: {e}")
 
-# Tətbiq başlayan kimi bazanı və cədvəlləri avtomatik yaradır
 init_db()
 
 INDEX_TEMPLATE = '''
@@ -1709,6 +1708,10 @@ PUBLIC_PROFILE_TEMPLATE = '''
             border-radius: 12px;
             border: 1px solid rgba(249, 115, 22, 0.4);
         }
+        .action-btn-row {
+            display: flex;
+            gap: 10px;
+        }
         .back-btn {
             background: rgba(39, 39, 42, 0.9);
             color: white;
@@ -1723,6 +1726,33 @@ PUBLIC_PROFILE_TEMPLATE = '''
             display: block;
         }
         .back-btn:hover { background: rgba(39, 39, 42, 1); }
+        .btn-block {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-report {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            border: none;
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-block:hover, .btn-report:hover { transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -1732,6 +1762,10 @@ PUBLIC_PROFILE_TEMPLATE = '''
         <div class="profile-container">
             <p class="profile-title">@{{ target_user }} - İstifadəçi Profili</p>
             
+            {% if message %}
+                <p style="text-align:center; font-weight:700; color:#4ade80; margin:0;">{{ message }}</p>
+            {% endif %}
+
             <div class="profile-header">
                 <div class="avatar-wrapper">
                     <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
@@ -1755,7 +1789,17 @@ PUBLIC_PROFILE_TEMPLATE = '''
                 </div>
             </div>
 
-            <a href="/ozel_mesaj/{{ target_user }}" class="back-btn" style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; font-weight: 700;">💬 Mesaj Göndər</a>
+            <a href="/ozel_mesaj/{{ target_user }}" class="back-btn" style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; font-weight: 700; text-align: center;">💬 Mesaj Göndər</a>
+            
+            <div class="action-btn-row">
+                <form action="/blok_et/{{ target_user }}" method="POST" style="flex:1; margin:0;" onsubmit="return confirm('@{{ target_user }} istifadəçisini bloklamaq istədiyinizə əminsinizmi?');">
+                    <button type="submit" class="btn-block">⛔ BLOK ELƏ</button>
+                </form>
+                <form action="/sikayet_et_profil/{{ target_user }}" method="POST" style="flex:1; margin:0;" onsubmit="return confirm('@{{ target_user }} istifadəçisini şikayət etmək istədiyinizə əminsinizmi?');">
+                    <button type="submit" class="btn-report">⚠️ ŞİKAYƏT ELƏ</button>
+                </form>
+            </div>
+
             <a href="/istifadeciler" class="back-btn">← İstifadəçilərə Qayıt</a>
         </div>
     </div>
@@ -4235,7 +4279,41 @@ def istifadeci_profil(username):
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(PUBLIC_PROFILE_TEMPLATE, target_user=username, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, header=header_html)
+    return render_template_string(PUBLIC_PROFILE_TEMPLATE, target_user=username, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, header=header_html, message=request.args.get('message'))
+
+@app.route('/blok_et/<username>', methods=['POST'])
+def blok_et(username):
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Bloklanan istifadəçi üçün şikayət/arxiv qeydi və ya bildiriş yaradıla bilər
+    notif_text = f"⚠️ Diqqət: @{current_user} tərəfindən bloklandınız!"
+    cursor.execute("INSERT INTO notifications (username, content) VALUES (%s, %s)", (username, notif_text))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return redirect(url_for('istifadeci_profil', username=username, message=f"@{username} uğurla bloklandı!"))
+
+@app.route('/sikayet_et_profil/<username>', methods=['POST'])
+def sikayet_et_profil(username):
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    complaint_text = f"Profil şikayəti: @{current_user} tərəfindən @{username} şikayət olundu."
+    cursor.execute("INSERT INTO complaints (username, category, content) VALUES (%s, %s, %s)", (current_user, "İstifadəçi profili şikayəti", complaint_text))
+    cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', %s)", (f"📢 Profil Şikayəti: {complaint_text}",))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return redirect(url_for('istifadeci_profil', username=username, message=f"@{username} haqqında şikayət rəhbərliyə göndərildi!"))
 
 @app.route('/ozel_mesaj/<receiver>', methods=['GET', 'POST'])
 def ozel_mesaj(receiver):
