@@ -3351,8 +3351,9 @@ IDARE_MERKEZI_TEMPLATE = '''
                 <form method="POST" action="/idare_merkezi/login">
                     <input type="password" name="code" placeholder="ŞƏXSİ KOD (6 rəqəmli)..." maxlength="6" minlength="6" pattern="\d{6}" required>
                     <select name="regiment" required>
-                        <option value="" disabled selected>Əmrində olduğunuz alayı və ya rəhbərliyi seçin...[span_2](start_span)[span_2](end_span)</option>
-                        <option value="RƏHBƏRLİK"> RƏHBƏRLİK SEÇİMİ</option>
+                        <option value="" disabled selected>SEÇİMİNİZİ EDİN...[span_2](start_span)[span_2](end_span)</option>
+                        <option value="RƏHBƏRLİK"> 👑 RƏHBƏRLİK</option>
+                        option value="HAKIM"> ​⚖️ HAKİM</option>
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
