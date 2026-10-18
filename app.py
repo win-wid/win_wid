@@ -1581,7 +1581,7 @@ USERS_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="users-container">
-        <p class="users-title">👥 SAYTIN İSTİFADƏÇİLƏRİ</p>
+        <p class="users-title">👥 SAYITIN İSTİFADƏÇİLƏRİ</p>
         
         {% if all_users %}
             {% for u in all_users %}
@@ -1804,10 +1804,10 @@ PUBLIC_PROFILE_TEMPLATE = '''
             
             <div class="action-btn-row">
                 <form action="/blok_et/{{ target_user }}" method="POST" style="flex:1; margin:0;" onsubmit="return confirm('@{{ target_user }} istifadəçisini bloklamaq istədiyinizə əminsinizmi?');">
-                    <button type="submit" class="btn-block">⛔ BLOK ELƏ</button>
+                    <button type="submit" class="btn-block">⛔ BLOKLA</button>
                 </form>
                 <form action="/sikayet_et_profil/{{ target_user }}" method="POST" style="flex:1; margin:0;" onsubmit="return confirm('@{{ target_user }} istifadəçisini şikayət etmək istədiyinizə əminsinizmi?');">
-                    <button type="submit" class="btn-report">⚠️ ŞİKAYƏT ELƏ</button>
+                    <button type="submit" class="btn-report">⚠️ ŞİKAYƏT ET</button>
                 </form>
             </div>
 
@@ -3007,7 +3007,7 @@ CANLI_ROOM_TEMPLATE = '''
         </div>
 
         <div class="gifts-bar">
-            {% set gift_list = ['👅', '❤️‍🔥', '🤠', '💋', '🫶', '🔥', '🧨', '🎀', '👑'] %}
+            {% set gift_list = ['👑', '🤯', '❤️‍🔥', '🤠', '💋', '🫶', '🔥', '🧨', '🎀', '👑'] %}
             {% for gift in gift_list %}
                 <button class="gift-btn" onclick="sendGift('{{ gift }}')">{{ gift }}</button>
             {% endfor %}
@@ -3352,7 +3352,7 @@ IDARE_MERKEZI_TEMPLATE = '''
                     <input type="password" name="code" placeholder="ŞƏXSİ KOD (6 rəqəmli)..." maxlength="6" minlength="6" pattern="\d{6}" required>
                     <select name="regiment" required>
                         <option value="" disabled selected>Əmrində olduğunuz alayı və ya rəhbərliyi seçin...[span_2](start_span)[span_2](end_span)</option>
-                        <option value="HAKİM VƏ RƏHBƏRLİK">⚖️ HAKİM VƏ RƏHBƏRLİK SEÇİMİ</option>
+                        <option value="RƏHBƏRLİK"> RƏHBƏRLİK SEÇİMİ</option>
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
