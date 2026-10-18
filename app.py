@@ -221,7 +221,6 @@ def init_db():
             )
         ''')
 
-        # Yeni əlavə olunan Hakimlər və Polislər İdarə Mərkəzi Qrup Yazışma Cədvəli
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS police_chat_messages (
                 id SERIAL PRIMARY KEY,
@@ -3345,14 +3344,15 @@ IDARE_MERKEZI_TEMPLATE = '''
         {% if not is_police_logged %}
             <div class="login-box">
                 <h3 style="margin-top:0; color:#ef4444;">🛡️ POLİS XİDMƏTİ GİRİŞİ</h3>
-                <p style="font-size:14px; color:#d4d4d8;">İdarə mərkəzinə daxil olmaq üçün 6 RƏQƏMLİ ŞƏXSİ KODU və xidmət etdiyiniz ALAYI qeyd edin.</p>
+                <p style="font-size:14px; color:#d4d4d8;">İdarə mərkəzinə daxil olmaq üçün 6 RƏQƏMLİ ŞƏXSİ KODU və xidmət etdiyiniz ALAYI və ya HAKİM VƏ RƏHBƏRLİK SEÇİMİNİ qeyd edin[span_1](start_span)[span_1](end_span).</p>
                 {% if error %}
                     <p style="color:#ef4444; font-weight:700;">{{ error }}</p>
                 {% endif %}
                 <form method="POST" action="/idare_merkezi/login">
                     <input type="password" name="code" placeholder="ŞƏXSİ KOD (6 rəqəmli)..." maxlength="6" minlength="6" pattern="\d{6}" required>
                     <select name="regiment" required>
-                        <option value="" disabled selected>Əmrində olduğunuz alayı seçin...</option>
+                        <option value="" disabled selected>Əmrində olduğunuz alayı və ya rəhbərliyi seçin...[span_2](start_span)[span_2](end_span)</option>
+                        <option value="HAKİM VƏ RƏHBƏRLİK">⚖️ HAKİM VƏ RƏHBƏRLİK SEÇİMİ</option>
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
@@ -3363,12 +3363,12 @@ IDARE_MERKEZI_TEMPLATE = '''
         {% else %}
             <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(39,39,42,0.8); padding:16px 20px; border-radius:14px; margin-bottom:20px;">
                 <div>
-                    <b>Xoş gəldiniz:</b> @{{ current_user }} | <b>Sizin Alay:</b> <span style="color:#f97316;">{{ active_regiment }}</span>
+                    <b>Xoş gəldiniz:</b> @{{ current_user }} | <b>Sizin Seçim / Alay:</b> <span style="color:#f97316;">{{ active_regiment }}</span>
                 </div>
                 <a href="/idare_merkezi/logout" style="background:#ef4444; color:#fff; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700; font-size:13px;">Çıxış Et</a>
             </div>
 
-            <!-- Yeni Əlavə Edilmiş İdarə Mərkəzi Qrup Çatı Bölməsi -->
+            <!-- İdarə Mərkəzi Qrup Yazışması Bölməsi -->
             <div style="background:rgba(24,24,27,0.95); border:1px solid #f97316; border-radius:18px; padding:20px; margin-bottom:25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                 <h3 style="margin:0 0 15px 0; color:#f97316; font-size:18px; text-align:center;">💬 HAKİMLƏR VƏ POLİSLƏR ÜÇÜN RƏSMİ QURUP YAZIŞMASI</h3>
                 
@@ -3390,36 +3390,38 @@ IDARE_MERKEZI_TEMPLATE = '''
 
             {% if is_admin %}
                 <div style="background:rgba(39,39,42,0.8); padding:20px; border-radius:18px; margin-bottom:20px; border:2px solid #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);">
-                    <h4 style="margin:0 0 12px 0; color:#f97316; font-size:16px;">👑 XÜSUSİ ALAY RƏİSİ ATAMA PANELSİ (win_wid)</h4>
+                    <h4 style="margin:0 0 12px 0; color:#f97316; font-size:16px;">👑 XÜSUSİ ALAY RƏİSİ VƏ YA HAKİM ATAMA PANELSİ (win_wid)</h4>
                     <form method="POST" action="/idare_merkezi/add_commander" style="display:flex; gap:12px; flex-wrap:wrap;">
-                        <input type="text" name="officer_name" placeholder="Rəis olacaq istifadəçi (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                        <input type="text" name="officer_name" placeholder="Rəis / Hakim olacaq istifadəçi (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                         <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                            <option value="HAKİM VƏ RƏHBƏRLİK">HAKİM VƏ RƏHBƏRLİK</option>
                             <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
                             <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
                             <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
                         </select>
-                        <button type="submit" class="btn-add-commander">👑 Alay Rəisi Təyin Et</button>
+                        <button type="submit" class="btn-add-commander">👑 Təyin Et</button>
                     </form>
                 </div>
 
                 <div style="background:rgba(39,39,42,0.6); padding:20px; border-radius:18px; margin-bottom:24px; border:1px solid #22c55e;">
-                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Polis Əməkdaşı Təyin Et (Admin: win_wid)</h4>
+                    <h4 style="margin:0 0 12px 0; color:#22c55e;">➕ Yeni Əməkdaş Təyin Et (Admin: win_wid)</h4>
                     <form method="POST" action="/idare_merkezi/add_officer" style="display:flex; gap:12px; flex-wrap:wrap;">
                         <input type="text" name="officer_name" placeholder="İstifadəçi adı (Nik)" required style="flex:1; padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
                         <select name="regiment" required style="padding:10px; border-radius:10px; background:#09090b; border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                            <option value="HAKİM VƏ RƏHBƏRLİK">HAKİM VƏ RƏHBƏRLİK</option>
                             <option value="POLİS ALAYI 222">POLİS ALAYI 222</option>
                             <option value="POLİS ALAYI 333">POLİS ALAYI 333</option>
                             <option value="POLİS ALAYI 666">POLİS ALAYI 666</option>
                         </select>
                         <input type="hidden" name="role" value="Police">
-                        <button type="submit" class="btn-add-officer">Polis Əlavə Et</button>
+                        <button type="submit" class="btn-add-officer">Əlavə Et</button>
                     </form>
                 </div>
             {% endif %}
 
-            <h3 style="color:#f97316;">🛡️ ALAYLAR VƏ HEYƏT STRUKTURU</h3>
+            <h3 style="color:#f97316;">🛡️ HEYƏT VƏ ALAYLAR STRUKTURU</h3>
             <div class="regiment-grid">
-                {% set regiments = ['POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 666'] %}
+                {% set regiments = ['HAKİM VƏ RƏHBƏRLİK', 'POLİS ALAYI 222', 'POLİS ALAYI 333', 'POLİS ALAYI 666'] %}
                 {% for reg in regiments %}
                     <div class="regiment-card">
                         <div class="regiment-title">
@@ -3427,7 +3429,7 @@ IDARE_MERKEZI_TEMPLATE = '''
                         </div>
                         
                         <div style="margin-bottom:10px; font-weight:700; color:#fb923c; font-size:14px;">
-                            👑 Alay Rəisi: 
+                            👑 Rəhbər / Başçı: 
                             {% set commander = officers | selectattr(1, 'equalto', reg) | selectattr(2, 'equalto', 'Commander') | list %}
                             {% if commander %}
                                 <span style="color:#4ade80;">@{{ commander[0][0] }}</span>
@@ -3436,17 +3438,17 @@ IDARE_MERKEZI_TEMPLATE = '''
                             {% endif %}
                         </div>
 
-                        <div style="font-size:13px; color:#d4d4d8; font-weight:700; margin-bottom:6px;">Polis Əməkdaşları:</div>
+                        <div style="font-size:13px; color:#d4d4d8; font-weight:700; margin-bottom:6px;">Üzvlər / Əməkdaşlar:</div>
                         {% set reg_officers = officers | selectattr(1, 'equalto', reg) | selectattr(2, 'equalto', 'Police') | list %}
                         {% if reg_officers %}
                             {% for off in reg_officers %}
                                 <div class="officer-item">
                                     <span>👮 @{{ off[0] }}</span>
-                                    <span style="color:#22c55e; font-weight:700;">Növbədə</span>
+                                    <span style="color:#22c55e; font-weight:700;">Aktiv</span>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div style="font-size:12px; color:#a1a1aa;">Hələ ki bu alayda polis yoxdur.</div>
+                            <div style="font-size:12px; color:#a1a1aa;">Hələ ki bu bölmədə üzv yoxdur.</div>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -3504,7 +3506,7 @@ IDARE_MERKEZI_TEMPLATE = '''
                             </div>
                             <div style="font-size:15px; color:#fff;"><b>Məzmun / Təfərrüat:</b> {{ a[2] }}</div>
                             <div style="font-size:13px; color:#4ade80;">
-                                👮 <b>Polis:</b> @{{ a[3] }} | 🛡️ <b>Alay:</b> {{ a[4] }}
+                                👮 <b>Polis:</b> @{{ a[3] }} | 🛡️ <b>Bölmə:</b> {{ a[4] }}
                             </div>
                         </div>
                     {% endfor %}
@@ -3523,7 +3525,6 @@ IDARE_MERKEZI_TEMPLATE = '''
             document.getElementById('archiveModal').style.display = 'none';
         }
 
-        // İdarə Mərkəzi Qrup Yazışmaları üçün JavaScript skriptləri
         const policeChatImgInput = document.getElementById('policeChatImgInput');
         if(policeChatImgInput) {
             policeChatImgInput.addEventListener('change', function() {
@@ -5032,7 +5033,7 @@ def idare_merkezi_login():
         session['active_regiment'] = regiment
         return redirect(url_for('idare_merkezi'))
     else:
-        return redirect(url_for('idare_merkezi', error="Xüsusi 6 rəqəmli KOD və ya Alay yanlışdır!"))
+        return redirect(url_for('idare_merkezi', error="Xüsusi 6 rəqəmli KOD və ya Seçim yanlışdır!"))
 
 @app.route('/idare_merkezi/logout')
 def idare_merkezi_logout():
@@ -5040,7 +5041,6 @@ def idare_merkezi_logout():
     session.pop('active_regiment', None)
     return redirect(url_for('idare_merkezi'))
 
-# Yeni Əlavə Edilmiş İdarə Mərkəzi Qrup Mesajları End-pointləri
 @app.route('/idare_merkezi/chat/send', methods=['POST'])
 def idare_merkezi_chat_send():
     if 'user' not in session or not session.get('is_police_logged'):
@@ -5406,4 +5406,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True) 
