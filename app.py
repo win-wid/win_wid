@@ -3344,7 +3344,7 @@ IDARE_MERKEZI_TEMPLATE = '''
         {% if not is_police_logged %}
             <div class="login-box">
                 <h3 style="margin-top:0; color:#ef4444;">🛡️ POLİS XİDMƏTİ GİRİŞİ</h3>
-                <p style="font-size:14px; color:#d4d4d8;">İdarə mərkəzinə daxil olmaq üçün KODU və xidməti vəzifənizi SEÇİMİNİ qeyd edin..!!.</p>
+                <p style="font-size:14px; color:#d4d4d8;">İDARƏ MƏRKƏZİNƏ DAXİL OLMAQ ÜÇÜN KODU VƏ XİDMƏTİ VƏZİFƏNİZİ SEÇİN..!!.</p>
                 {% if error %}
                     <p style="color:#ef4444; font-weight:700;">{{ error }}</p>
                 {% endif %}
