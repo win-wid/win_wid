@@ -1,10 +1,3 @@
-İDARƏ MƏRKƏZİNƏ POLİSLƏRƏ RÜTMƏ SİSTEMİ ƏLAVƏ EDƏK... 4 dənə İÇİ BOŞ  ULDUZ olsun rütbə artdıqc bu ULDUZLARIN İÇİ sarı rəngə keçsin RÜTBƏNİN ARTMASINI ANCAQ WİN_WİD ADLI İSDİFADƏÇİ ARTIRA BİLƏR...VƏ AZALDA BİLƏR
-
-4 DƏNƏ ULDUZ OLSUN
-5 Cİ SON RÜTBƏ ƏN YÜKSƏK VƏZİFƏ OLSUN BU 5 Cİ  RÜTBƏ  belə ☠️ görsənsin
-
-BUNU KODLAŞDIRARAQ ATDİGİM KODLAŞMAYA ƏLAVƏ ELƏ
-
 from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 import psycopg2
 import psycopg2.extras
