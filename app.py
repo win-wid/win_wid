@@ -1,3 +1,10 @@
+İDARƏ MƏRKƏZİNƏ POLİSLƏRƏ RÜTMƏ SİSTEMİ ƏLAVƏ EDƏK... 4 dənə İÇİ BOŞ  ULDUZ olsun rütbə artdıqc bu ULDUZLARIN İÇİ sarı rəngə keçsin RÜTBƏNİN ARTMASINI ANCAQ WİN_WİD ADLI İSDİFADƏÇİ ARTIRA BİLƏR...VƏ AZALDA BİLƏR
+
+4 DƏNƏ ULDUZ OLSUN
+5 Cİ SON RÜTBƏ ƏN YÜKSƏK VƏZİFƏ OLSUN BU 5 Cİ  RÜTBƏ  belə ☠️ görsənsin
+
+BUNU KODLAŞDIRARAQ ATDİGİM KODLAŞMAYA ƏLAVƏ ELƏ
+
 from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
 import psycopg2
 import psycopg2.extras
@@ -565,7 +572,15 @@ TERMS_TEMPLATE = '''
             <li>Hər hansı kənar müdaxilə (haker hücumu) nəticəsində sayta məxsus məlumatlar oğurlanarsa və ya yayılarsa, tərəflər qanunvericiliyə uyğun olaraq məsuliyyət daşıyır və pozuntularla bağlı məhkəmə müstəvisində hüquqi addımlar atıla bilər.</li>
             <li>Qaydaları pozduğunuz təqdirdə hesabınızı bloklaya və ya silə bilərik.</li>
         </ul>
-        
+
+        <h3>10. Bizimlə Əlaqə</h3>
+        <p>Suallarınız və ya təklifiniz olarsa, bizə yazmaqdan çəkinməyin:<br>
+        E-poçt: <span class="contact-email">winvid30@gmail.com</span></p>
+    </div>
+</body>
+</html>
+'''
+
 def get_header_template(has_unread_notifs=False):
     dot_html = '<span style="position: absolute; top: 8px; right: 24px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%;"></span>' if has_unread_notifs else ''
     return f'''
@@ -5399,4 +5414,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True) 
+    app.run(host='0.0.0.0', port=5000, debug=True)
