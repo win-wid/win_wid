@@ -565,15 +565,6 @@ TERMS_TEMPLATE = '''
             <li>Hər hansı kənar müdaxilə (haker hücumu) nəticəsində sayta məxsus məlumatlar oğurlanarsa və ya yayılarsa, tərəflər qanunvericiliyə uyğun olaraq məsuliyyət daşıyır və pozuntularla bağlı məhkəmə müstəvisində hüquqi addımlar atıla bilər.</li>
             <li>Qaydaları pozduğunuz təqdirdə hesabınızı bloklaya və ya silə bilərik.</li>
         </ul>
-
-        <h3>10. Bizimlə Əlaqə</h3>
-        <p>Suallarınız və ya təklifiniz olarsa, bizə yazmaqdan çəkinməyin:<br>
-        E-poçt: <span class="contact-email">winvid30@gmail.com</span></p>
-    </div>
-</body>
-</html>
-'''
-
 def get_header_template(has_unread_notifs=False):
     dot_html = '<span style="position: absolute; top: 8px; right: 24px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%;"></span>' if has_unread_notifs else ''
     return f'''
