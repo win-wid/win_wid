@@ -498,12 +498,11 @@ INDEX_TEMPLATE = '''
                 deferredPrompt = null;
             });
         } else {
-            alert('Telefona yüklemek için:\n• Android\'de: Tarayıcının üç noktasına basıp "Ana ekrana ekle" seçin.\n• iPhone\'da: Paylaş düğmesine basıp "Ana ekrana ekle" seçin.');
+            alert('Telefona yükləmək üçün:\n• Android-də: Brauzerin üç nöqtəsinə basıb "Ana ekrana əlavə et" seçin.\n• iPhone-da: Paylaş düyməsinə basıb "Ana ekrana əlavə et" seçin.');
         }
         closeInstallModal();
     }
 </script>
-    </script>
 </body>
 </html>
 '''
