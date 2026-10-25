@@ -517,6 +517,7 @@ TERMS_TEMPLATE = '''
     <meta charset="UTF-8">
     <title>WİN_WİD - Qaydalar və Şərtlər</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
