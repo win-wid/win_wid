@@ -483,24 +483,30 @@ INDEX_TEMPLATE = '''
     });
 
     function openInstallModal() {
-        document.getElementById('pwaModal').style.setProperty('display', 'flex', 'important');
+    let modal = document.getElementById('pwaModal');
+    if (modal) {
+        modal.style.setProperty('display', 'flex', 'important');
     }
+}
 
-    function closeInstallModal() {
-        document.getElementById('pwaModal').style.display = 'none';
+function closeInstallModal() {
+    let modal = document.getElementById('pwaModal');
+    if (modal) {
+        modal.style.setProperty('display', 'none', 'important');
     }
+}
 
-    function triggerInstall() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                deferredPrompt = null;
-            });
-        } else {
-            alert('Telefona yükləmək üçün:\n• Android-də: Brauzerin üç nöqtəsinə basıb "Ana ekrana əlavə et" seçin.\n• iPhone-da: Paylaş düyməsinə basıb "Ana ekrana əlavə et" seçin.');
-        }
-        closeInstallModal();
+function triggerInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt = null;
+        });
+    } else {
+        alert('Telefonu yükləmək üçün:\n• Android-də: Brauzerin üç nöqtəsinə basıb "Ana ekrana əlavə et" seçin.\n• iPhone-da: Paylaş düyməsinə basıb "Ana ekrana əlavə et" seçin.');
     }
+    closeInstallModal();
+}
 </script>
 </body>
 </html>
