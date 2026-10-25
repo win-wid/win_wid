@@ -435,9 +435,7 @@ INDEX_TEMPLATE = '''
         </button>
         
         <!-- Proqramı Yükləmə (Geri qayıt) düyməsi -->
-        <button onclick="closeInstallModal()" style="width: 100%; background-color: rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 14px;">
-            Proqramı Yükləmə
-        </button>
+        <button onclick="closeInstallModal()">Yükləmə</button>
     </div>
 </div>
     <div class="modal-overlay" id="warningModal">
