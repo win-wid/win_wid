@@ -448,7 +448,7 @@ INDEX_TEMPLATE = '''
             </div>
             <div class="warning-buttons">
                 <a href="/istifade_sertleri" class="warning-btn btn-read" target="_blank">OXU</a>
-                <button type="button" class="warning-btn btn-unread" onclick="closeWarningModal()">OXUMA</button>
+                <button type="button" class="warning-btn btn-unread" onclick="this.closest('#warningModal').style.display='none'; document.querySelector('.modal-overlay').style.display='none';">OXUMA</button>
             </div>
         </div>
     </div>
@@ -473,7 +473,6 @@ INDEX_TEMPLATE = '''
     </div>
 
     <script>
-    function closeWarningModal() {
     document.getElementById('warningModal').style.display = 'none';
     document.querySelector('.modal-overlay').style.display = 'none';
 }
