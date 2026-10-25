@@ -447,7 +447,7 @@ INDEX_TEMPLATE = '''
                 İSDİFADƏÇİ ŞƏRTLƏRİNİ OXUYUB SONRA SAYITA DAXİL OLUN...
             </div>
             <div class="warning-buttons">
-                <a href="/istifade_sertleri" target="_blank" class="warning-btn btn-read">OXU</a>
+                <a href="/istifade_sertleri" class="warning-btn btn-read" target="_blank">OXU</a>
                 <button type="button" class="warning-btn btn-unread" onclick="closeWarningModal()">OXUMA</button>
             </div>
         </div>
