@@ -1,0 +1,15 @@
+{
+  "name": "Saytımın Proqramı",
+  "short_name": "Proqram",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/long png.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
