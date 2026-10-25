@@ -419,7 +419,7 @@ INDEX_TEMPLATE = '''
 <body>
     <!-- Sağ yuxarı küncdəki əsas düymə -->
 <div style="position: fixed; top: 15px; right: 15px; z-index: 99999;">
-    <button onclick="openInstallModal()" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+    <button onclick="document.getElementById('pwaModal').style.setProperty('display', 'flex', 'important');"" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
         📲 Proqramı Yüklə
     </button>
 </div>
