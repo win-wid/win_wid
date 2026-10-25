@@ -417,6 +417,11 @@ INDEX_TEMPLATE = '''
     </style>
 </head>
 <body>
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 999;">
+        <a href="javascript:void(0);" onclick="alert('Telefona yükləmək üçün:\n• Android-də: Üç nöqtəyə basıb \'Ana ekrana əlavə et\' seçin.\n• İPhone-da: Paylaş düyməsinə basıb \'Ana ekrana əlavə et\' seçin.');" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+            📲 Proqramı Yüklə
+        </a>
+    </div>
     <div class="modal-overlay" id="warningModal">
         <div class="warning-box">
             <div class="warning-text">
