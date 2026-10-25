@@ -477,8 +477,7 @@ INDEX_TEMPLATE = '''
     document.getElementById('warningModal').style.display = 'none';
     document.querySelector('.modal-overlay').style.display = 'none';
 }
-
-    let deferredPrompt;
+        let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
