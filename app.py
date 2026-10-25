@@ -474,6 +474,13 @@ INDEX_TEMPLATE = '''
 
     <script>
     function closeWarningModal() {
+    let modal = document.getElementById('warningModal');
+    if (modal) {
+        modal.style.display = 'none';
+    } else {
+        document.querySelector('.modal-overlay').style.display = 'none';
+    }
+}
         document.getElementById('warningModal').style.display = 'none';
     }
 
