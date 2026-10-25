@@ -246,6 +246,7 @@ INDEX_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <title>WİN_WİD - Giriş</title>
+    <link rel="manifest" href="/manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
