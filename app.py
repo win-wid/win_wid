@@ -471,16 +471,14 @@ INDEX_TEMPLATE = '''
     </div>
 
     <script>
-    document.getElementById('warningModal').style.display = 'none';
-    document.querySelector('.modal-overlay').style.display = 'none';
-}
-        let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-    });
+let deferredPrompt;
 
-    function openInstallModal() {
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+function openInstallModal() {
     let modal = document.getElementById('pwaModal');
     if (modal) {
         modal.style.setProperty('display', 'flex', 'important');
@@ -498,12 +496,15 @@ function triggerInstall() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('İstifadəçi proqramı quraşdırdı');
+            }
             deferredPrompt = null;
+            closeInstallModal();
         });
     } else {
-        alert('Telefonu yükləmək üçün:\n• Android-də: Brauzerin üç nöqtəsinə basıb "Ana ekrana əlavə et" seçin.\n• iPhone-da: Paylaş düyməsinə basıb "Ana ekrana əlavə et" seçin.');
+        alert('Bu səhifə artıq quraşdırılıb və ya brauzer hələ sorğunu aktivləşdirməyib. Brauzerin menyusundan (3 nöqtə) "Ana ekrana əlavə et" seçə bilərsiniz.');
     }
-    closeInstallModal();
 }
 </script>
 </body>
