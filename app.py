@@ -417,11 +417,29 @@ INDEX_TEMPLATE = '''
     </style>
 </head>
 <body>
-    <div style="position: absolute; top: 20px; right: 20px; z-index: 999;">
-        <a href="javascript:void(0);" onclick="alert('Telefona yükləmək üçün:\n• Android-də: Üç nöqtəyə basıb \'Ana ekrana əlavə et\' seçin.\n• İPhone-da: Paylaş düyməsinə basıb \'Ana ekrana əlavə et\' seçin.');" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-            📲 Proqramı Yüklə
-        </a>
+    <!-- Sağ yuxarı küncdəki əsas düymə -->
+<div style="position: fixed; top: 15px; right: 15px; z-index: 99999;">
+    <button onclick="openInstallModal()" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+        📲 Proqramı Yüklə
+    </button>
+</div>
+
+<!-- Kiçik açılan pəncərə (Modal) -->
+<div id="pwaModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999999; justify-content: center; align-items: center;">
+    <div style="background: #18181b; padding: 25px; border-radius: 16px; width: 300px; text-align: center; border: 2px solid #ff7316; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <h3 style="color: #fff; margin-bottom: 20px; font-size: 18px;">Tətbiqi yükləyək?</h3>
+        
+        <!-- Proqramı Yüklə düyməsi -->
+        <button onclick="triggerInstall()" style="width: 100%; background-color: #ff7316; color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; margin-bottom: 10px; font-size: 14px;">
+            Proqramı Yüklə
+        </button>
+        
+        <!-- Proqramı Yükləmə (Geri qayıt) düyməsi -->
+        <button onclick="closeInstallModal()" style="width: 100%; background-color: rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 14px;">
+            Proqramı Yükləmə
+        </button>
     </div>
+</div>
     <div class="modal-overlay" id="warningModal">
         <div class="warning-box">
             <div class="warning-text">
@@ -455,9 +473,36 @@ INDEX_TEMPLATE = '''
     </div>
 
     <script>
-        function closeWarningModal() {
-            document.getElementById('warningModal').style.display = 'none';
+    function closeWarningModal() {
+        document.getElementById('warningModal').style.display = 'none';
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    function openInstallModal() {
+        document.getElementById('pwaModal').style.display = 'flex';
+    }
+
+    function closeInstallModal() {
+        document.getElementById('pwaModal').style.display = 'none';
+    }
+
+    function triggerInstall() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                deferredPrompt = null;
+            });
+        } else {
+            alert('Telefona yüklemek için:\n• Android\'de: Tarayıcının üç noktasına basıp "Ana ekrana ekle" seçin.\n• iPhone\'da: Paylaş düğmesine basıp "Ana ekrana ekle" seçin.');
         }
+        closeInstallModal();
+    }
+</script>
     </script>
 </body>
 </html>
