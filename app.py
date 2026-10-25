@@ -483,7 +483,7 @@ INDEX_TEMPLATE = '''
     });
 
     function openInstallModal() {
-        document.getElementById('pwaModal').style.display = 'flex';
+        document.getElementById('pwaModal').style.setProperty('display', 'flex', 'important');
     }
 
     function closeInstallModal() {
