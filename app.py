@@ -5361,9 +5361,9 @@ def magaza_al_entry_effect():
     if points < 500:
         cursor.close()
         conn.close()
-        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (500 Bal lazımdır)!"))
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (400 Won lazımdır)!"))
         
-    cursor.execute("UPDATE users SET points = points - 500, has_entry_effect = 1 WHERE nickname = %s", (current_user,))
+    cursor.execute("UPDATE users SET points = points - 400, has_entry_effect = 1 WHERE nickname = %s", (current_user,))
     conn.commit()
     cursor.close()
     conn.close()
@@ -5387,7 +5387,7 @@ def magaza_al_nik():
     if points < 25:
         cursor.close()
         conn.close()
-        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (25 Bal lazımdır)!"))
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər Won yoxdur (25 won lazımdır)!"))
         
     cursor.execute("UPDATE users SET points = points - 25, name_color = %s WHERE nickname = %s", (color, current_user))
     conn.commit()
@@ -5413,7 +5413,7 @@ def magaza_al_mesaj():
     if points < 25:
         cursor.close()
         conn.close()
-        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (25 Bal lazımdır)!"))
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər Won yoxdur (25 Won lazımdır)!"))
         
     cursor.execute("UPDATE users SET points = points - 25, msg_color = %s WHERE nickname = %s", (color, current_user))
     conn.commit()
@@ -5440,7 +5440,7 @@ def magaza_gonder_hediyye():
     if points < 10:
         cursor.close()
         conn.close()
-        return redirect(url_for('magaza', error="Hədiyyə göndərmək üçün ən azı 10 balınız olmalıdır!"))
+        return redirect(url_for('magaza', error="Hədiyyə göndərmək üçün ən azı 10 Wonunuz olmalıdır!"))
         
     cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = %s", (current_user,))
     cursor.execute("INSERT INTO gifts (sender, receiver, gift) VALUES (%s, %s, %s)", (current_user, receiver, selected_gift))
