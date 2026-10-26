@@ -970,7 +970,7 @@ CHAT_TEMPLATE = '''
 
     <div class="chat-container">
         <div class="chat-header-title">
-            <div class="points-box-orange">YIGILAN BALLAR: <span id="userPointsDisplay" style="color: #000000;">{{ user_points }}</span></div>
+            <div class="points-box-orange">TOPLANMIŞ WON: <span id="userPointsDisplay" style="color: #000000;">{{ user_points }}</span></div>
             <div class="real-time-clock" id="realTimeClock">00:00:00</div>
             <span>💬 ÜMUMİ ÇAT BÖLMƏSİ</span>
         </div>
@@ -1013,6 +1013,7 @@ CHAT_TEMPLATE = '''
                                 <span onclick="addReaction('{{ m[0] }}', '🤯')">🤯</span>
                                 <span onclick="addReaction('{{ m[0] }}', '🤠')">🤠</span>
                                 <span onclick="addReaction('{{ m[0] }}', '🤬')">🤬</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🥹')">🥹</span>
                             </div>
 
                             {% if m[1] == current_user or is_admin or is_police %}
@@ -3059,7 +3060,7 @@ CANLI_ROOM_TEMPLATE = '''
         </div>
 
         <div class="gifts-bar">
-            {% set gift_list = ['👑', '🤯', '❤️‍🔥', '🤠', '💋', '🫶', '🔥', '🧨', '🎀', '👑'] %}
+            {% set gift_list = ['👑', '🤯', '❤️‍🔥', '🤠', '💋', '🫶', '🔥', '🧨', '🎀', '👑' '🌹',] %}
             {% for gift in gift_list %}
                 <button class="gift-btn" onclick="sendGift('{{ gift }}')">{{ gift }}</button>
             {% endfor %}
@@ -3405,7 +3406,7 @@ IDARE_MERKEZI_TEMPLATE = '''
                     <select name="regiment" required>
                         <option value="" disabled selected>SEÇİMİNİZİ EDİN...</option>
                         <option value="RƏHBƏRLİK"> 👑 RƏHBƏRLİK</option>
-                        option value="HAKIM"> ​⚖️ HAKİM</option>
+                        <option value="HAKIM"> ​⚖️ HAKİM</option>
                         <option value="POLİS ALAYI 222">🛡️ POLİS ALAYI 222</option>
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
@@ -4265,7 +4266,7 @@ def oyun_wow():
     
     header_html = get_header_template(has_unread_notifs)
     
-    words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYE", "İDMAN", "TARİX"]
+    words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYA", "İDMAN", "TARİX"]
     full_word = random.choice(words_list)
     
     idx = random.randint(0, len(full_word) - 1)
@@ -4289,7 +4290,7 @@ def oyun_wow_cavabla():
     has_unread_notifs = cursor.fetchone() is not None
     
     success = (user_letter == hidden_letter)
-    message = "Təbriklər! Hərfi düz tapdınız (+5 bal) 🎉" if success else f"Səhvdir! Gizli hərf '{hidden_letter}' idi."
+    message = "Təbriklər! Hərfi düz tapdınız (+5 WON) 🎉" if success else f"Səhvdir! Gizli hərf '{hidden_letter}' idi."
     
     if success:
         cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = %s", (current_user,))
@@ -4299,7 +4300,7 @@ def oyun_wow_cavabla():
     
     header_html = get_header_template(has_unread_notifs)
     
-    words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYE", "İDMAN", "TARİX"]
+    words_list = ["AZƏRBAYCAN", "KOMPÜTER", "PROQRAM", "İNFORMASİYA", "TƏHSİL", "QƏLƏBƏ", "KODLAŞMA", "DOSYA", "İDMAN", "TARİX"]
     next_word = random.choice(words_list)
     idx = random.randint(0, len(next_word) - 1)
     next_hidden = next_word[idx]
@@ -4382,7 +4383,7 @@ def oyun_sual_cavabla():
     has_unread_notifs = cursor.fetchone() is not None
     
     success = (user_answer == correct_answer)
-    message = "Təbriklər! Düzgün cavab (+5 bal) 🎉" if success else f"Səhvdir! Düzgün cavab: {correct_answer}"
+    message = "Təbriklər! Düzgün cavab (+5 WON) 🎉" if success else f"Səhvdir! Düzgün cavab: {correct_answer}"
     
     if success:
         cursor.execute("UPDATE users SET points = points + 5 WHERE nickname = %s", (current_user,))
