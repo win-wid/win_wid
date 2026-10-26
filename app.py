@@ -570,6 +570,7 @@ TERMS_TEMPLATE = '''
             font-weight: 700;
         }
     </style>
+    <link rel="manifest" href="/manifest.json?v=2">
 </head>
 <body>
     <div class="terms-box">
