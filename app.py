@@ -5459,6 +5459,10 @@ def logout():
     session.pop('is_police_logged', None)
     session.pop('active_regiment', None)
     return redirect(url_for('index'))
+@app.route('/manifest.json')
+def serve_manifest():
+    return send_from_directory('.', 'manifest.json')
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+@app.route('/logo.jpg')
+def serve_logo():
+    return send_from_directory('.', 'logo.jpg')
