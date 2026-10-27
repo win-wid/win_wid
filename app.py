@@ -5470,7 +5470,7 @@ def idare_merkezi():
     cursor.close()
     conn.close()
     
-    return render_template('idare_merkezi.html', officers=officers)
+        return render_template('idare_merkezi.html', officers=officers)
 @app.route('/logout')
 def logout():
     session.pop('user', None)
