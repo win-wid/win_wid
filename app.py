@@ -5452,7 +5452,25 @@ def magaza_gonder_hediyye():
     cursor.close()
     conn.close()
     return redirect(url_for('magaza', message=f"{selected_gift} hədiyyəsi @{receiver} istifadəçisinə uğurla göndərildi!"))
-
+@app.route('/idare_merkezi')
+def idare_merkezi():
+    if not session.get('is_police_logged'):
+        return redirect(url_for('login'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, username, rank, regiment, created_at, is_active 
+        FROM police_officers 
+        ORDER BY id DESC
+    """)
+    officers = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('idare_merkezi.html', officers=officers)
 @app.route('/logout')
 def logout():
     session.pop('user', None)
