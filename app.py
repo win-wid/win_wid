@@ -5613,3 +5613,90 @@ def serve_manifest():
 @app.route('/logo.jpg')
 def serve_logo():
     return send_from_directory('.', 'logo.jpg')
+<!-- Arxiv Modalı -->
+<div class="archive-modal" id="archiveModal" style="display: none;">
+    <div class="archive-modal-box">
+        <div class="archive-modal-header">
+            <h3 style="margin: 0; color: #ef4444;">📦 ARXİV VƏ SİLİNƏN MƏLUMATLAR</h3>
+            <button type="button" onclick="closeArchiveModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <div class="archive-list">
+            {% if archives %}
+                {% for a in archives %}
+                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 10px 0;">
+                        <span style="background: {% if a[1] == 'MESAJ_SİLİNDİ' %}#ef4444{% else %}#f97316{% endif %}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{{ a[1] }}</span>
+                        <span style="color: #a1a1aa; font-size: 12px; margin-left: 8px;">🕒 {{ a[5] }}</span>
+                        <div style="font-size: 13px; color: #fff; margin-top: 6px;"><b>Məzmun:</b> {{ a[2] }}</div>
+                        <div style="font-size: 13px; color: #4ade80; margin-top: 2px;"><b>Polis:</b> {{ a[3] }} | <b>Alay:</b> {{ a[4] }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Arxivdə heç nə yoxdur.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Rütbələr Modalı -->
+<div class="archive-modal" id="ranksModal" style="display: none;">
+    <div class="archive-modal-box">
+        <div class="archive-modal-header">
+            <h3 style="margin: 0; color: #3b82f6;">⭐ QEYDİYYATDA OLAN POLİSLƏR VƏ RÜTBƏLƏR</h3>
+            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <div class="archive-list">
+            {% if officers %}
+                {% for o in officers %}
+                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 12px 0;">
+                        <div style="font-size: 15px; color: #fff;"><b>Polis:</b> {{ o[0] }}</div>
+                        <div style="font-size: 13px; color: #4ade80; margin-top: 3px;">
+                            <b>Alay:</b> {{ o[1] }} | <b>Rəis:</b> {{ o[3] if o[3] else 'Təyin edilməyib' }}
+                        </div>
+                        <div style="font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px;">
+                            <span>Rütbə:</span>
+                            <span>
+                                {% set rank_level = o[2] | int if o[2] else 1 %}
+                                {% for i in range(1, 5) %}
+                                    {% if i <= rank_level %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                                {% if rank_level >= 5 %}
+                                    <span style="margin-left: 4px;" title="Ən sonuncu rütbə">☠️</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if current_user and current_user == 'WIN_WID' %}
+                            <div style="margin-top: 8px;">
+                                <form action="/update_rank" method="POST" style="display:inline;">
+                                    <input type="hidden" name="police_name" value="{{ o[0] }}">
+                                    <button type="submit" name="action" value="decrease" style="background: #ef4444; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px;">- Azalt</button>
+                                    <button type="submit" name="action" value="increase" style="background: #3b82f6; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px; margin-left: 4px;">+ Artır</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Hələ ki qeydiyyatda polis yoxdur.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function openArchiveModal() {
+        const m = document.getElementById('archiveModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeArchiveModal() {
+        const m = document.getElementById('archiveModal');
+        if (m) m.style.display = 'none';
+    }
+    function openRanksModal() {
+        const m = document.getElementById('ranksModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeRanksModal() {
+        const m = document.getElementById('ranksModal');
+        if (m) m.style.display = 'none';
+    }
+</script>
