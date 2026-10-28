@@ -1015,6 +1015,7 @@ CHAT_TEMPLATE = '''
                                 <span onclick="addReaction('{{ m[0] }}', '🤠')">🤠</span>
                                 <span onclick="addReaction('{{ m[0] }}', '🤬')">🤬</span>
                                 <span onclick="addReaction('{{ m[0] }}', '🥹')">🥹</span>
+                                <span onclick="addReaction('{{ m[0] }}', '🌹')">🌹</span>
                             </div>
 
                             {% if m[1] == current_user or is_admin or is_police %}
@@ -1256,14 +1257,14 @@ OYUN_MENU_TEMPLATE = '''
             <div class="game-card">
                 <div class="game-icon">🔤</div>
                 <h3 class="game-title">1. WOW OYUNU</h3>
-                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 bal qazanın və növbəti sözə keçin!</p>
+                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 Won qazanın və növbəti sözə keçin!</p>
                 <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
             </div>
 
             <div class="game-card">
                 <div class="game-icon">❓</div>
                 <h3 class="game-title">2. SUAL CAVAB OYUNU</h3>
-                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 bal!</p>
+                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 Won!</p>
                 <a href="/oyun/sual" class="play-btn">Oyna 🚀</a>
             </div>
         </div>
@@ -1353,7 +1354,7 @@ WOW_OYUNU_TEMPLATE = '''
     <div class="game-wrapper">
         <div class="game-card">
             <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">🔤 WOW OYUNU (HƏRFİ TAP)</h2>
-            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 bal):</p>
+            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 Won):</p>
             
             <div class="masked-word">{{ masked_word }}</div>
 
@@ -1368,7 +1369,7 @@ WOW_OYUNU_TEMPLATE = '''
                 <p style="margin-top: 15px; font-weight: 700; color: {% if success %}#4ade80{% else %}#f87171{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <a href="/oyun" class="back-link">← Oyunlar Menyusuna Qayıt</a>
+            <a href="/oyun" class="back-link">← Menyuya Qayıt</a>
         </div>
     </div>
 </body>
@@ -1476,7 +1477,7 @@ SUAL_CAVAB_TEMPLATE = '''
             <form method="POST" action="/oyun/sual/cavabla" id="answerForm">
                 <input type="hidden" name="correct_answer" value="{{ answer }}">
                 <input type="text" name="user_answer" placeholder="Cavabınızı yazın..." required autocomplete="off" autofocus>
-                <button type="submit" class="game-btn">Cavabı Göndər (+5 bal)</button>
+                <button type="submit" class="game-btn">Cavabı Göndər (+5 Won)</button>
             </form>
 
             <p class="score-badge">Mövzu: {{ topic }} (Sual saylı bank: 40 Dinamik)</p>
@@ -1485,7 +1486,7 @@ SUAL_CAVAB_TEMPLATE = '''
                 <p style="margin-top: 15px; font-weight: 700; color: {% if success %}#4ade80{% else %}#f87171{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <a href="/oyun" class="back-link">← Oyunlar Menyusuna Qayıt</a>
+            <a href="/oyun" class="back-link">←  Menyuya Qayıt</a>
 
             <script>
                 let timeLeft = 30;
