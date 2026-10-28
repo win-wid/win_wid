@@ -3711,9 +3711,18 @@ IDARE_MERKEZI_TEMPLATE = '''
             setInterval(fetchPoliceChatMessages, 2500);
             fetchPoliceChatMessages();
         }
-        function openRanksModal() {
+        function openArchiveModal() {
+    document.getElementById('archiveModal').style.display = 'flex';
+}
+
+function closeArchiveModal() {
+    document.getElementById('archiveModal').style.display = 'none';
+}
+
+function openRanksModal() {
     document.getElementById('ranksModal').style.display = 'flex';
 }
+
 function closeRanksModal() {
     document.getElementById('ranksModal').style.display = 'none';
 } 
