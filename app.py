@@ -3889,7 +3889,7 @@ MAGAZA_TEMPLATE = '''
     <div class="shop-container">
         <div class="shop-header">
             <h2>🛍 WİN_WİD MAĞAZASI</h2>
-            <div class="balance-box">💰 Balansınız: {{ user_points }} Bal</div>
+            <div class="balance-box">💰 Balansınız: {{ user_points }} Won</div>
         </div>
 
         {% if message %}
@@ -3909,7 +3909,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openEntryEffectModal()">
                     <span style="font-size:32px;">⚡</span>
                     <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
-                    <span class="shop-item-price">500 BAL</span>
+                    <span class="shop-item-price">400 Won</span>
                 </div>
             </div>
         </div>
@@ -3920,7 +3920,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openNickModal()">
                     <span style="font-size:32px;">🏷️</span>
                     <span style="font-weight:700;">RƏNGLİ NİK AL</span>
-                    <span class="shop-item-price">25 BAL</span>
+                    <span class="shop-item-price">20 Won</span>
                 </div>
             </div>
         </div>
@@ -3931,13 +3931,13 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openMsgModal()">
                     <span style="font-size:32px;">✉️</span>
                     <span style="font-weight:700;">RƏNGLİ MESAJ AL</span>
-                    <span class="shop-item-price">25 BAL</span>
+                    <span class="shop-item-price">20 Won</span>
                 </div>
             </div>
         </div>
 
         <div class="shop-section">
-            <div class="shop-section-title">🎁  İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
+            <div class="shop-section-title">🎁  İSTİFADƏÇİYƏ HƏDİYYƏ ATMAQ</div>
             <div class="shop-grid">
                 <div class="shop-item-btn" onclick="openGiftModal()" style="grid-column: 1 / -1;">
                     <span style="font-size:36px;">🎁</span>
@@ -3950,7 +3950,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="entryEffectModal">
         <div class="modal-panel" style="text-align: center;">
-            <h3>⚡ GİRİŞ EFEKTİ (500 Bal)</h3>
+            <h3>⚡ GİRİŞ EFEKTİ (400 Won)</h3>
             <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5;">
                 Hər dəfə çata daxil olduğunuzda bütün istifadəçilərə xüsusi bildiriş mesajı görünəcək:<br>
                 <code style="color: #f97316; font-weight: bold;">⚡ @nik çat otağına daxil oldu!</code>
@@ -3964,7 +3964,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="nickModal">
         <div class="modal-panel">
-            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Bal)</h3>
+            <h3>🏷️ NİK RƏNGİNİ SEÇİN (20 Won )</h3>
             <form method="POST" action="/magaza/al_nik">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -3980,7 +3980,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="msgModal">
         <div class="modal-panel">
-            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Bal)</h3>
+            <h3>💬 MESAJ RƏNGİNİ SEÇİN (20 Won)</h3>
             <form method="POST" action="/magaza/al_mesaj">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
