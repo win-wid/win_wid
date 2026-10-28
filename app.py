@@ -3687,19 +3687,74 @@ IDARE_MERKEZI_TEMPLATE = '''
                 }
             });
         }
-        <div class="archive-modal" id="ranksModal">
+        <!-- Arxiv Modalı (Polislərin sildiyi mesajlar, hesablar, tarixi və saatı ilə) -->
+<div class="archive-modal" id="archiveModal">
+    <div class="archive-modal-box">
+        <div class="archive-modal-header">
+            <h3 style="margin: 0; color: #ef4444;">📦 ARXİV VƏ SİLİNƏN MƏLUMATLAR</h3>
+            <button type="button" onclick="closeArchiveModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <div class="archive-list">
+            {% if archive_items %}
+                {% for item in archive_items %}
+                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 10px 0;">
+                        <div style="font-size: 14px; color: #ef4444;"><b>Polis:</b> {{ item.police_name }} | <b>Alay:</b> {{ item.police_alay }}</div>
+                        <div style="font-size: 13px; color: #fff;">{{ item.action_details }}</div>
+                        <div style="font-size: 11px; color: #a1a1aa; margin-top: 4px;">🕒 Vaxt: {{ item.timestamp }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Arxivdə hələ ki məlumat yoxdur.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Rütbələr Modalı (Polislər, Alaylar, Rütbələr və Ulduz/☠️ Sistemi) -->
+<div class="archive-modal" id="ranksModal">
     <div class="archive-modal-box">
         <div class="archive-modal-header">
             <h3 style="margin: 0; color: #3b82f6;">⭐ QEYDİYYATDA OLAN POLİSLƏR VƏ RÜTBƏLƏR</h3>
-            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">✕</button>
+            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
         </div>
         <div class="archive-list">
             {% if officers %}
                 {% for o in officers %}
-                <div class="archive-item">
-                    <div style="font-size: 15px; color: #fff;"><b>Polis:</b> @{{ o[0] }}</div>
-                    <div style="font-size: 13px; color: #4ade80;"><b>Alay:</b> {{ o[1] }} | <b>Rütbə:</b> {{ o[2] if o[2] else 'Təyin edilməyib' }}</div>
-                </div>
+                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 12px 0;">
+                        <div style="font-size: 15px; color: #fff;"><b>Polis:</b> {{ o[0] }}</div>
+                        <div style="font-size: 13px; color: #4ade80; margin-top: 3px;">
+                            <b>Alay:</b> {{ o[1] }} | <b>Rəis:</b> {{ o[3] if o[3] else 'Təyin edilməyib' }}
+                        </div>
+                        <div style="font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px;">
+                            <span>Rütbə:</span>
+                            <span>
+                                {% set rank_level = o[2] | int if o[2] else 1 %}
+                                <!-- 4 Ulduz sistemi -->
+                                {% for i in range(1, 5) %}
+                                    {% if i <= rank_level %}
+                                        ⭐
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                                <!-- 5-ci sonuncu rütbə üçün kəllə simvolu -->
+                                {% if rank_level >= 5 %}
+                                    <span style="margin-left: 4px;" title="Ən sonuncu rütbə">☠️</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <!-- Yalnız WIN_WID adlı istifadəçi üçün rütbə dəyişmə paneli -->
+                        {% if current_user and current_user == 'WIN_WID' %}
+                            <div style="margin-top: 8px;">
+                                <form action="/update_rank" method="POST" style="display:inline;">
+                                    <input type="hidden" name="police_name" value="{{ o[0] }}">
+                                    <button type="submit" name="action" value="decrease" style="background: #ef4444; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px;">- Azalt</button>
+                                    <button type="submit" name="action" value="increase" style="background: #3b82f6; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px; margin-left: 4px;">+ Artır</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             {% else %}
                 <p style="text-align: center; color: #a1a1aa; padding: 30px;">Hələ ki qeydiyyatda polis yoxdur.</p>
@@ -3708,28 +3763,21 @@ IDARE_MERKEZI_TEMPLATE = '''
     </div>
 </div>
 
-        if(document.getElementById('policeChatMessagesBox')) {
-            setInterval(fetchPoliceChatMessages, 2500);
-            fetchPoliceChatMessages();
-        }
-        function openArchiveModal() {
-    document.getElementById('archiveModal').style.display = 'flex';
-}
-
-function closeArchiveModal() {
-    document.getElementById('archiveModal').style.display = 'none';
-}
-
-function openRanksModal() {
-    document.getElementById('ranksModal').style.display = 'flex';
-}
-
-function closeRanksModal() {
-    document.getElementById('ranksModal').style.display = 'none';
-} 
-    </script>
-</body>
-</html>
+<!-- Modal Pəncərələrini İdarə Edən Skript -->
+<script>
+    function openArchiveModal() {
+        document.getElementById('archiveModal').style.display = 'flex';
+    }
+    function closeArchiveModal() {
+        document.getElementById('archiveModal').style.display = 'none';
+    }
+    function openRanksModal() {
+        document.getElementById('ranksModal').style.display = 'flex';
+    }
+    function closeRanksModal() {
+        document.getElementById('ranksModal').style.display = 'none';
+    }
+</script>
 
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
