@@ -3787,6 +3787,26 @@ IDARE_MERKEZI_TEMPLATE = '''
             {% else %}
                 <p style="text-align: center; color: #a1a1aa; padding: 30px;">Hələ ki qeydiyyatda polis yoxdur.</p>
             {% endif %}
+            <script>
+    function openArchiveModal() {
+        alert("Arxiv düyməsi işlədi!");
+        const m = document.getElementById('archiveModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeArchiveModal() {
+        const m = document.getElementById('archiveModal');
+        if (m) m.style.display = 'none';
+    }
+    function openRanksModal() {
+        alert("Rütbələr düyməsi işlədi!");
+        const m = document.getElementById('ranksModal');
+        if (m) m.style.display = 'flex';
+    }
+    function closeRanksModal() {
+        const m = document.getElementById('ranksModal');
+        if (m) m.style.display = 'none';
+    }
+</script>
         </div>
     </div>
 </div>
