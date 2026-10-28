@@ -3422,10 +3422,10 @@ IDARE_MERKEZI_TEMPLATE = '''
             <span>📦</span>
             <p>Arxiv</p>
         </div>
-        <div class="ranks-btn-square" onclick="openRanksModal()">
-    <span>⭐</span>
-    <p>Rütbələr</p>
-</div>
+            <div class="ranks-btn-square" onclick="openRanksModal()">
+        <span>⭐</span>
+        <p>Rütbələr</p>
+    </div>
 
         <div class="police-header">
             🛡️ BAŞ QƏRƏRGAH - İDARƏ MƏRKƏZİ
