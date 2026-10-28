@@ -3242,7 +3242,39 @@ IDARE_MERKEZI_TEMPLATE = '''
             font-weight: 800;
             text-transform: uppercase;
         }
-
+        .ranks-btn-square {
+    position: absolute;
+    top: 20px;
+    right: 105px;
+    width: 70px;
+    height: 70px;
+    background: #2563eb;
+    border: 2px solid #93c5fd;
+    border-radius: 14px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.6);
+    transition: all 0.2s ease;
+    z-index: 50;
+}
+.ranks-btn-square:hover {
+    transform: scale(1.08);
+    background: #1d4ed8;
+    border-color: #ffffff;
+}
+.ranks-btn-square span {
+    font-size: 22px;
+}
+.ranks-btn-square p {
+    margin: 2px 0 0 0;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
         .login-box {
             max-width: 420px;
             margin: 40px auto;
@@ -3390,9 +3422,13 @@ IDARE_MERKEZI_TEMPLATE = '''
             <span>📦</span>
             <p>Arxiv</p>
         </div>
+        <div class="ranks-btn-square" onclick="openRanksModal()">
+    <span>⭐</span>
+    <p>Rütbələr</p>
+</div>
 
         <div class="police-header">
-            🛡️ 370 SAYLI BAŞ QƏRƏRGAH - POLİS İDARƏ MƏRKƏZİ
+            🛡️ BAŞ QƏRƏRGAH - İDARƏ MƏRKƏZİ
         </div>
 
         {% if not is_police_logged %}
@@ -3650,11 +3686,37 @@ IDARE_MERKEZI_TEMPLATE = '''
                 }
             });
         }
+        <div class="archive-modal" id="ranksModal">
+    <div class="archive-modal-box">
+        <div class="archive-modal-header">
+            <h3 style="margin: 0; color: #3b82f6;">⭐ QEYDİYYATDA OLAN POLİSLƏR VƏ RÜTBƏLƏR</h3>
+            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">✕</button>
+        </div>
+        <div class="archive-list">
+            {% if officers %}
+                {% for o in officers %}
+                <div class="archive-item">
+                    <div style="font-size: 15px; color: #fff;"><b>Polis:</b> @{{ o[0] }}</div>
+                    <div style="font-size: 13px; color: #4ade80;"><b>Alay:</b> {{ o[1] }} | <b>Rütbə:</b> {{ o[2] if o[2] else 'Təyin edilməyib' }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Hələ ki qeydiyyatda polis yoxdur.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
         if(document.getElementById('policeChatMessagesBox')) {
             setInterval(fetchPoliceChatMessages, 2500);
             fetchPoliceChatMessages();
         }
+        function openRanksModal() {
+    document.getElementById('ranksModal').style.display = 'flex';
+}
+function closeRanksModal() {
+    document.getElementById('ranksModal').style.display = 'none';
+} 
     </script>
 </body>
 </html>
