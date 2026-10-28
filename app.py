@@ -3729,7 +3729,6 @@ function closeRanksModal() {
     </script>
 </body>
 </html>
-'''
 
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
