@@ -3418,16 +3418,6 @@ IDARE_MERKEZI_TEMPLATE = '''
 <body>
     {{ header|safe }}
 
-    <div class="control-container">
-        <div class="archive-btn-square" onclick="openArchiveModal()">
-            <span>📦</span>
-            <p>Arxiv</p>
-        </div>
-            <div class="ranks-btn-square" onclick="openRanksModal()">
-        <span>⭐</span>
-        <p>Rütbələr</p>
-    </div>
-
         <div class="police-header">
             🛡️ BAŞ QƏRƏRGAH - İDARƏ MƏRKƏZİ
         </div>
@@ -3585,38 +3575,6 @@ IDARE_MERKEZI_TEMPLATE = '''
 </div>
 
 <!-- Rütbələr Modalı (Polislər, Alaylar, Rəislər və Ulduz/☠️ Sistemi) -->
-<div class="archive-modal" id="ranksModal">
-    <div class="archive-modal-box">
-        <div class="archive-modal-header">
-            <h3 style="margin: 0; color: #3b82f6;">⭐ QEYDİYYATDA OLAN POLİSLƏR VƏ RÜTBƏLƏR</h3>
-            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
-        </div>
-        <div class="archive-list">
-            {% if officers %}
-                {% for o in officers %}
-                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 12px 0;">
-                        <div style="font-size: 15px; color: #fff;"><b>Polis:</b> {{ o[0] }}</div>
-                        <div style="font-size: 13px; color: #4ade80; margin-top: 3px;">
-                            <b>Alay:</b> {{ o[1] }} | <b>Rəis:</b> {{ o[3] if o[3] else 'Təyin edilməyib' }}
-                        </div>
-                        <div style="font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px;">
-                            <span>Rütbə:</span>
-                            <span>
-                                {% set rank_level = o[2] | int if o[2] else 1 %}
-                                <!-- 4 Ulduz sistemi -->
-                                {% for i in range(1, 5) %}
-                                    {% if i <= rank_level %}
-                                        ⭐
-                                    {% else %}
-                                        ☆
-                                    {% endif %}
-                                {% endfor %}
-                                <!-- 5-ci sonuncu rütbə üçün kəllə simvolu -->
-                                {% if rank_level >= 5 %}
-                                    <span style="margin-left: 4px;" title="Ən sonuncu rütbə">☠️</span>
-                                {% endif %}
-                            </span>
-                        </div>
                         
                         <!-- Yalnız WIN_WID adlı istifadəçi üçün rütbə dəyişmə paneli -->
                         {% if current_user and current_user == 'WIN_WID' %}
@@ -3738,93 +3696,7 @@ IDARE_MERKEZI_TEMPLATE = '''
     </div>
 </div>
 
-<!-- Rütbələr Modalı (Polislər, Alaylar, Rütbələr və Ulduz/☠️ Sistemi) -->
-<div class="archive-modal" id="ranksModal">
-    <div class="archive-modal-box">
-        <div class="archive-modal-header">
-            <h3 style="margin: 0; color: #3b82f6;">⭐ QEYDİYYATDA OLAN POLİSLƏR VƏ RÜTBƏLƏR</h3>
-            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
-        </div>
-        <div class="archive-list">
-            {% if officers %}
-                {% for o in officers %}
-                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 12px 0;">
-                        <div style="font-size: 15px; color: #fff;"><b>Polis:</b> {{ o[0] }}</div>
-                        <div style="font-size: 13px; color: #4ade80; margin-top: 3px;">
-                            <b>Alay:</b> {{ o[1] }} | <b>Rəis:</b> {{ o[3] if o[3] else 'Təyin edilməyib' }}
-                        </div>
-                        <div style="font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px;">
-                            <span>Rütbə:</span>
-                            <span>
-                                {% set rank_level = o[2] | int if o[2] else 1 %}
-                                <!-- 4 Ulduz sistemi -->
-                                {% for i in range(1, 5) %}
-                                    {% if i <= rank_level %}
-                                        ⭐
-                                    {% else %}
-                                        ☆
-                                    {% endif %}
-                                {% endfor %}
-                                <!-- 5-ci sonuncu rütbə üçün kəllə simvolu -->
-                                {% if rank_level >= 5 %}
-                                    <span style="margin-left: 4px;" title="Ən sonuncu rütbə">☠️</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <!-- Yalnız WIN_WID adlı istifadəçi üçün rütbə dəyişmə paneli -->
-                        {% if current_user and current_user == 'WIN_WID' %}
-                            <div style="margin-top: 8px;">
-                                <form action="/update_rank" method="POST" style="display:inline;">
-                                    <input type="hidden" name="police_name" value="{{ o[0] }}">
-                                    <button type="submit" name="action" value="decrease" style="background: #ef4444; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px;">- Azalt</button>
-                                    <button type="submit" name="action" value="increase" style="background: #3b82f6; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px; margin-left: 4px;">+ Artır</button>
-                                </form>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Hələ ki qeydiyyatda polis yoxdur.</p>
-            {% endif %}
-            <script>
-    function openArchiveModal() {
-        alert("Arxiv düyməsi işlədi!");
-        const m = document.getElementById('archiveModal');
-        if (m) m.style.display = 'flex';
-    }
-    function closeArchiveModal() {
-        const m = document.getElementById('archiveModal');
-        if (m) m.style.display = 'none';
-    }
-    function openRanksModal() {
-        alert("Rütbələr düyməsi işlədi!");
-        const m = document.getElementById('ranksModal');
-        if (m) m.style.display = 'flex';
-    }
-    function closeRanksModal() {
-        const m = document.getElementById('ranksModal');
-        if (m) m.style.display = 'none';
-    }
-</script>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Pəncərələrini İdarə Edən Skript -->
-<script>
-    function openArchiveModal() {
-        document.getElementById('archiveModal').style.display = 'flex';
-    }
-    function closeArchiveModal() {
-        document.getElementById('archiveModal').style.display = 'none';
-    }
-    function openRanksModal() {
-        document.getElementById('ranksModal').style.display = 'flex';
-    }
-    function closeRanksModal() {
-        document.getElementById('ranksModal').style.display = 'none';
-    }
+    
 </script>
 
 MAGAZA_TEMPLATE = '''
