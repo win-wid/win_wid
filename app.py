@@ -1015,7 +1015,6 @@ CHAT_TEMPLATE = '''
                                 <span onclick="addReaction('{{ m[0] }}', '🤠')">🤠</span>
                                 <span onclick="addReaction('{{ m[0] }}', '🤬')">🤬</span>
                                 <span onclick="addReaction('{{ m[0] }}', '🥹')">🥹</span>
-                                <span onclick="addReaction('{{ m[0] }}', '🌹')">🌹</span>
                             </div>
 
                             {% if m[1] == current_user or is_admin or is_police %}
@@ -1257,14 +1256,14 @@ OYUN_MENU_TEMPLATE = '''
             <div class="game-card">
                 <div class="game-icon">🔤</div>
                 <h3 class="game-title">1. WOW OYUNU</h3>
-                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 Won qazanın və növbəti sözə keçin!</p>
+                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 bal qazanın və növbəti sözə keçin!</p>
                 <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
             </div>
 
             <div class="game-card">
                 <div class="game-icon">❓</div>
                 <h3 class="game-title">2. SUAL CAVAB OYUNU</h3>
-                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 Won!</p>
+                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 bal!</p>
                 <a href="/oyun/sual" class="play-btn">Oyna 🚀</a>
             </div>
         </div>
@@ -1354,7 +1353,7 @@ WOW_OYUNU_TEMPLATE = '''
     <div class="game-wrapper">
         <div class="game-card">
             <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">🔤 WOW OYUNU (HƏRFİ TAP)</h2>
-            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 Won):</p>
+            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 bal):</p>
             
             <div class="masked-word">{{ masked_word }}</div>
 
@@ -1369,7 +1368,7 @@ WOW_OYUNU_TEMPLATE = '''
                 <p style="margin-top: 15px; font-weight: 700; color: {% if success %}#4ade80{% else %}#f87171{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <a href="/oyun" class="back-link">← Menyuya Qayıt</a>
+            <a href="/oyun" class="back-link">← Oyunlar Menyusuna Qayıt</a>
         </div>
     </div>
 </body>
@@ -1477,7 +1476,7 @@ SUAL_CAVAB_TEMPLATE = '''
             <form method="POST" action="/oyun/sual/cavabla" id="answerForm">
                 <input type="hidden" name="correct_answer" value="{{ answer }}">
                 <input type="text" name="user_answer" placeholder="Cavabınızı yazın..." required autocomplete="off" autofocus>
-                <button type="submit" class="game-btn">Cavabı Göndər (+5 Won)</button>
+                <button type="submit" class="game-btn">Cavabı Göndər (+5 bal)</button>
             </form>
 
             <p class="score-badge">Mövzu: {{ topic }} (Sual saylı bank: 40 Dinamik)</p>
@@ -1486,7 +1485,7 @@ SUAL_CAVAB_TEMPLATE = '''
                 <p style="margin-top: 15px; font-weight: 700; color: {% if success %}#4ade80{% else %}#f87171{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <a href="/oyun" class="back-link">←  Menyuya Qayıt</a>
+            <a href="/oyun" class="back-link">← Oyunlar Menyusuna Qayıt</a>
 
             <script>
                 let timeLeft = 30;
@@ -3243,39 +3242,7 @@ IDARE_MERKEZI_TEMPLATE = '''
             font-weight: 800;
             text-transform: uppercase;
         }
-        .ranks-btn-square {
-    position: absolute;
-    top: 20px;
-    right: 105px;
-    width: 70px;
-    height: 70px;
-    background: #2563eb;
-    border: 2px solid #93c5fd;
-    border-radius: 14px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.6);
-    transition: all 0.2s ease;
-    z-index: 50;
-}
-.ranks-btn-square:hover {
-    transform: scale(1.08);
-    background: #1d4ed8;
-    border-color: #ffffff;
-}
-.ranks-btn-square span {
-    font-size: 22px;
-}
-.ranks-btn-square p {
-    margin: 2px 0 0 0;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-}
+
         .login-box {
             max-width: 420px;
             margin: 40px auto;
@@ -3418,8 +3385,14 @@ IDARE_MERKEZI_TEMPLATE = '''
 <body>
     {{ header|safe }}
 
+    <div class="control-container">
+        <div class="archive-btn-square" onclick="openArchiveModal()">
+            <span>📦</span>
+            <p>Arxiv</p>
+        </div>
+
         <div class="police-header">
-            🛡️ BAŞ QƏRƏRGAH - İDARƏ MƏRKƏZİ
+            🛡️ 370 SAYLI BAŞ QƏRƏRGAH - POLİS İDARƏ MƏRKƏZİ
         </div>
 
         {% if not is_police_logged %}
@@ -3550,32 +3523,55 @@ IDARE_MERKEZI_TEMPLATE = '''
                     <div style="display:flex; flex-direction:column; gap:10px;">
                         {% for c in cases %}
                             <div style="background:rgba(9,9,11,0.7); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
-                                <!-- Arxiv Modalı (Polislərin sildiyi mesajlar, hesablar, tarixi və saatı ilə) -->
-<div class="archive-modal" id="archiveModal">
-    <div class="archive-modal-box">
-        <div class="archive-modal-header">
-            <h3 style="margin: 0; color: #ef4444;">📦 ARXİV VƏ SİLİNƏN MƏLUMATLAR</h3>
-            <button type="button" onclick="closeArchiveModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
-        </div>
-        <div class="archive-list">
-            {% if archives %}
-                {% for a in archives %}
-                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 10px 0;">
-                        <span style="background: {% if a[1] == 'MESAJ_SİLİNDİ' %}#ef4444{% else %}#f97316{% endif %}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{{ a[1] }}</span>
-                        <span style="color: #a1a1aa; font-size: 12px; margin-left: 8px;">🕒 {{ a[5] }}</span>
-                        <div style="font-size: 13px; color: #fff; margin-top: 6px;"><b>Məzmun / Təfərrüat:</b> {{ a[2] }}</div>
-                        <div style="font-size: 13px; color: #4ade80; margin-top: 2px;"><b>Polis:</b> {{ a[3] }} | <b>Alay:</b> {{ a[4] }}</div>
+                                <div>
+                                    <b>Təqsirləndirilən:</b> <span style="color:#f97316;">@{{ c[1] }}</span> | <b>Səbəb:</b> {{ c[2] }}
+                                    <div style="font-size:13px; color:#a1a1aa; margin-top:4px;"><b>Hakim:</b> {{ c[4] }} | <b>Qərar:</b> <span style="color:#eab308;">{{ c[3] }}</span></div>
+                                </div>
+                                {% if is_admin %}
+                                    <form method="POST" action="/idare_merkezi/verdict/{{ c[0] }}" style="display:flex; gap:6px;">
+                                        <input type="text" name="verdict" placeholder="Hökm yaz..." required style="padding:6px; border-radius:8px; background:#18181b; border:1px solid #555; color:#fff; font-size:12px;">
+                                        <button type="submit" style="background:#22c55e; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12px;">Hökm Ver (win_wid)</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            {% else %}
-                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Arxiv otağında hələ ki heç bir qeyd yoxdur.</p>
-            {% endif %}
+                {% else %}
+                    <p style="color:#a1a1aa; font-size:14px;">Hazırda məhkəmədə aktiv iş yoxdur.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="archive-modal" id="archiveModal">
+        <div class="archive-modal-box">
+            <div class="archive-modal-header">
+                <h3 style="margin:0; color:#ef4444;">📦 ARXİV OTAQI (POLİS ƏMƏLİYYATLARI VƏ SİLİNƏNLƏR)</h3>
+                <button type="button" onclick="closeArchiveModal()" style="background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer;">✕</button>
+            </div>
+            <div class="archive-list">
+                {% if archives %}
+                    {% for a in archives %}
+                        <div class="archive-item">
+                            <div>
+                                <span style="background:{% if a[1] == 'MESAJ_SILINDI' %}#ef4444{% else %}#f97316{% endif %}; color:#fff; padding:2px 8px; border-radius:6px; font-weight:800; font-size:11px;">
+                                    {{ a[1] }}
+                                </span>
+                                <span style="color:#a1a1aa; font-size:12px; margin-left:8px;">⏱️ {{ a[5] }}</span>
+                            </div>
+                            <div style="font-size:15px; color:#fff;"><b>Məzmun / Təfərrüat:</b> {{ a[2] }}</div>
+                            <div style="font-size:13px; color:#4ade80;">
+                                👮 <b>Polis:</b> @{{ a[3] }} | 🛡️ <b>Bölmə:</b> {{ a[4] }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align:center; color:#a1a1aa; padding:30px;">Arxiv otağında hələ ki heç bir qeyd yoxdur.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Rütbələr Modalı (Polislər, Alaylar, Rəislər və Ulduz/☠️ Sistemi) -->
-</div>
     <script>
         function openArchiveModal() {
             document.getElementById('archiveModal').style.display = 'flex';
@@ -3654,8 +3650,15 @@ IDARE_MERKEZI_TEMPLATE = '''
                 }
             });
         }
-        
-</script>
+
+        if(document.getElementById('policeChatMessagesBox')) {
+            setInterval(fetchPoliceChatMessages, 2500);
+            fetchPoliceChatMessages();
+        }
+    </script>
+</body>
+</html>
+'''
 
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
@@ -3816,7 +3819,7 @@ MAGAZA_TEMPLATE = '''
     <div class="shop-container">
         <div class="shop-header">
             <h2>🛍 WİN_WİD MAĞAZASI</h2>
-            <div class="balance-box">💰 Balansınız: {{ user_points }} Won</div>
+            <div class="balance-box">💰 Balansınız: {{ user_points }} Bal</div>
         </div>
 
         {% if message %}
@@ -3836,7 +3839,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openEntryEffectModal()">
                     <span style="font-size:32px;">⚡</span>
                     <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
-                    <span class="shop-item-price">400 Won</span>
+                    <span class="shop-item-price">500 BAL</span>
                 </div>
             </div>
         </div>
@@ -3847,7 +3850,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openNickModal()">
                     <span style="font-size:32px;">🏷️</span>
                     <span style="font-weight:700;">RƏNGLİ NİK AL</span>
-                    <span class="shop-item-price">20 Won</span>
+                    <span class="shop-item-price">25 BAL</span>
                 </div>
             </div>
         </div>
@@ -3858,13 +3861,13 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openMsgModal()">
                     <span style="font-size:32px;">✉️</span>
                     <span style="font-weight:700;">RƏNGLİ MESAJ AL</span>
-                    <span class="shop-item-price">20 Won</span>
+                    <span class="shop-item-price">25 BAL</span>
                 </div>
             </div>
         </div>
 
         <div class="shop-section">
-            <div class="shop-section-title">🎁  İSTİFADƏÇİYƏ HƏDİYYƏ ATMAQ</div>
+            <div class="shop-section-title">🎁  İSTİFADƏÇİLƏRƏ HƏDİYYƏ ATMAQ</div>
             <div class="shop-grid">
                 <div class="shop-item-btn" onclick="openGiftModal()" style="grid-column: 1 / -1;">
                     <span style="font-size:36px;">🎁</span>
@@ -3877,7 +3880,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="entryEffectModal">
         <div class="modal-panel" style="text-align: center;">
-            <h3>⚡ GİRİŞ EFEKTİ (400 Won)</h3>
+            <h3>⚡ GİRİŞ EFEKTİ (500 Bal)</h3>
             <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5;">
                 Hər dəfə çata daxil olduğunuzda bütün istifadəçilərə xüsusi bildiriş mesajı görünəcək:<br>
                 <code style="color: #f97316; font-weight: bold;">⚡ @nik çat otağına daxil oldu!</code>
@@ -3891,7 +3894,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="nickModal">
         <div class="modal-panel">
-            <h3>🏷️ NİK RƏNGİNİ SEÇİN (20 Won )</h3>
+            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Bal)</h3>
             <form method="POST" action="/magaza/al_nik">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -3907,7 +3910,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="msgModal">
         <div class="modal-panel">
-            <h3>💬 MESAJ RƏNGİNİ SEÇİN (20 Won)</h3>
+            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Bal)</h3>
             <form method="POST" action="/magaza/al_mesaj">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -5463,90 +5466,3 @@ def serve_manifest():
 @app.route('/logo.jpg')
 def serve_logo():
     return send_from_directory('.', 'logo.jpg')
-<!-- Arxiv Modalı -->
-<div class="archive-modal" id="archiveModal" style="display: none;">
-    <div class="archive-modal-box">
-        <div class="archive-modal-header">
-            <h3 style="margin: 0; color: #ef4444;">📦 ARXİV VƏ SİLİNƏN MƏLUMATLAR</h3>
-            <button type="button" onclick="closeArchiveModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
-        </div>
-        <div class="archive-list">
-            {% if archives %}
-                {% for a in archives %}
-                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 10px 0;">
-                        <span style="background: {% if a[1] == 'MESAJ_SİLİNDİ' %}#ef4444{% else %}#f97316{% endif %}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{{ a[1] }}</span>
-                        <span style="color: #a1a1aa; font-size: 12px; margin-left: 8px;">🕒 {{ a[5] }}</span>
-                        <div style="font-size: 13px; color: #fff; margin-top: 6px;"><b>Məzmun:</b> {{ a[2] }}</div>
-                        <div style="font-size: 13px; color: #4ade80; margin-top: 2px;"><b>Polis:</b> {{ a[3] }} | <b>Alay:</b> {{ a[4] }}</div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Arxivdə heç nə yoxdur.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Rütbələr Modalı -->
-<div class="archive-modal" id="ranksModal" style="display: none;">
-    <div class="archive-modal-box">
-        <div class="archive-modal-header">
-            <h3 style="margin: 0; color: #3b82f6;">⭐ QEYDİYYATDA OLAN POLİSLƏR VƏ RÜTBƏLƏR</h3>
-            <button type="button" onclick="closeRanksModal()" style="background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
-        </div>
-        <div class="archive-list">
-            {% if officers %}
-                {% for o in officers %}
-                    <div class="archive-item" style="border-bottom: 1px solid #333; padding: 12px 0;">
-                        <div style="font-size: 15px; color: #fff;"><b>Polis:</b> {{ o[0] }}</div>
-                        <div style="font-size: 13px; color: #4ade80; margin-top: 3px;">
-                            <b>Alay:</b> {{ o[1] }} | <b>Rəis:</b> {{ o[3] if o[3] else 'Təyin edilməyib' }}
-                        </div>
-                        <div style="font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px;">
-                            <span>Rütbə:</span>
-                            <span>
-                                {% set rank_level = o[2] | int if o[2] else 1 %}
-                                {% for i in range(1, 5) %}
-                                    {% if i <= rank_level %}⭐{% else %}☆{% endif %}
-                                {% endfor %}
-                                {% if rank_level >= 5 %}
-                                    <span style="margin-left: 4px;" title="Ən sonuncu rütbə">☠️</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        {% if current_user and current_user == 'WIN_WID' %}
-                            <div style="margin-top: 8px;">
-                                <form action="/update_rank" method="POST" style="display:inline;">
-                                    <input type="hidden" name="police_name" value="{{ o[0] }}">
-                                    <button type="submit" name="action" value="decrease" style="background: #ef4444; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px;">- Azalt</button>
-                                    <button type="submit" name="action" value="increase" style="background: #3b82f6; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px; margin-left: 4px;">+ Artır</button>
-                                </form>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p style="text-align: center; color: #a1a1aa; padding: 30px;">Hələ ki qeydiyyatda polis yoxdur.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<script>
-    function openArchiveModal() {
-        const m = document.getElementById('archiveModal');
-        if (m) m.style.display = 'flex';
-    }
-    function closeArchiveModal() {
-        const m = document.getElementById('archiveModal');
-        if (m) m.style.display = 'none';
-    }
-    function openRanksModal() {
-        const m = document.getElementById('ranksModal');
-        if (m) m.style.display = 'flex';
-    }
-    function closeRanksModal() {
-        const m = document.getElementById('ranksModal');
-        if (m) m.style.display = 'none';
-    }
-</script>
