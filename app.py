@@ -1090,10 +1090,7 @@ function closeGroupModal() {
 style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
     📂 QRUPLARA DAXİL OL
 </button>
-    style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
-        📂 QRUPLARA DAXİL OL
-    </button>
-
+    
 </div>
  
         </div>
@@ -4277,9 +4274,45 @@ def create_chat_group():
     finally:
         cursor.close()
         conn.close()
+        @app.route('/groups/list', methods=['GET'])
+def list_chat_groups():
+    if 'user' not in session:
+        return jsonify({'success': False, 'error': 'Giriş etməlisiniz'}), 401
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT id, name, description, image_data, admin
+            FROM chat_groups
+            ORDER BY id DESC
+        """)
+
+        groups = cursor.fetchall()
+
+        group_list = []
+        for group in groups:
+            group_list.append({
+                'id': group[0],
+                'name': group[1],
+                'description': group[2],
+                'image_data': group[3],
+                'admin': group[4]
+            })
+
+        return jsonify({'success': True, 'groups': group_list})
+
+    except Exception as e:
+        print('Qrup siyahısı xətası:', e)
+        return jsonify({'success': False, 'error': 'Xəta baş verdi'}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
         
 @app.route('/chat/send', methods=['POST'])
-def chat_send():
+def chat_send():  
     if 'user' not in session:
         return redirect(url_for('index'))
     content = request.form.get('content', '').strip()
