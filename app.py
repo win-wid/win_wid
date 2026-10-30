@@ -1061,7 +1061,7 @@ CHAT_TEMPLATE = '''
 
         <p>👑 Qrup admini: <b>{{ current_user }}</b></p>
 
-        <button type="button" onclick="alert('Növbəti mərhələdə qrupu yadda saxlayacağıq!')" style="width:100%; padding:14px; background:#f97316; color:black; border:0; border-radius:10px; font-weight:bold;">
+        <button type="button" onclick="createGroup()" style="width:100%; padding:14px; background:#f97316; color:black; border:0; border-radius:10px; font-weight:bold;">
             ✅ QRUPU YARAT
         </button>
 
