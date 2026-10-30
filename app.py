@@ -973,9 +973,52 @@ CHAT_TEMPLATE = '''
         <div class="chat-header-title">
             <div class="points-box-orange">TOPLANMIŞ WON: <span id="userPointsDisplay" style="color: #000000;">{{ user_points }}</span></div>
             <div class="real-time-clock" id="realTimeClock">00:00:00</div>
-            <span>💬 ÜMUMİ ÇAT BÖLMƏSİ</span>
+
+<div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+
+    <button onclick="openGroupModal()"
+    style="background:linear-gradient(135deg,#ff8c24,#ea580c); color:#111; border:none; padding:12px 20px; border-radius:12px; font-weight:800; cursor:pointer;">
+        👥 QRUP YARAT
+    </button>
+
+    <button onclick="alert('Qruplar siyahısı növbəti mərhələdə əlavə ediləcək!')"
+    style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
+        📂 QRUPLARA DAXİL OL
+    </button>
+
+</div>
+ 
         </div>
         
+<!-- QRUP YARAT PƏNCƏRƏSİ -->
+<div id="groupCreateModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.88); align-items:center; justify-content:center; padding:15px;">
+
+    <div style="background:#18181b; border:1px solid #f97316; border-radius:20px; padding:22px; width:100%; max-width:420px; color:white;">
+
+        <h2 style="color:#f97316; text-align:center;">👥 YENİ QRUP YARAT</h2>
+
+        <label>Qrupun adı</label>
+        <input id="newGroupName" type="text" placeholder="Qrupun adını yaz..." style="width:100%; padding:12px; margin:10px 0; box-sizing:border-box; background:#27272a; color:white; border:1px solid #555; border-radius:10px;">
+
+        <label>Qrup şəkli</label>
+        <input id="newGroupImage" type="file" accept="image/*" style="width:100%; margin:12px 0; color:white;">
+
+        <label>Qrupun açıqlaması</label>
+        <textarea id="newGroupDescription" placeholder="Qrup haqqında məlumat..." style="width:100%; height:90px; padding:12px; box-sizing:border-box; background:#27272a; color:white; border:1px solid #555; border-radius:10px;"></textarea>
+
+        <p>👑 Qrup admini: <b>{{ current_user }}</b></p>
+
+        <button type="button" onclick="alert('Növbəti mərhələdə qrupu yadda saxlayacağıq!')" style="width:100%; padding:14px; background:#f97316; color:black; border:0; border-radius:10px; font-weight:bold;">
+            ✅ QRUPU YARAT
+        </button>
+
+        <button type="button" onclick="closeGroupModal()" style="width:100%; padding:12px; margin-top:9px; background:#333; color:white; border:0; border-radius:10px;">
+            BAĞLA
+        </button>
+
+    </div>
+</div>
+
         <div class="messages-box" id="messagesBox">
             {% if messages %}
                 {% for m in messages %}
@@ -1045,6 +1088,14 @@ CHAT_TEMPLATE = '''
             </div>
         </form>
     </div>
+
+function openGroupModal() {
+    document.getElementById('groupCreateModal').style.display = 'flex';
+}
+
+function closeGroupModal() {
+    document.getElementById('groupCreateModal').style.display = 'none';
+}
 
     <script>
         let msgBox = document.getElementById('messagesBox');
