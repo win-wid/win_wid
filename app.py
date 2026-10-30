@@ -4175,7 +4175,54 @@ def chat():
     
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(CHAT_TEMPLATE, messages=messages, current_user=current_user, is_admin=is_admin, is_police=is_police, user_points=user_points, header=header_html)
+@app.route('/groups/create', methods=['POST'])
+def create_chat_group():
+    if 'user' not in session:
+        return jsonify({'success': False, 'error': 'Giriş etməlisiniz'}), 401
 
+    name = request.form.get('name', '').strip()
+    description = request.form.get('description', '').strip()
+    image_data = request.form.get('image_data', '').strip()
+
+    if not name:
+        return jsonify({'success': False, 'error': 'Qrupun adını yazın'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        admin = session['user']
+
+        cursor.execute("""
+            INSERT INTO chat_groups (name, description, image_data, admin)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id
+        """, (name, description, image_data or None, admin))
+
+        group_id = cursor.fetchone()[0]
+
+        cursor.execute("""
+            INSERT INTO chat_group_members (group_id, username)
+            VALUES (%s, %s)
+        """, (group_id, admin))
+
+        conn.commit()
+
+        return jsonify({
+            'success': True,
+            'group_id': group_id,
+            'message': 'Qrup yaradıldı!'
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print('Qrup yaratma xətası:', e)
+        return jsonify({'success': False, 'error': 'Xəta baş verdi'}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+        
 @app.route('/chat/send', methods=['POST'])
 def chat_send():
     if 'user' not in session:
