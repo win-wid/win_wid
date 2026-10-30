@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify, send_from_directory
+Afrom flask import Flask, render_template_string, request, redirect, url_for, session, jsonify, send_from_directory
 import psycopg2
 import psycopg2.extras
 import base64
@@ -1086,8 +1086,10 @@ function closeGroupModal() {
     style="background:linear-gradient(135deg,#ff8c24,#ea580c); color:#111; border:none; padding:12px 20px; border-radius:12px; font-weight:800; cursor:pointer;">
         👥 QRUP YARAT
     </button>
-
-    <button onclick="alert('Qruplar siyahısı növbəti mərhələdə əlavə ediləcək!')"
+  <button onclick="loadGroups()"
+style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
+    📂 QRUPLARA DAXİL OL
+</button>
     style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
         📂 QRUPLARA DAXİL OL
     </button>
