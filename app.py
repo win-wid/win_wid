@@ -231,7 +231,60 @@ def init_db():
                 created_at TEXT NOT NULL
             )
         ''')
+        # QRUP SISTEMI
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_groups (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                image_data TEXT,
+                admin TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_group_members (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER REFERENCES chat_groups(id) ON DELETE CASCADE,
+                username TEXT NOT NULL,
+                joined_at TIMESTAMP DEFAULT NOW(),
+                UNIQUE(group_id, username)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_group_messages (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER REFERENCES chat_groups(id) ON DELETE CASCADE,
+                sender TEXT NOT NULL,
+                content TEXT,
+                voice_data TEXT,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_group_polls (
+                id SERIAL PRIMARY KEY,
+                group_id INTEGER REFERENCES chat_groups(id) ON DELETE CASCADE,
+                question TEXT NOT NULL,
+                options JSONB NOT NULL,
+                creator TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_group_votes (
+                id SERIAL PRIMARY KEY,
+                poll_id INTEGER REFERENCES chat_group_polls(id) ON DELETE CASCADE,
+                username TEXT NOT NULL,
+                option_index INTEGER NOT NULL,
+                UNIQUE(poll_id, username)
+            )
+        """)
         conn.commit()
         cursor.close()
         conn.close()
