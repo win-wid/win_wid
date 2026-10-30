@@ -1019,6 +1019,59 @@ CHAT_TEMPLATE = '''
         .chat-submit:hover { transform: translateY(-1px); }
     </style>
 </head>
+<script>
+async function createGroup() {
+    const name = document.getElementById('newGroupName').value.trim();
+    const description = document.getElementById('newGroupDescription').value.trim();
+    const imageFile = document.getElementById('newGroupImage').files[0];
+
+    if (!name) {
+        alert('Qrupun adını yazın!');
+        return;
+    }
+
+    let image_data = '';
+
+    if (imageFile) {
+        image_data = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(imageFile);
+        });
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('image_data', image_data);
+
+    try {
+        const response = await fetch('/groups/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Qrup uğurla yaradıldı!');
+            location.reload();
+        } else {
+            alert(result.error || 'Qrup yaradılmadı!');
+        }
+    } catch (error) {
+        alert('Xəta baş verdi!');
+    }
+}
+
+function openGroupModal() {
+    document.getElementById('groupCreateModal').style.display = 'flex';
+}
+
+function closeGroupModal() {
+    document.getElementById('groupCreateModal').style.display = 'none';
+}
+</script>
 <body>
     {{ header|safe }}
 
