@@ -1032,7 +1032,7 @@ async function createGroup() {
 
     let image_data = '';
 
-    if (imageFile) {
+    if (imageFile) { 
         image_data = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
@@ -1063,7 +1063,57 @@ async function createGroup() {
         alert('Xəta baş verdi!');
     }
 }
+async function loadGroups() {
+    const list = document.getElementById('groupsList');
+    list.innerHTML = 'Qruplar yüklənir...';
 
+    try {
+        const response = await fetch('/groups/list');
+        const data = await response.json();
+
+        if (!data.success) {
+            list.innerHTML = 'Xəta baş verdi!';
+            return;
+        }
+
+        if (data.groups.length === 0) {
+            list.innerHTML = 'Hələ qrup yaradılmayıb.';
+            return;
+        }
+
+        let html = '';
+
+        data.groups.forEach(group => {
+            html += `
+                <div style="display:flex; align-items:center; gap:12px; background:#27272a; padding:12px; border-radius:12px; margin-bottom:10px;">
+
+                    <img src="${group.image_data || ''}"
+                    style="width:55px; height:55px; border-radius:50%; object-fit:cover;">
+
+                    <div style="flex:1; color:white;">
+                        <b>${group.name}</b>
+                        <div style="font-size:12px; color:#aaa;">
+                            ${group.description || ''}
+                        </div>
+                        <div style="font-size:11px; color:#aaa;">
+                            Yaradan: ${group.admin}
+                        </div>
+                    </div>
+
+                    <button onclick="alert('Qoşulma sistemi sonra əlavə ediləcək')"
+                    style="background:#16a34a; color:white; border:none; padding:9px; border-radius:8px;">
+                        QRUPA DAXİL OL
+                    </button>
+                </div>
+            `;
+        });
+
+        list.innerHTML = html;
+
+    } catch (error) {
+        list.innerHTML = 'Xəta baş verdi!';
+    }
+}
 function openGroupModal() {
     document.getElementById('groupCreateModal').style.display = 'flex';
 }
@@ -1090,6 +1140,7 @@ function closeGroupModal() {
 style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
     📂 QRUPLARA DAXİL OL
 </button>
+<div id="groupsList" style="width:100%; margin-top:20px;"></div>
     
 </div>
  
