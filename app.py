@@ -1066,6 +1066,7 @@ async function createGroup() {
 async function loadGroups() {
     const list = document.getElementById('groupsList');
     list.innerHTML = 'Qruplar yüklənir...';
+    alert('loadGroups işə düşdü!');
 
     try {
         const response = await fetch('/groups/list');
