@@ -1464,14 +1464,14 @@ OYUN_MENU_TEMPLATE = '''
             <div class="game-card">
                 <div class="game-icon">🔤</div>
                 <h3 class="game-title">1. WOW OYUNU</h3>
-                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 bal qazanın və növbəti sözə keçin!</p>
+                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 Won qazanın və növbəti sözə keçin!</p>
                 <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
             </div>
 
             <div class="game-card">
                 <div class="game-icon">❓</div>
                 <h3 class="game-title">2. SUAL CAVAB OYUNU</h3>
-                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 bal!</p>
+                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 Won!</p>
                 <a href="/oyun/sual" class="play-btn">Oyna 🚀</a>
             </div>
         </div>
