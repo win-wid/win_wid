@@ -1683,7 +1683,7 @@ SUAL_CAVAB_TEMPLATE = '''
             <form method="POST" action="/oyun/sual/cavabla" id="answerForm">
                 <input type="hidden" name="correct_answer" value="{{ answer }}">
                 <input type="text" name="user_answer" placeholder="Cavabınızı yazın..." required autocomplete="off" autofocus>
-                <button type="submit" class="game-btn">Cavabı Göndər (+5 bal)</button>
+                <button type="submit" class="game-btn">Cavabı Göndər (+5 Won)</button>
             </form>
 
             <p class="score-badge">Mövzu: {{ topic }} (Sual saylı bank: 40 Dinamik)</p>
@@ -1842,7 +1842,7 @@ USERS_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="users-container">
-        <p class="users-title">👥 SAYITIN İSTİFADƏÇİLƏRİ</p>
+        <p class="users-title">👥 SAYIT İSTİFADƏÇİLƏRİ</p>
         
         {% if all_users %}
             {% for u in all_users %}
@@ -2841,7 +2841,7 @@ PROFIL_TEMPLATE = '''
             <div class="profile-header">
                 <div class="avatar-wrapper">
                     <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
-                    <div class="crown-icon">👑</div>
+                    <div class="crown-icon">👤</div>
                 </div>
                 <div class="profile-info">
                     <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👑</h3>
@@ -2985,10 +2985,10 @@ CANLI_TEMPLATE = '''
         <div class="live-top-bar">
             <div>
                 <h2 style="margin: 0; color: #f97316; font-size: 20px;">🔴 CANLI YAYIMLAR</h2>
-                <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 14px;">Canlı açmaq üçün balansınızda ən azı 60 bal olmalıdır.</p>
+                <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 14px;">Canlı açmaq üçün balansınızda ən azı 50 Won olmalıdır.</p>
             </div>
             <form method="POST" action="/canli/ac" style="margin:0;">
-                <button type="submit" class="btn-start-live">🎥 CANLI AÇ (60 Bal)</button>
+                <button type="submit" class="btn-start-live">🎥 CANLI AÇ (50 Won)</button>
             </form>
         </div>
 
@@ -3619,7 +3619,7 @@ IDARE_MERKEZI_TEMPLATE = '''
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
                     </select>
-                    <button type="submit">İdarə Mərkəzinə Daxil Ol 🔓</button>
+                    <button type="submit">İdarə Mərkəzinə Daxil Ol </button>
                 </form>
             </div>
         {% else %}
@@ -4026,7 +4026,7 @@ MAGAZA_TEMPLATE = '''
     <div class="shop-container">
         <div class="shop-header">
             <h2>🛍 WİN_WİD MAĞAZASI</h2>
-            <div class="balance-box">💰 Balansınız: {{ user_points }} Bal</div>
+            <div class="balance-box">💰 Balansınız: {{ user_points }} Won</div>
         </div>
 
         {% if message %}
@@ -4046,7 +4046,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openEntryEffectModal()">
                     <span style="font-size:32px;">⚡</span>
                     <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
-                    <span class="shop-item-price">500 BAL</span>
+                    <span class="shop-item-price">500 Won</span>
                 </div>
             </div>
         </div>
@@ -4090,7 +4090,7 @@ MAGAZA_TEMPLATE = '''
             <h3>⚡ GİRİŞ EFEKTİ (400 Won)</h3>
             <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5;">
                 Hər dəfə çata daxil olduğunuzda bütün istifadəçilərə xüsusi bildiriş mesajı görünəcək:<br>
-                <code style="color: #f97316; font-weight: bold;">⚡ @nik çat otağına daxil oldu!</code>
+                <code style="color: #f97316; font-weight: bold;">⚡ @nik sayıta daxil oldu!</code>
             </p>
             <form method="POST" action="/magaza/al_entry_effect">
                 <button type="submit" style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 16px;">Giriş Effektivini Al (500 Bal)</button>
@@ -4148,7 +4148,7 @@ MAGAZA_TEMPLATE = '''
                 <label style="font-size:14px; color:#d4d4d8;">Hədiyyə Seçin:</label>
                 <input type="hidden" name="selected_gift" id="selectedGiftInput" required>
                 <div class="gifts-grid-scroll">
-                    {% set gift_list = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','🤕','😎','😱','🥺','🥳','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰'] %}
+                    {% set gift_list = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','🤕','😎','😱','🥺','😈','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰','🥳'] %}
                     {% for g in gift_list %}
                         <button type="button" class="gift-select-btn" onclick="selectGift('{{ g }}', this)">{{ g }}</button>
                     {% endfor %}
@@ -4246,7 +4246,7 @@ def chat():
     if has_entry_effect == 1:
         session_key = f'entry_notified_{current_user}'
         if not session.get(session_key):
-            entry_msg = f"⚡ @{current_user} çat otağına daxil oldu!"
+            entry_msg = f"⚡ @{current_user} sayıta daxil oldu!"
             cursor.execute("INSERT INTO messages (sender, content) VALUES (%s, %s)", (current_user, entry_msg))
             conn.commit()
             session[session_key] = True
