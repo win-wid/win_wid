@@ -674,6 +674,12 @@ TERMS_TEMPLATE = '''
             <li>Hər hansı kənar müdaxilə (haker hücumu) nəticəsində sayta məxsus məlumatlar oğurlanarsa və ya yayılarsa, tərəflər qanunvericiliyə uyğun olaraq məsuliyyət daşıyır və pozuntularla bağlı məhkəmə müstəvisində hüquqi addımlar atıla bilər.</li>
             <li>Qaydaları pozduğunuz təqdirdə hesabınızı bloklaya və ya silə bilərik.</li>
         </ul>
+
+          <h3>10. Server Arxivləşdirilməsi və Hüquqi Məsuliyyət</h3>
+        <ul>
+            <li>Platformada reallaşdırılan bütün fəaliyyətlər (mesajlar, paylaşımlar, IP ünvanları, giriş-çıxış vaxtları) təhlükəsizlik serverlərində avtomatik arxivləşdirilir. </li>
+            <li>Qanunsuz fəaliyyət, dələduzluq, təhqir və ya haker hücumu cəhdləri aşkar edildikdə, yığılmış bütün məlumatlar rəsmi sorğu əsasında dərhal hüquq-mühafizə orqanlarına təqdim edilir.</li>
+        </ul>
         
     </div>
 </body>
