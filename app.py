@@ -2847,8 +2847,6 @@ PROFIL_TEMPLATE = '''
             </div>
 
             {% if is_admin %}
-                <a href="/admin/sikayetler" class="btn-admin">⚙ Şikayət İdarəetmə Paneli (Admin)</a>
-            {% endif %}
 
             <div>
                 <p style="font-size: 14px; margin: 0 0 8px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
@@ -5473,8 +5471,6 @@ def idare_merkezi_verdict(case_id):
             conn.close()
     return redirect(url_for('idare_merkezi'))
 
-@app.route('/admin/sikayetler')
-def admin_sikayetler():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
