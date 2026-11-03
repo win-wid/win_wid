@@ -674,12 +674,6 @@ TERMS_TEMPLATE = '''
             <li>Hər hansı kənar müdaxilə (haker hücumu) nəticəsində sayta məxsus məlumatlar oğurlanarsa və ya yayılarsa, tərəflər qanunvericiliyə uyğun olaraq məsuliyyət daşıyır və pozuntularla bağlı məhkəmə müstəvisində hüquqi addımlar atıla bilər.</li>
             <li>Qaydaları pozduğunuz təqdirdə hesabınızı bloklaya və ya silə bilərik.</li>
         </ul>
-
-          <h3>10. Server Arxivləşdirilməsi və Hüquqi Məsuliyyət</h3>
-        <ul>
-            <li>Platformada reallaşdırılan bütün fəaliyyətlər (mesajlar, paylaşımlar, IP ünvanları, giriş-çıxış vaxtları) təhlükəsizlik serverlərində avtomatik arxivləşdirilir.</li>
-            <li>Qanunsuz fəaliyyət, dələduzluq, təhqir və ya haker hücumu cəhdləri aşkar edildikdə, yığılmış bütün məlumatlar rəsmi sorğu əsasında dərhal hüquq-mühafizə orqanlarına təqdim edilir.</li>
-        </ul>
         
     </div>
 </body>
@@ -1563,7 +1557,7 @@ WOW_OYUNU_TEMPLATE = '''
     <div class="game-wrapper">
         <div class="game-card">
             <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">🔤 WOW OYUNU (HƏRFİ TAP)</h2>
-            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 bal):</p>
+            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 won):</p>
             
             <div class="masked-word">{{ masked_word }}</div>
 
@@ -4049,7 +4043,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openEntryEffectModal()">
                     <span style="font-size:32px;">⚡</span>
                     <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
-                    <span class="shop-item-price">500 Won</span>
+                    <span class="shop-item-price">400 Won</span>
                 </div>
             </div>
         </div>
