@@ -677,7 +677,7 @@ TERMS_TEMPLATE = '''
 
           <h3>10. Server Arxivləşdirilməsi və Hüquqi Məsuliyyət</h3>
         <ul>
-            <li>Platformada reallaşdırılan bütün fəaliyyətlər (mesajlar, paylaşımlar, IP ünvanları, giriş-çıxış vaxtları) təhlükəsizlik serverlərində avtomatik arxivləşdirilir. </li>
+            <li>Platformada reallaşdırılan bütün fəaliyyətlər (mesajlar, paylaşımlar, IP ünvanları, giriş-çıxış vaxtları) təhlükəsizlik serverlərində avtomatik arxivləşdirilir.</li>
             <li>Qanunsuz fəaliyyət, dələduzluq, təhqir və ya haker hücumu cəhdləri aşkar edildikdə, yığılmış bütün məlumatlar rəsmi sorğu əsasında dərhal hüquq-mühafizə orqanlarına təqdim edilir.</li>
         </ul>
         
