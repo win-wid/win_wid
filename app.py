@@ -723,10 +723,6 @@ def get_header_template(has_unread_notifs=False):
             <span>Bildiriş</span>
             {dot_html}
         </a>
-        <a href="/sikayet" class="nav-item">
-            <span class="icon">⚠️</span>
-            <span>Şikayət</span>
-        </a>
         <a href="/idare_merkezi" class="nav-item">
             <span class="icon">⚙️</span>
             <span>İDARƏ MƏRKƏZİ</span>
@@ -5256,61 +5252,6 @@ def bildiris():
         <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:24px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1);">
             <h2 style="color:#f97316; margin-top:0; text-align:center;">🔔 BİLDİRİŞLƏR</h2>
             {notifs_html}
-        </div>
-    </body>
-    </html>
-    '''
-    return render_template_string(page)
-
-@app.route('/sikayet', methods=['GET', 'POST'])
-def sikayet():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    current_user = session['user']
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    message = None
-    if request.method == 'POST':
-        category = request.form.get('category')
-        content = request.form.get('content')
-        if category and content:
-            cursor.execute("INSERT INTO complaints (username, category, content) VALUES (%s, %s, %s)", (current_user, category, content))
-            
-            notif_text = f"📢 Yeni Şikayət! İstifadəçi: @{current_user} | Kateqoriya: {category} | Mətn: {content}"
-            cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', %s)", (notif_text,))
-            
-            conn.commit()
-            message = "Şikayətiniz uğurla göndərildi!"
-            
-    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
-    has_unread_notifs = cursor.fetchone() is not None
-    cursor.close()
-    conn.close()
-    
-    page = f'''
-    <!DOCTYPE html>
-    <html lang="az">
-    <head>
-        <meta charset="UTF-8">
-        <title>WİN_WİD - Şikayət</title>
-        {COMMON_STYLE}
-    </head>
-    <body>
-        {get_header_template(has_unread_notifs)}
-        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:28px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); max-width:600px; margin:0 auto; width:100%; box-sizing:border-box;">
-            <h2 style="color:#f97316; margin-top:0; text-align:center;">📢 ŞİKAYƏT VƏ TƏKLİF</h2>
-            {f"<p style='color:#4ade80; text-align:center; font-weight:700;'>{message}</p>" if message else ""}
-            <form method="POST" style="display:flex; flex-direction:column; gap:16px;">
-                <select name="category" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px;">
-                    <option value="" disabled selected>Kateqoriya seçin...</option>
-                    <option value="Texniki problem">Texniki problem</option>
-                    <option value="İstifadəçi şikayəti">İstifadəçi şikayəti</option>
-                    <option value="Təklif">Təklif</option>
-                </select>
-                <textarea name="content" placeholder="Şikayət və ya təklifinizi ətraflı yazın..." rows="5" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px; resize:none;"></textarea>
-                <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer;">Göndər</button>
-            </form>
         </div>
     </body>
     </html>
