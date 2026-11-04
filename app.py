@@ -1,4 +1,4 @@
-Afrom flask import Flask, render_template_string, request, redirect, url_for, session, jsonify, send_from_directory
+from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify, send_from_directory
 import psycopg2
 import psycopg2.extras
 import base64
