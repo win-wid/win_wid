@@ -495,7 +495,7 @@ INDEX_TEMPLATE = '''
         <div class="warning-box">
             <div class="warning-text">
                 WİN_WİD'Ə XOŞ GƏLMİSİNİZ..🤗<br><br>
-                İSDİFADƏÇİ ŞƏRTLƏRİNİ OXUYUB SONRA SAYITA DAXİL OLUN...
+                İSDİFADƏÇİ ŞƏRTLƏRİN OXUYUB SONRA SAYITA DAXİL OLUN...
             </div>
             <div class="warning-buttons">
                 <a href="/istifade_sertleri" class="warning-btn btn-read" target="_blank">OXU</a>
