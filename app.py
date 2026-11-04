@@ -1460,7 +1460,7 @@ OYUN_MENU_TEMPLATE = '''
             <div class="game-card">
                 <div class="game-icon">🔤</div>
                 <h3 class="game-title">1. WOW OYUNU</h3>
-                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 Won qazanın və növbəti sözə keçin!</p>
+                <p class="game-desc">Sözlərdə əskik olan hərfi tapın, hər düzgün cavaba 5 Won qazanın və növbəti sözə keçin!</p>
                 <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
             </div>
 
@@ -2841,7 +2841,7 @@ PROFIL_TEMPLATE = '''
                     <div class="crown-icon">👤</div>
                 </div>
                 <div class="profile-info">
-                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👑</h3>
+                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👤</h3>
                     <p class="status">● Aktivdir</p>
                 </div>
             </div>
