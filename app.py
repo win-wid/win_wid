@@ -140,15 +140,6 @@ def init_db():
         ''')
 
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS complaints (
-                id SERIAL PRIMARY KEY,
-                username TEXT NOT NULL,
-                category TEXT NOT NULL,
-                content TEXT NOT NULL
-            )
-        ''')
-
-        cursor.execute('''
             CREATE TABLE IF NOT EXISTS notifications (
                 id SERIAL PRIMARY KEY,
                 username TEXT NOT NULL,
@@ -663,10 +654,6 @@ def get_header_template(has_unread_notifs=False):
             <span class="icon">🔔</span>
             <span>Bildiriş</span>
             {dot_html}
-        </a>
-        <a href="/sikayet" class="nav-item">
-            <span class="icon">⚠️</span>
-            <span>Şikayət</span>
         </a>
         <a href="/idare_merkezi" class="nav-item">
             <span class="icon">⚙️</span>
