@@ -5488,22 +5488,7 @@ def idare_merkezi_verdict(case_id):
     rows = "".join([f"<div style='background:rgba(39,39,42,0.8); padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);'><b>@{c[1]}</b> ({c[2]}):<p style='margin:8px 0 0 0; color:#d4d4d8;'>{c[3]}</p></div>" for c in comps]) or "<p style='text-align:center; color:#a1a1aa;'>Şikayət yoxdur.</p>"
     
     page = f'''
-    <!DOCTYPE html>
-    <html lang="az">
-    <head>
-        <meta charset="UTF-8">
-        <title>WİN_WİD - Admin Şikayətlər</title>
-        {COMMON_STYLE}
-    </head>
-    <body>
-        {get_header_template(False)}
-        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:24px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1);">
-            <h2 style="color:#f97316; margin-top:0; text-align:center;">⚙ GƏLƏN ŞİKAYƏTLƏR (ADMİN)</h2>
-            {rows}
-        </div>
-    </body>
-    </html>
-    '''
+    
     return render_template_string(page)
 
 @app.route('/admin/delete_user/<username>', methods=['POST'])
@@ -5589,7 +5574,7 @@ def magaza_al_entry_effect():
     if points < 500:
         cursor.close()
         conn.close()
-        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (400 Won lazımdır)!"))
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər Won yoxdur (400 Won lazımdır)!"))
         
     cursor.execute("UPDATE users SET points = points - 400, has_entry_effect = 1 WHERE nickname = %s", (current_user,))
     conn.commit()
