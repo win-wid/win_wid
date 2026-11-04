@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template_string, request, redirect, url_for, session, jsonify, send_from_directory
 import psycopg2
 import psycopg2.extras
 import base64
@@ -231,60 +231,7 @@ def init_db():
                 created_at TEXT NOT NULL
             )
         ''')
-        # QRUP SISTEMI
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS chat_groups (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                description TEXT,
-                image_data TEXT,
-                admin TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        """)
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS chat_group_members (
-                id SERIAL PRIMARY KEY,
-                group_id INTEGER REFERENCES chat_groups(id) ON DELETE CASCADE,
-                username TEXT NOT NULL,
-                joined_at TIMESTAMP DEFAULT NOW(),
-                UNIQUE(group_id, username)
-            )
-        """)
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS chat_group_messages (
-                id SERIAL PRIMARY KEY,
-                group_id INTEGER REFERENCES chat_groups(id) ON DELETE CASCADE,
-                sender TEXT NOT NULL,
-                content TEXT,
-                voice_data TEXT,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        """)
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS chat_group_polls (
-                id SERIAL PRIMARY KEY,
-                group_id INTEGER REFERENCES chat_groups(id) ON DELETE CASCADE,
-                question TEXT NOT NULL,
-                options JSONB NOT NULL,
-                creator TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        """)
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS chat_group_votes (
-                id SERIAL PRIMARY KEY,
-                poll_id INTEGER REFERENCES chat_group_polls(id) ON DELETE CASCADE,
-                username TEXT NOT NULL,
-                option_index INTEGER NOT NULL,
-                UNIQUE(poll_id, username)
-            )
-        """)
         conn.commit()
         cursor.close()
         conn.close()
@@ -495,7 +442,7 @@ INDEX_TEMPLATE = '''
         <div class="warning-box">
             <div class="warning-text">
                 WİN_WİD'Ə XOŞ GƏLMİSİNİZ..🤗<br><br>
-                İSDİFADƏÇİ ŞƏRTLƏRİN OXUYUB SONRA SAYITA DAXİL OLUN...
+                İSDİFADƏÇİ ŞƏRTLƏRİNİ OXUYUB SONRA SAYITA DAXİL OLUN...
             </div>
             <div class="warning-buttons">
                 <a href="/istifade_sertleri" class="warning-btn btn-read" target="_blank">OXU</a>
@@ -716,6 +663,10 @@ def get_header_template(has_unread_notifs=False):
             <span class="icon">🔔</span>
             <span>Bildiriş</span>
             {dot_html}
+        </a>
+        <a href="/sikayet" class="nav-item">
+            <span class="icon">⚠️</span>
+            <span>Şikayət</span>
         </a>
         <a href="/idare_merkezi" class="nav-item">
             <span class="icon">⚙️</span>
@@ -1015,110 +966,6 @@ CHAT_TEMPLATE = '''
         .chat-submit:hover { transform: translateY(-1px); }
     </style>
 </head>
-<script>
-async function createGroup() {
-    const name = document.getElementById('newGroupName').value.trim();
-    const description = document.getElementById('newGroupDescription').value.trim();
-    const imageFile = document.getElementById('newGroupImage').files[0];
-
-    if (!name) {
-        alert('Qrupun adını yazın!');
-        return;
-    }
-
-    let image_data = '';
-
-    if (imageFile) { 
-        image_data = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsDataURL(imageFile);
-        });
-    }
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('image_data', image_data);
-
-    try {
-        const response = await fetch('/groups/create', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            alert('Qrup uğurla yaradıldı!');
-            location.reload();
-        } else {
-            alert(result.error || 'Qrup yaradılmadı!');
-        }
-    } catch (error) {
-        alert('Xəta baş verdi!');
-    }
-}
-async function loadGroups() {
-    const list = document.getElementById('groupsList');
-    list.innerHTML = 'Qruplar yüklənir...';
-    alert('loadGroups işə düşdü!');
-
-    try {
-        const response = await fetch('/groups/list');
-        const data = await response.json();
-
-        if (!data.success) {
-            list.innerHTML = 'Xəta baş verdi!';
-            return;
-        }
-
-        if (data.groups.length === 0) {
-            list.innerHTML = 'Hələ qrup yaradılmayıb.';
-            return;
-        }
-
-        let html = '';
-
-        data.groups.forEach(group => {
-            html += `
-                <div style="display:flex; align-items:center; gap:12px; background:#27272a; padding:12px; border-radius:12px; margin-bottom:10px;">
-
-                    <img src="${group.image_data || ''}"
-                    style="width:55px; height:55px; border-radius:50%; object-fit:cover;">
-
-                    <div style="flex:1; color:white;">
-                        <b>${group.name}</b>
-                        <div style="font-size:12px; color:#aaa;">
-                            ${group.description || ''}
-                        </div>
-                        <div style="font-size:11px; color:#aaa;">
-                            Yaradan: ${group.admin}
-                        </div>
-                    </div>
-
-                    <button onclick="alert('Qoşulma sistemi sonra əlavə ediləcək')"
-                    style="background:#16a34a; color:white; border:none; padding:9px; border-radius:8px;">
-                        QRUPA DAXİL OL
-                    </button>
-                </div>
-            `;
-        });
-
-        list.innerHTML = html;
-
-    } catch (error) {
-        list.innerHTML = 'Xəta baş verdi!';
-    }
-}
-function openGroupModal() {
-    document.getElementById('groupCreateModal').style.display = 'flex';
-}
-
-function closeGroupModal() {
-    document.getElementById('groupCreateModal').style.display = 'none';
-}
-</script>
 <body>
     {{ header|safe }}
 
@@ -1126,52 +973,9 @@ function closeGroupModal() {
         <div class="chat-header-title">
             <div class="points-box-orange">TOPLANMIŞ WON: <span id="userPointsDisplay" style="color: #000000;">{{ user_points }}</span></div>
             <div class="real-time-clock" id="realTimeClock">00:00:00</div>
-
-<div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
-
-    <button onclick="openGroupModal()"
-    style="background:linear-gradient(135deg,#ff8c24,#ea580c); color:#111; border:none; padding:12px 20px; border-radius:12px; font-weight:800; cursor:pointer;">
-        👥 QRUP YARAT
-    </button>
-  <button onclick="loadGroups()"
-style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
-    📂 QRUPLARA DAXİL OL
-</button>
-<div id="groupsList" style="width:100%; margin-top:20px;"></div>
-    
-</div>
- 
+            <span>💬 ÜMUMİ ÇAT BÖLMƏSİ</span>
         </div>
         
-<!-- QRUP YARAT PƏNCƏRƏSİ -->
-<div id="groupCreateModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.88); align-items:center; justify-content:center; padding:15px;">
-
-    <div style="background:#18181b; border:1px solid #f97316; border-radius:20px; padding:22px; width:100%; max-width:420px; color:white;">
-
-        <h2 style="color:#f97316; text-align:center;">👥 YENİ QRUP YARAT</h2>
-
-        <label>Qrupun adı</label>
-        <input id="newGroupName" type="text" placeholder="Qrupun adını yaz..." style="width:100%; padding:12px; margin:10px 0; box-sizing:border-box; background:#27272a; color:white; border:1px solid #555; border-radius:10px;">
-
-        <label>Qrup şəkli</label>
-        <input id="newGroupImage" type="file" accept="image/*" style="width:100%; margin:12px 0; color:white;">
-
-        <label>Qrupun açıqlaması</label>
-        <textarea id="newGroupDescription" placeholder="Qrup haqqında məlumat..." style="width:100%; height:90px; padding:12px; box-sizing:border-box; background:#27272a; color:white; border:1px solid #555; border-radius:10px;"></textarea>
-
-        <p>👑 Qrup admini: <b>{{ current_user }}</b></p>
-
-        <button type="button" onclick="createGroup()" style="width:100%; padding:14px; background:#f97316; color:black; border:0; border-radius:10px; font-weight:bold;">
-            ✅ QRUPU YARAT
-        </button>
-
-        <button type="button" onclick="closeGroupModal()" style="width:100%; padding:12px; margin-top:9px; background:#333; color:white; border:0; border-radius:10px;">
-            BAĞLA
-        </button>
-
-    </div>
-</div>
-
         <div class="messages-box" id="messagesBox">
             {% if messages %}
                 {% for m in messages %}
@@ -1241,14 +1045,6 @@ style="background:#27272a; color:#ff8c24; border:1px solid #ff8c24; padding:10px
             </div>
         </form>
     </div>
-
-function openGroupModal() {
-    document.getElementById('groupCreateModal').style.display = 'flex';
-}
-
-function closeGroupModal() {
-    document.getElementById('groupCreateModal').style.display = 'none';
-}
 
     <script>
         let msgBox = document.getElementById('messagesBox');
@@ -1460,14 +1256,14 @@ OYUN_MENU_TEMPLATE = '''
             <div class="game-card">
                 <div class="game-icon">🔤</div>
                 <h3 class="game-title">1. WOW OYUNU</h3>
-                <p class="game-desc">Sözlərdə əskik olan hərfi tapın, hər düzgün cavaba 5 Won qazanın və növbəti sözə keçin!</p>
+                <p class="game-desc">Sözlərdə əskik olan 1 hərfi tapın, hər düzgün cavaba 5 bal qazanın və növbəti sözə keçin!</p>
                 <a href="/oyun/wow" class="play-btn">Oyna 🚀</a>
             </div>
 
             <div class="game-card">
                 <div class="game-icon">❓</div>
                 <h3 class="game-title">2. SUAL CAVAB OYUNU</h3>
-                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 Won!</p>
+                <p class="game-desc">İstədiyiniz mövzudan 40 dinamik sual. 30 saniyə vaxtınız var, düzgün cavab +5 bal!</p>
                 <a href="/oyun/sual" class="play-btn">Oyna 🚀</a>
             </div>
         </div>
@@ -1557,7 +1353,7 @@ WOW_OYUNU_TEMPLATE = '''
     <div class="game-wrapper">
         <div class="game-card">
             <h2 style="color: #f97316; margin-top: 0; font-size: 22px;">🔤 WOW OYUNU (HƏRFİ TAP)</h2>
-            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 won):</p>
+            <p style="color: #d4d4d8; font-size: 15px;">Aşağıdakı sözdə əskik olan 1 hərfi tapın (+5 bal):</p>
             
             <div class="masked-word">{{ masked_word }}</div>
 
@@ -1680,7 +1476,7 @@ SUAL_CAVAB_TEMPLATE = '''
             <form method="POST" action="/oyun/sual/cavabla" id="answerForm">
                 <input type="hidden" name="correct_answer" value="{{ answer }}">
                 <input type="text" name="user_answer" placeholder="Cavabınızı yazın..." required autocomplete="off" autofocus>
-                <button type="submit" class="game-btn">Cavabı Göndər (+5 Won)</button>
+                <button type="submit" class="game-btn">Cavabı Göndər (+5 bal)</button>
             </form>
 
             <p class="score-badge">Mövzu: {{ topic }} (Sual saylı bank: 40 Dinamik)</p>
@@ -1839,7 +1635,7 @@ USERS_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="users-container">
-        <p class="users-title">👥 SAYIT İSTİFADƏÇİLƏRİ</p>
+        <p class="users-title">👥 SAYITIN İSTİFADƏÇİLƏRİ</p>
         
         {% if all_users %}
             {% for u in all_users %}
@@ -2838,15 +2634,17 @@ PROFIL_TEMPLATE = '''
             <div class="profile-header">
                 <div class="avatar-wrapper">
                     <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
-                    <div class="crown-icon">👤</div>
+                    <div class="crown-icon">👑</div>
                 </div>
                 <div class="profile-info">
-                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👤</h3>
+                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👑</h3>
                     <p class="status">● Aktivdir</p>
                 </div>
             </div>
 
             {% if is_admin %}
+                <a href="/admin/sikayetler" class="btn-admin">⚙ Şikayət İdarəetmə Paneli (Admin)</a>
+            {% endif %}
 
             <div>
                 <p style="font-size: 14px; margin: 0 0 8px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
@@ -2980,10 +2778,10 @@ CANLI_TEMPLATE = '''
         <div class="live-top-bar">
             <div>
                 <h2 style="margin: 0; color: #f97316; font-size: 20px;">🔴 CANLI YAYIMLAR</h2>
-                <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 14px;">Canlı açmaq üçün balansınızda ən azı 50 Won olmalıdır.</p>
+                <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 14px;">Canlı açmaq üçün balansınızda ən azı 60 bal olmalıdır.</p>
             </div>
             <form method="POST" action="/canli/ac" style="margin:0;">
-                <button type="submit" class="btn-start-live">🎥 CANLI AÇ (50 Won)</button>
+                <button type="submit" class="btn-start-live">🎥 CANLI AÇ (60 Bal)</button>
             </form>
         </div>
 
@@ -3614,7 +3412,7 @@ IDARE_MERKEZI_TEMPLATE = '''
                         <option value="POLİS ALAYI 333">🛡️ POLİS ALAYI 333</option>
                         <option value="POLİS ALAYI 666">🛡️ POLİS ALAYI 666</option>
                     </select>
-                    <button type="submit">İdarə Mərkəzinə Daxil Ol </button>
+                    <button type="submit">İdarə Mərkəzinə Daxil Ol 🔓</button>
                 </form>
             </div>
         {% else %}
@@ -4021,7 +3819,7 @@ MAGAZA_TEMPLATE = '''
     <div class="shop-container">
         <div class="shop-header">
             <h2>🛍 WİN_WİD MAĞAZASI</h2>
-            <div class="balance-box">💰 Balansınız: {{ user_points }} Won</div>
+            <div class="balance-box">💰 Balansınız: {{ user_points }} Bal</div>
         </div>
 
         {% if message %}
@@ -4041,7 +3839,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openEntryEffectModal()">
                     <span style="font-size:32px;">⚡</span>
                     <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
-                    <span class="shop-item-price">400 Won</span>
+                    <span class="shop-item-price">500 BAL</span>
                 </div>
             </div>
         </div>
@@ -4052,7 +3850,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openNickModal()">
                     <span style="font-size:32px;">🏷️</span>
                     <span style="font-weight:700;">RƏNGLİ NİK AL</span>
-                    <span class="shop-item-price">25 Won</span>
+                    <span class="shop-item-price">25 BAL</span>
                 </div>
             </div>
         </div>
@@ -4063,7 +3861,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openMsgModal()">
                     <span style="font-size:32px;">✉️</span>
                     <span style="font-weight:700;">RƏNGLİ MESAJ AL</span>
-                    <span class="shop-item-price">25 Won</span>
+                    <span class="shop-item-price">25 BAL</span>
                 </div>
             </div>
         </div>
@@ -4082,10 +3880,10 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="entryEffectModal">
         <div class="modal-panel" style="text-align: center;">
-            <h3>⚡ GİRİŞ EFEKTİ (400 Won)</h3>
+            <h3>⚡ GİRİŞ EFEKTİ (500 Bal)</h3>
             <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5;">
                 Hər dəfə çata daxil olduğunuzda bütün istifadəçilərə xüsusi bildiriş mesajı görünəcək:<br>
-                <code style="color: #f97316; font-weight: bold;">⚡ @nik sayıta daxil oldu!</code>
+                <code style="color: #f97316; font-weight: bold;">⚡ @nik çat otağına daxil oldu!</code>
             </p>
             <form method="POST" action="/magaza/al_entry_effect">
                 <button type="submit" style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 16px;">Giriş Effektivini Al (500 Bal)</button>
@@ -4096,7 +3894,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="nickModal">
         <div class="modal-panel">
-            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Won)</h3>
+            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Bal)</h3>
             <form method="POST" action="/magaza/al_nik">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -4112,7 +3910,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="msgModal">
         <div class="modal-panel">
-            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Won)</h3>
+            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Bal)</h3>
             <form method="POST" action="/magaza/al_mesaj">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -4143,7 +3941,7 @@ MAGAZA_TEMPLATE = '''
                 <label style="font-size:14px; color:#d4d4d8;">Hədiyyə Seçin:</label>
                 <input type="hidden" name="selected_gift" id="selectedGiftInput" required>
                 <div class="gifts-grid-scroll">
-                    {% set gift_list = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','🤕','😎','😱','🥺','😈','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰','🥳'] %}
+                    {% set gift_list = ['😇','🤣','🫠','🤩','🤗','🤭','😜','🤔','🤤','🤠','🤒','🤕','😎','😱','🥺','🥳','🫪','☠️','👻','😸','😹','🙀','🙊','🙈','💌','❤️‍🔥','💬','👋','🤘','🫶','🙏','🫰','🐻','🐹','🐼','🐸','🌹','🍻','🗽','✈️','✨','🧨','🎉','🎖️','💰'] %}
                     {% for g in gift_list %}
                         <button type="button" class="gift-select-btn" onclick="selectGift('{{ g }}', this)">{{ g }}</button>
                     {% endfor %}
@@ -4241,7 +4039,7 @@ def chat():
     if has_entry_effect == 1:
         session_key = f'entry_notified_{current_user}'
         if not session.get(session_key):
-            entry_msg = f"⚡ @{current_user} sayıta daxil oldu!"
+            entry_msg = f"⚡ @{current_user} çat otağına daxil oldu!"
             cursor.execute("INSERT INTO messages (sender, content) VALUES (%s, %s)", (current_user, entry_msg))
             conn.commit()
             session[session_key] = True
@@ -4273,92 +4071,9 @@ def chat():
     
     header_html = get_header_template(has_unread_notifs)
     return render_template_string(CHAT_TEMPLATE, messages=messages, current_user=current_user, is_admin=is_admin, is_police=is_police, user_points=user_points, header=header_html)
-@app.route('/groups/create', methods=['POST'])
-def create_chat_group():
-    if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş etməlisiniz'}), 401
 
-    name = request.form.get('name', '').strip()
-    description = request.form.get('description', '').strip()
-    image_data = request.form.get('image_data', '').strip()
-
-    if not name:
-        return jsonify({'success': False, 'error': 'Qrupun adını yazın'}), 400
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    try:
-        admin = session['user']
-
-        cursor.execute("""
-            INSERT INTO chat_groups (name, description, image_data, admin)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id
-        """, (name, description, image_data or None, admin))
-
-        group_id = cursor.fetchone()[0]
-
-        cursor.execute("""
-            INSERT INTO chat_group_members (group_id, username)
-            VALUES (%s, %s)
-        """, (group_id, admin))
-
-        conn.commit()
-
-        return jsonify({
-            'success': True,
-            'group_id': group_id,
-            'message': 'Qrup yaradıldı!'
-        })
-
-    except Exception as e:
-        conn.rollback()
-        print('Qrup yaratma xətası:', e)
-        return jsonify({'success': False, 'error': 'Xəta baş verdi'}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-        @app.route('/groups/list', methods=['GET'])
-def list_chat_groups():
-    if 'user' not in session:
-        return jsonify({'success': False, 'error': 'Giriş etməlisiniz'}), 401
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("""
-            SELECT id, name, description, image_data, admin
-            FROM chat_groups
-            ORDER BY id DESC
-        """)
-
-        groups = cursor.fetchall()
-
-        group_list = []
-        for group in groups:
-            group_list.append({
-                'id': group[0],
-                'name': group[1],
-                'description': group[2],
-                'image_data': group[3],
-                'admin': group[4]
-            })
-
-        return jsonify({'success': True, 'groups': group_list})
-
-    except Exception as e:
-        print('Qrup siyahısı xətası:', e)
-        return jsonify({'success': False, 'error': 'Xəta baş verdi'}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-        
 @app.route('/chat/send', methods=['POST'])
-def chat_send():  
+def chat_send():
     if 'user' not in session:
         return redirect(url_for('index'))
     content = request.form.get('content', '').strip()
@@ -5250,6 +4965,61 @@ def bildiris():
     '''
     return render_template_string(page)
 
+@app.route('/sikayet', methods=['GET', 'POST'])
+def sikayet():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    message = None
+    if request.method == 'POST':
+        category = request.form.get('category')
+        content = request.form.get('content')
+        if category and content:
+            cursor.execute("INSERT INTO complaints (username, category, content) VALUES (%s, %s, %s)", (current_user, category, content))
+            
+            notif_text = f"📢 Yeni Şikayət! İstifadəçi: @{current_user} | Kateqoriya: {category} | Mətn: {content}"
+            cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', %s)", (notif_text,))
+            
+            conn.commit()
+            message = "Şikayətiniz uğurla göndərildi!"
+            
+    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
+    has_unread_notifs = cursor.fetchone() is not None
+    cursor.close()
+    conn.close()
+    
+    page = f'''
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <title>WİN_WİD - Şikayət</title>
+        {COMMON_STYLE}
+    </head>
+    <body>
+        {get_header_template(has_unread_notifs)}
+        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:28px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); max-width:600px; margin:0 auto; width:100%; box-sizing:border-box;">
+            <h2 style="color:#f97316; margin-top:0; text-align:center;">📢 ŞİKAYƏT VƏ TƏKLİF</h2>
+            {f"<p style='color:#4ade80; text-align:center; font-weight:700;'>{message}</p>" if message else ""}
+            <form method="POST" style="display:flex; flex-direction:column; gap:16px;">
+                <select name="category" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px;">
+                    <option value="" disabled selected>Kateqoriya seçin...</option>
+                    <option value="Texniki problem">Texniki problem</option>
+                    <option value="İstifadəçi şikayəti">İstifadəçi şikayəti</option>
+                    <option value="Təklif">Təklif</option>
+                </select>
+                <textarea name="content" placeholder="Şikayət və ya təklifinizi ətraflı yazın..." rows="5" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px; resize:none;"></textarea>
+                <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer;">Göndər</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    '''
+    return render_template_string(page)
+
 @app.route('/idare_merkezi')
 def idare_merkezi():
     if 'user' not in session:
@@ -5471,6 +5241,8 @@ def idare_merkezi_verdict(case_id):
             conn.close()
     return redirect(url_for('idare_merkezi'))
 
+@app.route('/admin/sikayetler')
+def admin_sikayetler():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
@@ -5488,7 +5260,22 @@ def idare_merkezi_verdict(case_id):
     rows = "".join([f"<div style='background:rgba(39,39,42,0.8); padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);'><b>@{c[1]}</b> ({c[2]}):<p style='margin:8px 0 0 0; color:#d4d4d8;'>{c[3]}</p></div>" for c in comps]) or "<p style='text-align:center; color:#a1a1aa;'>Şikayət yoxdur.</p>"
     
     page = f'''
-    
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <title>WİN_WİD - Admin Şikayətlər</title>
+        {COMMON_STYLE}
+    </head>
+    <body>
+        {get_header_template(False)}
+        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:24px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1);">
+            <h2 style="color:#f97316; margin-top:0; text-align:center;">⚙ GƏLƏN ŞİKAYƏTLƏR (ADMİN)</h2>
+            {rows}
+        </div>
+    </body>
+    </html>
+    '''
     return render_template_string(page)
 
 @app.route('/admin/delete_user/<username>', methods=['POST'])
@@ -5574,7 +5361,7 @@ def magaza_al_entry_effect():
     if points < 500:
         cursor.close()
         conn.close()
-        return redirect(url_for('magaza', error="Balansınızda kifayət qədər Won yoxdur (400 Won lazımdır)!"))
+        return redirect(url_for('magaza', error="Balansınızda kifayət qədər bal yoxdur (400 Won lazımdır)!"))
         
     cursor.execute("UPDATE users SET points = points - 400, has_entry_effect = 1 WHERE nickname = %s", (current_user,))
     conn.commit()
