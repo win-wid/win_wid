@@ -1765,7 +1765,7 @@ USERS_TEMPLATE = '''
         
         <!-- Axtarış Paneli -->
         <div class="search-box-wrapper">
-            <input type="text" id="userSearchInput" class="search-input" placeholder="🔍 İstifadəçi adı ilə axtar..." onkeyup="filterUsers()" autocomplete="off">
+             <input type="text" id="userSearchInput" class="search-input" placeholder="🔍 İstifadəçi adı ilə axtar..." oninput="filterUsers()" autocomplete="off">
         </div>
 
         <div id="usersListContainer" style="display: flex; flex-direction: column; gap: 16px;">
