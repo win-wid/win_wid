@@ -496,11 +496,6 @@ function triggerInstall() {
     } else {
         alert('Bu səhifə artıq quraşdırılıb və ya brauzer hələ sorğunu aktivləşdirməyib. Brauzerin menyusundan (3 nöqtə) "Ana ekrana əlavə et" seçə bilərsiniz.');
     }
-}
-</script>
-</body>
-</html>
-'''
 
 TERMS_TEMPLATE = '''
 <!DOCTYPE html>
@@ -720,7 +715,217 @@ COMMON_STYLE = '''
         }
     </style>
 '''
+USERS_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>WİN_WİD - İstifadəçilər</title>
+    ''' + COMMON_STYLE + '''
+    <style>
+        .users-container {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(16px);
+            flex: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .users-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #f97316;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 14px;
+            margin: 0 0 4px 0;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .search-box-wrapper {
+            margin-bottom: 8px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            background: rgba(9, 9, 11, 0.7);
+            color: #f8fafc;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
+            outline: none;
+        }
+        .search-input::placeholder { color: #a1a1aa; }
+        
+        .user-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(39, 39, 42, 0.6);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.2s;
+        }
+        .user-card:hover {
+            transform: translateX(3px);
+            background: rgba(39, 39, 42, 0.9);
+        }
+        .user-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 2px solid #f97316;
+            object-fit: cover;
+            background: #111;
+        }
+        .user-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+        }
+        .user-status {
+            font-size: 14px;
+            color: #4ade80;
+            font-weight: 600;
+            margin: 0;
+        }
+        .user-right-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .profile-btn {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-btn:hover { transform: translateY(-2px); }
+        .msg-btn {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s;
+        }
+        .msg-btn:hover { transform: translateY(-2px); }
+        .admin-action-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .admin-action-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    {{ header|safe }}
 
+    <div class="users-container">
+        <p class="users-title">👥 SAYITIN İSTİFADƏÇİLƏRİ</p>
+        
+        <!-- Axtarış Paneli -->
+        <div class="search-box-wrapper">
+            <input type="text" id="userSearchInput" class="search-input" placeholder="🔍 İstifadəçi adı ilə axtar..." oninput="filterUsers()" autocomplete="off">
+        </div>
+
+        <div id="usersListContainer" style="display: flex; flex-direction: column; gap: 16px;">
+            {% if all_users %}
+                {% for u in all_users %}
+                    <div class="user-card" id="user-row-{{ u[0] }}" data-username="{{ u[0]|lower }}">
+                        <div class="user-left">
+                            <img src="{{ u[1] if u[1] else 'https://i.imgur.com/6VBx3io.png' }}" class="user-avatar" alt="Profil">
+                            <div>
+                                <p class="user-name" style="color: {{ u[2] if u[2] and u[2] != 'inherit' and u[2] != '#eab308' else '#f8fafc' }};">@{{ u[0] }} {{ u[3] }}</p>
+                                <p class="user-status">● Aktivdir</p>
+                            </div>
+                        </div>
+                        <div class="user-right-actions">
+                            {% if u[0] != current_user %}
+                                <a href="/istifadeci_profil/{{ u[0] }}" class="profile-btn">👤 PROFİL BAX</a>
+                                <a href="/ozel_mesaj/{{ u[0] }}" class="msg-btn">💬 MESAJ YAZ</a>
+                                {% if is_admin or is_police %}
+                                    <button class="admin-action-btn" onclick="deleteUserAccount('{{ u[0] }}')">Sil / Bloka at</button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #a1a1aa; font-size: 15px;" id="noUsersText">Hələ ki qeydiyyatdan keçmiş istifadəçi yoxdur.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function filterUsers() {
+            let input = document.getElementById('userSearchInput').value.toLowerCase().trim();
+            let userCards = document.querySelectorAll('.user-card');
+            
+            userCards.forEach(card => {
+                let username = card.getAttribute('data-username');
+                if (username.includes(input)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function deleteUserAccount(username) {
+            if(confirm("@" + username + " istifadəçisini bloka atmaq və silmək istədiyinizə əminsinizmi?")) {
+                fetch('/admin/delete_user/' + username, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('user-row-' + username).remove();
+                    } else {
+                        alert(data.error || "Xəta baş verdi!");
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+'''
 CHAT_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
