@@ -639,10 +639,6 @@ def get_header_template(has_unread_notifs=False):
             <span class="icon">🛍</span>
             <span>Maqazin</span>
         </a>
-        <a href="/profil" class="nav-item">
-            <span class="icon">👤</span>
-            <span>Profil</span>
-        </a>
         <a href="/canli" class="nav-item">
             <span class="icon">🔴</span>
             <span>Canlı</span>
@@ -650,6 +646,10 @@ def get_header_template(has_unread_notifs=False):
         <a href="/bildiris" class="nav-item" style="position: relative;">
             <span class="icon">🔔</span>
             <span>Bildiriş</span>
+        </a>
+            <a href="/profil" class="nav-item">
+            <span class="icon">👤</span>
+            <span>Profil</span>
             {dot_html}
         </a>
     </div>
