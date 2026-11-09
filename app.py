@@ -622,18 +622,15 @@ def get_header_template(has_unread_notifs=False):
     dot_html = '<span style="position: absolute; top: 8px; right: 24px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%;"></span>' if has_unread_notifs else ''
     return f'''
     <div class="nav-bar"> 
-        <a href="/chat" class="nav-item">
-            <span class="icon">💬</span>
-            <span>Çat</span>
-        </a>
-        <a href="/istifadeciler" class="nav-item">
-            <span class="icon">👥</span>
-            <span>İstifadəçilər</span>
-        </a>
+    </a>
         <a href="/vidyo" class="nav-item">
             <span class="icon">📹</span>
             <span>Vidyo</span>
-        </a>
+         </a>
+        <a href="/istifadeciler" class="nav-item">
+            <span class="icon">👥</span>
+            <span>İstifadəçilər</span>
+        </a> 
         <a href="/oyun" class="nav-item">
             <span class="icon">🎮</span>
             <span>Oyun</span>
