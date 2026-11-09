@@ -661,33 +661,36 @@ def get_header_template(has_unread_notifs=False):
 COMMON_STYLE = '''
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { 
+                body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; 
             padding: 20px; 
+            padding-bottom: 95px; 
             background: #09090b; 
             color: #f8fafc; 
             display: flex; 
             flex-direction: column; 
-            height: 100vh; 
+            min-height: 100vh; 
             box-sizing: border-box; 
         }
         .nav-bar { 
-            background: rgba(24, 24, 27, 0.9); 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(24, 24, 27, 0.95); 
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12); 
-            border-radius: 18px; 
-            padding: 14px 20px; 
+            border-top: 1px solid rgba(255, 255, 255, 0.12); 
+            border-radius: 18px 18px 0 0; 
+            padding: 12px 20px; 
             display: flex; 
             justify-content: space-around; 
             align-items: center; 
-            margin-bottom: 20px;
             gap: 14px;
             overflow-x: auto;
-            box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4);
-            flex-shrink: 0;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 9999;
             box-sizing: border-box;
-            width: 100%;
         }
         .nav-item {
             display: flex;
