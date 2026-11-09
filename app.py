@@ -625,7 +625,7 @@ def get_header_template(has_unread_notifs=False):
     </a>
         <a href="/vidyo" class="nav-item">
             <span class="icon">📹</span>
-            <span>Vidyo</span>
+            <span>Vidyolar</span>
          </a>
         <a href="/istifadeciler" class="nav-item">
             <span class="icon">👥</span>
@@ -637,7 +637,7 @@ def get_header_template(has_unread_notifs=False):
         </a>
         <a href="/magaza" class="nav-item">
             <span class="icon">🛍</span>
-            <span>Maqazin</span>
+            <span>Market</span>
         </a>
         <a href="/canli" class="nav-item">
             <span class="icon">🔴</span>
