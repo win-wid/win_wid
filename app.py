@@ -621,7 +621,7 @@ TERMS_TEMPLATE = '''
 def get_header_template(has_unread_notifs=False):
     dot_html = '<span style="position: absolute; top: 8px; right: 24px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%;"></span>' if has_unread_notifs else ''
     return f'''
-    <div class="nav-bar" style="position: relative;">
+    <div class="nav-bar"> 
         <a href="/chat" class="nav-item">
             <span class="icon">💬</span>
             <span>Çat</span>
@@ -673,24 +673,24 @@ COMMON_STYLE = '''
             min-height: 100vh; 
             box-sizing: border-box; 
         }
-        .nav-bar { 
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(18, 18, 20, 0.98); 
-            backdrop-filter: blur(16px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1); 
-            padding: 10px 10px; 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            gap: 5px;
-            overflow-x: auto;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.8);
-            z-index: 99999;
-            box-sizing: border-box;
-        }
+        .nav-bar {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    width: calc(100% - 24px);
+    background: #f97316;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 18px;
+    padding: 10px 5px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 5px;
+    overflow-x: auto;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    z-index: 99999;
+    box-sizing: border-box;
+}
         .nav-item {
             display: flex;
             flex-direction: column;
