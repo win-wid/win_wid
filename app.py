@@ -7,13 +7,6 @@ import random
 import tempfile
 from datetime import datetime
 
-# Yeni il modulunu təhlükəsiz şəkildə qoşmaq üçün:
-try:
-    import yeni_il_modulu
-    BAYRAM_AKTIV = True
-except ImportError:
-    BAYRAM_AKTIV = False
-
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
 
@@ -716,7 +709,6 @@ COMMON_STYLE = '''
             color: #f97316;
         }
     </style>
-    ''' + (yeni_il_modulu.QAR_VE_BAYRAM_SCRIPTI if 'BAYRAM_AKTIV' in globals() and BAYRAM_AKTIV else '')
 '''
 
 CHAT_TEMPLATE = '''
