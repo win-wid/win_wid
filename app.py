@@ -5,7 +5,7 @@ import base64
 import os
 import random
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta 
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -5080,3 +5080,105 @@ def serve_manifest():
 @app.route('/logo.jpg')
 def serve_logo():
     return send_from_directory('.', 'logo.jpg')
+    
+    @app.route('/admin/ads', methods=['GET', 'POST'])
+def admin_ads():
+    if 'user' not in session or session['user'].lower() != 'win_wid':
+        return redirect(url_for('chat'))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    
+    # Müddəti bitən reklamları avtomatik silmək üçün
+    today = datetime.now().date()
+    cursor.execute("DELETE FROM ads WHERE expire_date < %s", (today,))
+    conn.commit()
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'add':
+            ad_text = request.form.get('text')
+            ad_link = request.form.get('link', '#')
+            duration_months = int(request.form.get('duration', 1))
+            
+            # Ay hesablaması (1 ay = 30 gün, 2 ay = 60 gün, 3 ay = 90 gün)
+            days = duration_months * 30
+            expire_date = today + timedelta(days=days)
+            
+            cursor.execute(
+                "INSERT INTO ads (text, link, expire_date) VALUES (%s, %s, %s)",
+                (ad_text, ad_link, expire_date)
+            )
+            conn.commit()
+            
+        elif action == 'delete':
+            ad_id = request.form.get('ad_id')
+            cursor.execute("DELETE FROM ads WHERE id = %s", (ad_id,))
+            conn.commit()
+            
+        return redirect(url_for('admin_ads'))
+
+    cursor.execute("SELECT * FROM ads ORDER BY expire_date ASC")
+    ads = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    html = '''
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <title>WİN_WİD - Reklam Mərkəzi</title>
+        ''' + COMMON_STYLE + '''
+        <style>
+            .admin-container { max-width: 600px; margin: 40px auto; background: rgba(24, 24, 27, 0.85); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+            .ad-item { background: rgba(39, 39, 42, 0.6); padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); }
+            input, select { width: 100%; padding: 12px; margin-bottom: 12px; background: rgba(9, 9, 11, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; }
+        </style>
+    </head>
+    <body>
+        {{ header|safe }}
+        <div class="admin-container">
+            <h2>📢 Reklam Mərkəzi (Admin)</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <input type="text" name="text" placeholder="Reklam mətni..." required>
+                <input type="text" name="link" placeholder="Keçid linki (və ya TikTok/Profil linki)" value="#">
+                <label style="font-size: 13px; color: #a1a1aa;">Müddət seçin:</label>
+                <select name="duration">
+                    <option value="1">1 AY</option>
+                    <option value="2">2 AY</option>
+                    <option value="3">3 AY</option>
+                </select>
+                <button type="submit" class="btn-admin" style="background: linear-gradient(135deg, #22c55e, #16a34a); border:none; padding: 12px; border-radius: 10px; font-weight: 700; color: #fff; cursor: pointer; width: 100%;">Yeni Reklam Əlavə Et</button>
+            </form>
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+            
+            <h3>Aktiv Reklamlar Siyahısı</h3>
+            {% if ads %}
+                {% for ad in ads %}
+                <div class="ad-item">
+                    <div>
+                        <strong>{{ ad.text }}</strong><br>
+                        <small style="color: #a1a1aa;">Link: {{ ad.link }} | Bitmə tarixi: {{ ad.expire_date }}</small>
+                    </div>
+                    <form method="POST" style="margin:0;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="ad_id" value="{{ ad.id }}">
+                        <button type="submit" style="background: #ef4444; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600;">Sil</button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #a1a1aa; text-align: center;">Aktiv reklam yoxdur.</p>
+            {% endif %}
+            <br>
+            <a href="/profil" style="color: #38bdf8; text-decoration: none;">← Profilə qayıt</a>
+        </div>
+    </body>
+    </html>
+    '''
+    return render_template_string(html, header=COMMON_HEADER, is_admin=True)
