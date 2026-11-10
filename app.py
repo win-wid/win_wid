@@ -2652,9 +2652,10 @@ PROFIL_TEMPLATE = '''
                     <!-- Qırmızı reklam lenti -->
             <div class="ad-banner-container">
                 <div class="ad-banner-track">
-                    <a href="#" class="ad-slide active">🚀 Tərəfdaş Sayt: WİN_WİD Dostları</a>
-                    <a href="#" class="ad-slide">🔥 Yeni Elanlar və Xidmətlər Burada!</a>
+                    <a href="#" class="ad-slide active">🚀 Tərəfdaş Saytı: WİN_WİD Dostları</a>
+                    <a href="#" class="ad-slide">🔥 Yeni Elanlar və Xidmətlər Burda!</a>
                     <a href="#" class="ad-slide">📢 Reklam yerləşdirmək üçün bizə yazın!</a>
+                    <a href="#" class="ad-slide">💎 Reklam: 1 Ay (2 AZN) | 2 Ay (4 AZN) | 3 Ay (6 AZN)</a>
                 </div>
             </div>
             <p class="profile-title">Mənim Profilim</p>
