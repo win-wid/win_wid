@@ -1227,13 +1227,13 @@ OYUN_MENU_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="games-container">
-        <!-- Reklam lenti -->
+           <!-- Reklam lenti -->
     <div class="ad-banner-container" style="width: 100%; max-width: 700px; margin-bottom: 20px; overflow: hidden; background: rgba(24, 24, 27, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 12px; text-align: center;">
-        <div class="ad-banner-track" style="position: relative; height: 24px;">
-            <a href="#" class="ad-slide active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600;">🚀 Tərəfdaş Sayt: WİN_WİD Dostları</a>
-            <a href="#" class="ad-slide" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600;">🔥 Yeni Elanlar və Xidmətlər Burada!</a>
-            <a href="#" class="ad-slide" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600;">📢 Reklam yerləşdirmək üçün bizə yazın!</a>
-            <a href="#" class="ad-slide" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600;">💎 Reklam: 1 Ay (2 AZN) | 2 Ay (4 AZN) | 3 Ay (6 AZN)</a>
+        <div class="ad-banner-track" style="position: relative; height: 24px; overflow: hidden;">
+            <a href="#" class="ad-slide active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600; opacity: 1; transition: all 0.6s ease-in-out;">🚀 Tərəfdaş Sayt: WİN_WİD Dostları</a>
+            <a href="#" class="ad-slide" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.6s ease-in-out;">🔥 Yeni Elanlar və Xidmətlər Burada!</a>
+            <a href="#" class="ad-slide" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.6s ease-in-out;">📢 Reklam yerləşdirmək üçün bizə yazın!</a>
+            <a href="#" class="ad-slide" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; text-decoration: none; color: #f8fafc; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.6s ease-in-out;">💎 Reklam: 1 Ay (2 AZN) | 2 Ay (4 AZN) | 3 Ay (6 AZN)</a>
         </div>
     </div>
         <h2 style="color: #f97316; margin-bottom: 30px; font-size: 26px; text-align: center;">🎮 OYUNLAR MƏRKƏZİ</h2>
