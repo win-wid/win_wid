@@ -5,7 +5,7 @@ import base64
 import os
 import random
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime 
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
