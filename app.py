@@ -5,7 +5,7 @@ import base64
 import os
 import random
 import tempfile
-from datetime import datetime 
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -220,14 +220,6 @@ def init_db():
                 content TEXT,
                 image_data TEXT,
                 created_at TEXT NOT NULL
-            )
-        ''')
-                cursor.execute('''
-            CREATE TABLE IF NOT EXISTS ads (
-                id SERIAL PRIMARY KEY,
-                text TEXT NOT NULL,
-                link TEXT DEFAULT '#',
-                expire_date DATE NOT NULL
             )
         ''')
 
@@ -2682,11 +2674,6 @@ PROFIL_TEMPLATE = '''
     </style>
 </head>
 <body>
-    {% if is_admin %}
-    <div style="position: fixed; top: 15px; left: 15px; z-index: 99999;">
-        <a href="/admin/ads" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">REKLAM MƏRKƏZİ</a>
-    </div>
-    {% endif %}
     {{ header|safe }}
 
     <div class="profile-wrapper">
@@ -5066,3 +5053,17 @@ def magaza_gonder_hediyye():
     cursor.close()
     conn.close()
     return redirect(url_for('magaza', message=f"{selected_gift} hədiyyəsi @{receiver} istifadəçisinə uğurla göndərildi!"))
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    session.pop('is_police_logged', None)
+    session.pop('active_regiment', None)
+    return redirect(url_for('index'))
+@app.route('/manifest.json')
+def serve_manifest():
+    return send_from_directory('.', 'manifest.json')
+
+@app.route('/logo.jpg')
+def serve_logo():
+    return send_from_directory('.', 'logo.jpg')
