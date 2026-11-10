@@ -222,6 +222,14 @@ def init_db():
                 created_at TEXT NOT NULL
             )
         ''')
+                cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ads (
+                id SERIAL PRIMARY KEY,
+                text TEXT NOT NULL,
+                link TEXT DEFAULT '#',
+                expire_date DATE NOT NULL
+            )
+        ''')
 
         conn.commit()
         cursor.close()
@@ -2674,6 +2682,11 @@ PROFIL_TEMPLATE = '''
     </style>
 </head>
 <body>
+    {% if is_admin %}
+    <div style="position: fixed; top: 15px; left: 15px; z-index: 99999;">
+        <a href="/admin/ads" style="background-color: #ff7316; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">REKLAM MƏRKƏZİ</a>
+    </div>
+    {% endif %}
     {{ header|safe }}
 
     <div class="profile-wrapper">
