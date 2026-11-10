@@ -1254,6 +1254,26 @@ OYUN_MENU_TEMPLATE = '''
             </div>
         </div>
     </div>
+    <script>
+    // Reklam lentinin fırlanma mexanizmi
+    const slides = document.querySelectorAll('.ad-slide');
+    let currentSlide = 0;
+
+    function nextSlide() {
+        if (slides.length === 0) return;
+        slides[currentSlide].classList.remove('active');
+        slides[currentSlide].style.opacity = '0';
+        
+        currentSlide = (currentSlide + 1) % slides.length;
+        
+        slides[currentSlide].classList.add('active');
+        slides[currentSlide].style.opacity = '1';
+    }
+
+    if (slides.length > 0) {
+        setInterval(nextSlide, 3500); // Hər 3.5 saniyədən bir dəyişir
+    }
+</script>
 </body>
 </html>
 '''
@@ -2676,10 +2696,10 @@ PROFIL_TEMPLATE = '''
             <div class="profile-header">
                 <div class="avatar-wrapper">
                     <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
-                    <div class="crown-icon">👑</div>
+                    <div class="crown-icon">👤</div>
                 </div>
                 <div class="profile-info">
-                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👑</h3>
+                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👤</h3>
                     <p class="status">● Aktivdir</p>
                 </div>
             </div>
