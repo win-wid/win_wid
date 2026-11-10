@@ -5,7 +5,7 @@ import base64
 import os
 import random
 import tempfile
-from datetime import datetime, timedelta 
+from datetime import datetime 
 
 app = Flask(__name__)
 app.secret_key = 'win_wid_gizli_kalit'
@@ -5104,7 +5104,7 @@ def admin_ads():
             
             # Ay hesablaması (1 ay = 30 gün, 2 ay = 60 gün, 3 ay = 90 gün)
             days = duration_months * 30
-            expire_date = today + timedelta(days=days)
+            expire_date = today + datetime.timedelta(days=days)
             
             cursor.execute(
                 "INSERT INTO ads (text, link, expire_date) VALUES (%s, %s, %s)",
