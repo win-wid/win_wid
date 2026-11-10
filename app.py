@@ -2595,6 +2595,53 @@ PROFIL_TEMPLATE = '''
             margin: 0;
             font-weight: 600;
         }
+                /* Reklam lenti dizaynı */
+        .ad-banner-container {
+            width: 100%;
+            height: 44px;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            background-color: #09090b;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+        .ad-banner-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .ad-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #f8fafc;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s ease-in-out;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .ad-slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .ad-slide.exit {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
     </style>
 </head>
 <body>
@@ -2602,6 +2649,14 @@ PROFIL_TEMPLATE = '''
 
     <div class="profile-wrapper">
         <div class="profile-container">
+                    <!-- Qırmızı reklam lenti -->
+            <div class="ad-banner-container">
+                <div class="ad-banner-track">
+                    <a href="#" class="ad-slide active">🚀 Tərəfdaş Sayt: WİN_WİD Dostları</a>
+                    <a href="#" class="ad-slide">🔥 Yeni Elanlar və Xidmətlər Burada!</a>
+                    <a href="#" class="ad-slide">📢 Reklam yerləşdirmək üçün bizə yazın!</a>
+                </div>
+            </div>
             <p class="profile-title">Mənim Profilim</p>
             
             {% if message %}
@@ -2659,6 +2714,29 @@ PROFIL_TEMPLATE = '''
         </div>
     </div>
 </body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let slides = document.querySelectorAll('.ad-slide');
+            if (slides.length === 0) return;
+
+            let currentIndex = 0;
+            setInterval(() => {
+                let currentSlide = slides[currentIndex];
+                currentSlide.classList.remove('active');
+                currentSlide.classList.add('exit');
+
+                currentIndex = (currentIndex + 1) % slides.length;
+                let nextSlide = slides[currentIndex];
+                
+                nextSlide.classList.remove('exit');
+                nextSlide.classList.add('active');
+
+                setTimeout(() => {
+                    currentSlide.classList.remove('exit');
+                }, 600);
+            }, 3500);
+        });
+    </script>
 </html>
 '''
 
