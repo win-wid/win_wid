@@ -2655,7 +2655,7 @@ PROFIL_TEMPLATE = '''
                     <a href="#" class="ad-slide active">🚀 Tərəfdaş Saytı: WİN_WİD Dostları</a>
                     <a href="#" class="ad-slide">🔥 Yeni Elanlar və Xidmətlər Burda!</a>
                     <a href="#" class="ad-slide">📢 Reklam yerləşdirmək üçün bizə yazın!</a>
-                    <a href="#" class="ad-slide">💎 Reklam: 1 Ay (2 AZN) | 2 Ay (4 AZN) | 3 Ay (6 AZN)</a>
+                    <a href="#" class="ad-slide">💎 Reklam Qiyməti və Vaxtı: 1 Ay (2 AZN) / 2 Ay (4 AZN) / 3 Ay (6 AZN)</a>
                 </div>
             </div>
             <p class="profile-title">Mənim Profilim</p>
