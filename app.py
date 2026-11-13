@@ -1647,7 +1647,7 @@ USERS_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="users-container">
-        <p class="users-title">👥 SAYITIN İSTİFADƏÇİLƏRİ</p>
+        <p class="users-title">👥 SAYIT İSTİFADƏÇİLƏRİ</p>
         
         {% if all_users %}
             {% for u in all_users %}
@@ -2303,7 +2303,7 @@ VIDYO_TEMPLATE = '''
                     <div class="comments-drawer" id="drawer-{{ v[0] }}">
                         <div class="drawer-header">
                             <span>Şərhlər</span>
-                            <button class="close-drawer" onclick="closeComments('{{ v[0] }}')">✕</button>
+                            <button class="close-drawer" type="button" onclick="closeComments('{{ v[0] }}'); event.stopPropagation();">✕</button>
                         </div>
                         <div class="drawer-list" id="comment-list-{{ v[0] }}">
                             {% for c in v[5] %}
@@ -2349,14 +2349,24 @@ VIDYO_TEMPLATE = '''
             });
         }
 
-        function openComments(videoId) {
-            document.getElementById('drawer-' + videoId).classList.add('active');
+                function openComments(videoId) {
+            // Eyni anda yalnız bir şərh panelinin açıq olması üçün digərlərini bağlayırıq
+            document.querySelectorAll('.comments-drawer').forEach(drawer => {
+                drawer.classList.remove('active');
+            });
+            
+            let drawer = document.getElementById('drawer-' + videoId);
+            if (drawer) {
+                drawer.classList.add('active');
+            }
         }
 
         function closeComments(videoId) {
-            document.getElementById('drawer-' + videoId).classList.remove('active');
+            let drawer = document.getElementById('drawer-' + videoId);
+            if (drawer) {
+                drawer.classList.remove('active');
+            }
         }
-
         function addComment(videoId) {
             let input = document.getElementById('comment-input-' + videoId);
             let text = input.value.trim();
