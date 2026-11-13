@@ -2301,6 +2301,13 @@ VIDYO_TEMPLATE = '''
                             </button>
                             <span class="action-count">Paylaş</span>
                         </div>
+                        
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="toggleBookmark('{{ v[0] }}')">
+                                <span id="bookmark-icon-{{ v[0] }}" style="color: {{ '#f97316' if v[7] else '#fff' }};">📥</span>
+                            </button>
+                            <span class="action-count">Yaddaş</span>                       
+                        </div>
                     </div>
 
                     <div class="comments-drawer" id="drawer-{{ v[0] }}">
@@ -2348,6 +2355,17 @@ VIDYO_TEMPLATE = '''
                 if(data.success) {
                     document.getElementById('like-count-' + videoId).innerText = data.count;
                     document.getElementById('like-icon-' + videoId).innerText = data.liked ? '❤️' : '🤍';
+                }
+            });
+        }
+
+                function toggleBookmark(videoId) {
+            fetch('/vidyo/bookmark/' + videoId, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    let icon = document.getElementById('bookmark-icon-' + videoId);
+                    icon.style.color = data.bookmarked ? '#f97316' : '#fff';
                 }
             });
         }
@@ -2485,8 +2503,6 @@ PROFIL_TEMPLATE = '''
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
             position: relative;
         }
-        
-        /* Sağ yuxarı küncdə ☰ üç düz xətt düyməsi */
         .menu-toggle-btn {
             position: absolute;
             top: 20px;
@@ -2503,11 +2519,6 @@ PROFIL_TEMPLATE = '''
             gap: 5px;
             cursor: pointer;
             z-index: 20;
-            transition: background 0.2s;
-        }
-        .menu-toggle-btn:hover {
-            background: rgba(249, 115, 22, 0.2);
-            border-color: #f97316;
         }
         .menu-toggle-btn span {
             display: block;
@@ -2516,8 +2527,6 @@ PROFIL_TEMPLATE = '''
             background: #fff;
             border-radius: 2px;
         }
-
-        /* Sağ küncdən açılan kiçik panel */
         .side-dropdown-menu {
             display: none;
             position: absolute;
@@ -2550,7 +2559,6 @@ PROFIL_TEMPLATE = '''
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            transition: background 0.2s;
         }
         .dropdown-item:hover {
             background: rgba(249, 115, 22, 0.15);
@@ -2560,8 +2568,6 @@ PROFIL_TEMPLATE = '''
             background: rgba(239, 68, 68, 0.15);
             color: #f87171;
         }
-
-        /* TikTok Stil Profil Başlığı */
         .profile-header-tk {
             display: flex;
             flex-direction: column;
@@ -2603,8 +2609,6 @@ PROFIL_TEMPLATE = '''
             word-break: break-word;
             line-height: 1.4;
         }
-
-        /* Tab Düymələri (TikTok Stili) */
         .tabs-tk {
             display: flex;
             justify-content: space-around;
@@ -2619,7 +2623,6 @@ PROFIL_TEMPLATE = '''
             padding: 10px 15px;
             cursor: pointer;
             font-weight: 700;
-            transition: color 0.2s;
             position: relative;
         }
         .tab-btn-tk.active {
@@ -2634,8 +2637,6 @@ PROFIL_TEMPLATE = '''
             height: 2px;
             background: #f97316;
         }
-
-        /* Video Grid Bölməsi */
         .tab-content-tk {
             display: none;
         }
@@ -2655,7 +2656,7 @@ PROFIL_TEMPLATE = '''
             align-items: center;
             justify-content: center;
         }
-        .video-card-tk video, .video-card-tk img {
+        .video-card-tk video {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -2667,10 +2668,8 @@ PROFIL_TEMPLATE = '''
             padding: 20px;
             grid-column: span 3;
         }
-
-        /* Redaktə Modalı (Popup) */
         .modal-overlay {
-            display: {% if show_edit %}flex{% else %}none{% endif %};
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85);
@@ -2702,7 +2701,6 @@ PROFIL_TEMPLATE = '''
             font-size: 14px;
             box-sizing: border-box;
         }
-        .modal-input:focus { border-color: #f97316; outline: none; }
         .btn-modal-save {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff;
@@ -2732,19 +2730,16 @@ PROFIL_TEMPLATE = '''
 
     <div class="profile-wrapper">
         <div class="profile-container">
-            
-            <!-- Sağ yuxarı küncdə ☰ üç düz xətt düyməsi -->
             <div class="menu-toggle-btn" onclick="toggleSideMenu(event)">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
 
-            <!-- Sağ küncdən açılan panel -->
             <div class="side-dropdown-menu" id="sideDropdownMenu">
                 <button class="dropdown-item" onclick="openEditModal()">✏️ Hesabı Redaktə Et</button>
                 <a href="/logout" class="dropdown-item">🚪 Hesabdan Çıx</a>
-                <form method="POST" onsubmit="return confirm('DİQQƏT: Hesabınızı silmək istədiyinizə əminsinizmi? Bütün məlumatlarınız, videolarınız və balansınız 1 dəfəlik silinəcək!');" style="margin:0;">
+                <form method="POST" onsubmit="return confirm('DİQQƏT: Hesabınızı silmək istədiyinizə əminsinizmi?');" style="margin:0;">
                     <input type="hidden" name="action" value="delete_account">
                     <button type="submit" class="dropdown-item danger" style="width:100%;">🗑️ Hesabı Sil</button>
                 </form>
@@ -2754,7 +2749,6 @@ PROFIL_TEMPLATE = '''
                 <p style="font-size: 13px; text-align: center; margin: 0; font-weight: 700; color: {% if error %}#f87171{% else %}#4ade80{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <!-- TikTok Profil Başlığı (Şəkil, Ad, Bio) -->
             <div class="profile-header-tk">
                 <div class="avatar-wrapper-tk">
                     <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
@@ -2763,17 +2757,15 @@ PROFIL_TEMPLATE = '''
                     @{{ user }} {{ profile_sticker }}
                 </div>
                 <div class="handle-tk">Bal: {{ points }} 💰</div>
-                <div class="bio-tk">{{ bio if bio else 'Mətin Daxil Edin...' }}</div>
+                <div class="bio-tk">{{ bio if bio else 'Bioqrafiya daxil edilməyib...' }}</div>
             </div>
 
-            <!-- Tab Düymələri (Videolar, Bəyənilən, Yadda Saxlanılan) -->
             <div class="tabs-tk">
                 <button class="tab-btn-tk active" onclick="switchTab(event, 'my-videos')">🎬 Videolar</button>
                 <button class="tab-btn-tk" onclick="switchTab(event, 'liked-videos')">❤️ Bəyənilən</button>
                 <button class="tab-btn-tk" onclick="switchTab(event, 'saved-videos')">📌 Yaddaşda</button>
             </div>
 
-            <!-- 1. Şəxsi Paylaşılan Videolar -->
             <div id="my-videos" class="tab-content-tk active">
                 {% if user_videos %}
                     {% for v in user_videos %}
@@ -2786,7 +2778,6 @@ PROFIL_TEMPLATE = '''
                 {% endif %}
             </div>
 
-            <!-- 2. Bəyənilən Videolar -->
             <div id="liked-videos" class="tab-content-tk">
                 {% if liked_videos %}
                     {% for v in liked_videos %}
@@ -2799,7 +2790,6 @@ PROFIL_TEMPLATE = '''
                 {% endif %}
             </div>
 
-            <!-- 3. Yadda Saxlanılan Videolar -->
             <div id="saved-videos" class="tab-content-tk">
                 {% if saved_videos %}
                     {% for v in saved_videos %}
@@ -2811,11 +2801,9 @@ PROFIL_TEMPLATE = '''
                     <p class="video-placeholder-text">Yadda saxlanılan video yoxdur.</p>
                 {% endif %}
             </div>
-
         </div>
     </div>
 
-    <!-- HESABI REDAKTƏ ET MODALI -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-panel">
             <h3>✏️ Hesabı Redaktə Et</h3>
@@ -2826,7 +2814,7 @@ PROFIL_TEMPLATE = '''
                 <input type="text" name="new_nickname" value="{{ user }}" class="modal-input" maxlength="7" required>
 
                 <label style="font-size:13px; color:#d4d4d8;">Öz Haqqında (Bioqrafiya):</label>
-                <input type="text" name="new_bio" value="{{ bio }}" class="modal-input" maxlength="120" placeholder="Məs: HEY, I LOVE YOU, EUROPE 🌍">
+                <input type="text" name="new_bio" value="{{ bio }}" class="modal-input" maxlength="120">
 
                 <label style="font-size:13px; color:#d4d4d8;">Profil Şəkli Seç:</label>
                 <input type="file" name="pic_file" accept="image/*" class="modal-input" style="padding:8px;">
@@ -2843,25 +2831,15 @@ PROFIL_TEMPLATE = '''
             let menu = document.getElementById('sideDropdownMenu');
             menu.classList.toggle('active');
         }
-
-        // Səhifənin hər hansı yerinə kliklədikdə paneli bağla
         window.addEventListener('click', function() {
             let menu = document.getElementById('sideDropdownMenu');
             if (menu) menu.classList.remove('active');
         });
-
-        function openEditModal() {
-            document.getElementById('editModal').style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-
+        function openEditModal() { document.getElementById('editModal').style.display = 'flex'; }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
         function switchTab(evt, tabId) {
             document.querySelectorAll('.tab-content-tk').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn-tk').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
         }
@@ -4371,37 +4349,48 @@ def profil():
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # Bio sütununun mövcudluğunu yoxlayırıq
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ''")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+
     message = None
     error = False
     
     if request.method == 'POST':
         action = request.form.get('action')
-        if action == 'change_name':
+        if action == 'edit_profile':
             new_name = request.form.get('new_nickname', '').strip()
+            new_bio = request.form.get('new_bio', '').strip()
+            
             if not new_name or len(new_name) > 7:
                 message = "Nik adı 7 hərfdən çox ola bilməz!"
                 error = True
             else:
-                cursor.execute("SELECT * FROM users WHERE nickname = %s", (new_name,))
-                if cursor.fetchone():
-                    message = "Bu nik artıq istifadə olunur!"
-                    error = True
-                else:
-                    cursor.execute("UPDATE users SET nickname = %s WHERE nickname = %s", (new_name, current_user))
-                    cursor.execute("UPDATE messages SET sender = %s WHERE sender = %s", (new_name, current_user))
-                    cursor.execute("UPDATE videos SET uploader = %s WHERE uploader = %s", (new_name, current_user))
-                    conn.commit()
-                    session['user'] = new_name
-                    current_user = new_name
-                    message = "Adınız uğurla dəyişdirildi!"
-        elif action == 'change_pic':
-            file = request.files.get('pic_file')
-            if file:
-                img_bytes = file.read()
-                b64_str = "data:image/jpeg;base64," + base64.b64encode(img_bytes).decode('utf-8')
-                cursor.execute("UPDATE users SET profile_pic = %s WHERE nickname = %s", (b64_str, current_user))
+                if new_name != current_user:
+                    cursor.execute("SELECT * FROM users WHERE nickname = %s", (new_name,))
+                    if cursor.fetchone():
+                        message = "Bu nik artıq istifadə olunur!"
+                        error = True
+                    else:
+                        cursor.execute("UPDATE users SET nickname = %s WHERE nickname = %s", (new_name, current_user))
+                        cursor.execute("UPDATE messages SET sender = %s WHERE sender = %s", (new_name, current_user))
+                        cursor.execute("UPDATE videos SET uploader = %s WHERE uploader = %s", (new_name, current_user))
+                        session['user'] = new_name
+                        current_user = new_name
+                
+                cursor.execute("UPDATE users SET bio = %s WHERE nickname = %s", (new_bio, current_user))
+                
+                file = request.files.get('pic_file')
+                if file and file.filename != '':
+                    img_bytes = file.read()
+                    b64_str = "data:image/jpeg;base64," + base64.b64encode(img_bytes).decode('utf-8')
+                    cursor.execute("UPDATE users SET profile_pic = %s WHERE nickname = %s", (b64_str, current_user))
+                    
                 conn.commit()
-                message = "Profil şəkli yeniləndi!"
+                message = "Profil uğurla yeniləndi!"
         elif action == 'delete_account':
             cursor.execute("DELETE FROM users WHERE nickname = %s", (current_user,))
             conn.commit()
@@ -4410,15 +4399,37 @@ def profil():
             session.pop('user', None)
             return redirect(url_for('index'))
 
-    cursor.execute("SELECT points, profile_pic, name_color, profile_sticker FROM users WHERE nickname = %s", (current_user,))
+    cursor.execute("SELECT points, profile_pic, name_color, profile_sticker, bio FROM users WHERE nickname = %s", (current_user,))
     user_data = cursor.fetchone()
     points = user_data[0] if user_data else 0
     pic = user_data[1] if user_data else None
     name_color = user_data[2] if user_data else 'inherit'
     profile_sticker = user_data[3] if user_data else ''
+    bio = user_data[4] if user_data and len(user_data) > 4 else ''
     
     cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = %s", (current_user,))
     gifts = cursor.fetchall()
+    
+    cursor.execute("SELECT id, uploader, video_data FROM videos WHERE uploader = %s ORDER BY id DESC", (current_user,))
+    user_videos = cursor.fetchall()
+    
+    cursor.execute('''
+        SELECT v.id, v.uploader, v.video_data 
+        FROM videos v 
+        JOIN video_likes l ON v.id = l.video_id 
+        WHERE l.username = %s 
+        ORDER BY v.id DESC
+    ''', (current_user,))
+    liked_videos = cursor.fetchall()
+    
+    cursor.execute('''
+        SELECT v.id, v.uploader, v.video_data 
+        FROM videos v 
+        JOIN video_bookmarks b ON v.id = b.video_id 
+        WHERE b.username = %s 
+        ORDER BY v.id DESC
+    ''', (current_user,))
+    saved_videos = cursor.fetchall()
     
     cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
@@ -4427,8 +4438,25 @@ def profil():
     
     cursor.close()
     conn.close()
+    
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(PROFIL_TEMPLATE, user=current_user, points=points, pic=pic, name_color=name_color, profile_sticker=profile_sticker, gifts=gifts, is_admin=is_admin, message=message, error=error, header=header_html)
+    return render_template_string(
+        PROFIL_TEMPLATE, 
+        user=current_user, 
+        points=points, 
+        pic=pic, 
+        name_color=name_color, 
+        profile_sticker=profile_sticker, 
+        bio=bio,
+        gifts=gifts, 
+        user_videos=user_videos,
+        liked_videos=liked_videos,
+        saved_videos=saved_videos,
+        is_admin=is_admin, 
+        message=message, 
+        error=error, 
+        header=header_html
+    )
 
 @app.route('/canli')
 def canli():
