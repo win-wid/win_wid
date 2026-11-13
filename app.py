@@ -5039,15 +5039,180 @@ def kukuli():
     if 'user' not in session:
         return redirect(url_for('index'))
     current_user = session['user']
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
-    has_unread_notifs = cursor.fetchone() is not None
-    cursor.close()
-    conn.close()
+    has_unread_notifs = False
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
+        has_unread_notifs = cursor.fetchone() is not None
+        cursor.close()
+        conn.close()
+    except Exception:
+        pass
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(KUKULI_TEMPLATE, current_user=current_user, header=header_html)
+    
+    html = f'''
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WİN_WİD - KUKULİ 🐻</title>
+        {COMMON_STYLE}
+        <style>
+            .ai-container {{
+                background: rgba(24, 24, 27, 0.92);
+                flex: 1;
+                border: 1px solid rgba(249, 115, 22, 0.4);
+                border-radius: 22px;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }}
+            .ai-header {{
+                background: rgba(9, 9, 11, 0.9);
+                padding: 15px 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+            .ai-messages {{
+                flex: 1;
+                padding: 18px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }}
+            .ai-bubble {{
+                padding: 12px 16px;
+                border-radius: 16px;
+                max-width: 82%;
+                font-size: 15px;
+                line-height: 1.5;
+                color: #f8fafc;
+            }}
+            .bot-msg {{
+                background: rgba(39, 39, 42, 0.9);
+                border: 1px solid rgba(249, 115, 22, 0.35);
+                align-self: flex-start;
+            }}
+            .user-msg {{
+                background: #f97316;
+                color: #fff;
+                align-self: flex-end;
+            }}
+            .quick-questions {{
+                display: flex;
+                gap: 8px;
+                padding: 10px 14px;
+                overflow-x: auto;
+                background: rgba(9, 9, 11, 0.6);
+            }}
+            .quick-btn {{
+                background: rgba(249, 115, 22, 0.2);
+                border: 1px solid #f97316;
+                color: #fb923c;
+                padding: 6px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 700;
+                white-space: nowrap;
+                cursor: pointer;
+            }}
+            .ai-form {{
+                display: flex;
+                padding: 12px;
+                background: rgba(9, 9, 11, 0.9);
+                gap: 10px;
+            }}
+            .ai-input {{
+                flex: 1;
+                height: 46px;
+                padding: 0 15px;
+                background: #18181b;
+                border: 1px solid #f97316;
+                border-radius: 12px;
+                color: #fff;
+                font-size: 15px;
+            }}
+            .ai-send {{
+                background: #f97316;
+                color: white;
+                border: none;
+                padding: 0 20px;
+                border-radius: 12px;
+                font-weight: 700;
+                cursor: pointer;
+            }}
+        </style>
+    </head>
+    <body>
+        {header_html}
+        <div class="ai-container">
+            <div class="ai-header">
+                <span style="font-size:28px;">🐻</span>
+                <div>
+                    <h3 style="margin:0; font-size:17px; color:#f97316;">KUKULİ 🐻</h3>
+                    <span style="font-size:12px; color:#4ade80;">● Aktivdir</span>
+                </div>
+            </div>
+
+            <div class="ai-messages" id="aiMessages">
+                <div class="ai-bubble bot-msg">
+                    Salam, <b>@{current_user}</b>! 👋 Mən <b>KUKULİ 🐻</b>.<br>
+                    WİN_WİD saytının təhlükəsizlik sistemi, bal qazanmaq, canlı yayım və bütün bölmələri haqqında mənə sual verə bilərsən.
+                </div>
+            </div>
+
+            <div class="quick-questions">
+                <button class="quick-btn" onclick="askQuick('Təhlükəsizlik və polis sistemi necə işləyir?')">🛡️ Təhlükəsizlik</button>
+                <button class="quick-btn" onclick="askQuick('Necə bal qazana bilərəm?')">💰 Bal (WON)</button>
+                <button class="quick-btn" onclick="askQuick('Canlı yayım necə açılır?')">🔴 Canlı</button>
+                <button class="quick-btn" onclick="askQuick('Marketdə nələr var?')">🛍️ Market</button>
+            </div>
+
+            <form class="ai-form" onsubmit="sendToAI(event)">
+                <input type="text" id="aiInput" class="ai-input" placeholder="KUKULİ 🐻-yə sualını yaz..." required autocomplete="off">
+                <button type="submit" class="ai-send">Soruş</button>
+            </form>
+        </div>
+
+        <script>
+            function askQuick(text) {{
+                document.getElementById('aiInput').value = text;
+                sendToAI(new Event('submit'));
+            }}
+
+            function sendToAI(e) {{
+                e.preventDefault();
+                let input = document.getElementById('aiInput');
+                let msg = input.value.trim();
+                if (!msg) return;
+
+                let box = document.getElementById('aiMessages');
+                box.innerHTML += '<div class="ai-bubble user-msg">' + msg + '</div>';
+                input.value = '';
+                box.scrollTop = box.scrollHeight;
+
+                fetch('/kukuli/ask', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{ question: msg }})
+                }})
+                .then(res => res.json())
+                .then(data => {{
+                    box.innerHTML += '<div class="ai-bubble bot-msg">' + data.answer + '</div>';
+                    box.scrollTop = box.scrollHeight;
+                }});
+            }}
+        </script>
+    </body>
+    </html>
+    '''
+    return render_template_string(html)
 
 @app.route('/kukuli/ask', methods=['POST'])
 def kukuli_ask():
@@ -5055,90 +5220,32 @@ def kukuli_ask():
         return jsonify({'answer': 'Zəhmət olmasa əvvəlcə hesaba daxil olun.'})
         
     current_user = session['user']
-    data = request.get_json()
-    q = data.get('question', '').lower().strip()
+    data = request.get_json(silent=True) or {}
+    q = str(data.get('question', '')).lower().strip()
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
-    res = cursor.fetchone()
-    user_points = res[0] if res else 0
-    cursor.close()
-    conn.close()
+    user_points = 0
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
+        res = cursor.fetchone()
+        user_points = res[0] if res else 0
+        cursor.close()
+        conn.close()
+    except Exception:
+        pass
 
     if any(w in q for w in ['salam', 'necəsən', 'kim', 'nəsən', 'adın', 'kukuli']):
-        ans = f"Salam @{current_user}! Mən <b>KUKULİ 🐻</b> — WİN_WİD platformasının rəsmi süni intellekt köməkçisiyəm. Sənə saytın iş prinsipi və qaydaları haqqında kömək etmək üçün buradayam."
-    
-    elif any(w in q for w in ['təhlükəsizlik', 'polis', 'məhkəmə', 'arxiv', 'blok', 'qayda', 'haker', 'şifrə']):
-        ans = (
-            "🛡️ <b>WİN_WİD Təhlükəsizlik və Nəzarət Sistemi:</b><br>"
-            "1. <b>Polis Nəzarəti:</b> Sayt rəhbərliyinin təyin etdiyi polislər ümumi çata və qaydalara birbaşa nəzarət edir.<br>"
-            "2. <b>Arxiv Otağı:</b> Qaydaları pozan və ya söyüş yazan şəxslərin mesajları xəbərdarlıqsız silinir və silən polisin məlumatı ilə birlikdə İdarə Mərkəzindəki <i>Arxiv Otağına</i> düşür.<br>"
-            "3. <b>Keçici Blok və Məhkəmə:</b> Qayda pozanlar 24 saatlıq bloklanır və işləri avtomatik <i>Məhkəmə Bölməsinə</i> yönləndirilir. Yekun hökmü Sayt Rəhbərliyi (<b>WİN_WİD</b>) verir.<br>"
-            "4. <b>Hesab Təhlükəsizliyi:</b> Şifrənizi heç kimlə paylaşmayın."
-        )
-
+        ans = f"Salam @{current_user}! Mən <b>KUKULİ 🐻</b> — WİN_WİD platformasının süni intellekt köməkçisiyəm."
+    elif any(w in q for w in ['təhlükəsizlik', 'polis', 'məhkəmə', 'arxiv', 'blok', 'qayda', 'haker']):
+        ans = "🛡️ <b>Təhlükəsizlik Sistemi:</b> Saytda polis nəzarəti var. Qayda pozanların mesajları silinib <i>Arxiv Otağına</i> düşür, özləri 24 saat bloklanır və işləri <i>Məhkəmə Bölməsinə</i> göndərilir. Yekun qərarı <b>WİN_WİD</b> verir."
     elif any(w in q for w in ['bal', 'won', 'pul', 'oyun', 'wow', 'sual']):
-        ans = (
-            f"💰 <b>Bal (WON) Sistemi (Sənin balansın: {user_points} Bal):</b><br>"
-            "• Yeni qeydiyyatdan keçən hər istifadəçiyə <b>20 Bal</b> hədiyyə verilir.<br>"
-            "• <b>Oyunlar Bölməsi (🎮):</b> <i>WOW Oyunu</i> (sözdə əskik hərfi tapmaq) və <i>Sual-Cavab Oyunu</i> (30 saniyəlik suallar) oynayaraq hər düzgün cavaba <b>+5 Bal</b> qazana bilərsən.<br>"
-            "• <b>Canlı Yayım:</b> Canlı yayımda topladığın hər 50 bəyəniyə görə yayımı bitirdikdə <b>+10 Bal</b> bonus qazanırsan."
-        )
-
-    elif any(w in q for w in ['canlı', 'yayım', 'kamera', 'efir']):
-        ans = (
-            "🔴 <b>Canlı Yayım Bölməsi:</b><br>"
-            "• Canlı yayım açmaq üçün balansında ən azı <b>60 Bal</b> olmalıdır.<br>"
-            "• Yayım zamanı ön və arxa kameranı dəyişə (Ekranı Çevir), izləyicilərlə yazışa və hədiyyələr (10 Bal dəyərində) qəbul edə bilərsən.<br>"
-            "• Hər 50 bəyəni sənə yayım bitəndə +10 Bal qazandırır."
-        )
-
+        ans = f"💰 <b>Bal Sistemi (Balansın: {user_points} Bal):</b> Qeydiyyatda 20 bal verilir. Oyunlar bölməsindəki <i>WOW</i> və <i>Sual-Cavab</i> oyunlarında hər düzgün cavaba <b>+5 Bal</b>, canlı yayımda isə hər 50 bəyəniyə <b>+10 Bal</b> qazanırsan."
+    elif any(w in q for w in ['canlı', 'yayım', 'kamera']):
+        ans = "🔴 <b>Canlı Yayım:</b> Canlı açmaq üçün ən azı <b>60 Bal</b> lazımdır. Yayım zamanı kameranı çevirə, hədiyyə qəbul edə və bəyənilərdən bal qazana bilərsən."
     elif any(w in q for w in ['market', 'mağaza', 'rəng', 'nik', 'effekt', 'hədiyyə']):
-        ans = (
-            "🛍️ <b>Market Bölməsi:</b><br>"
-            "• <b>Giriş Effekti (400-500 Bal):</b> Çata daxil olanda bütün istifadəçilərə xüsusi bildiriş gedir.<br>"
-            "• <b>Rəngli Nik (25 Bal):</b> Adının rəngini (Sarı, Qırmızı, Göy, Bənövşəyi, Yaşıl) dəyişir.<br>"
-            "• <b>Rəngli Mesaj (25 Bal):</b> Yazdığın mesajların rəngini dəyişir.<br>"
-            "• <b>Hədiyyə Göndərmək (10 Bal):</b> İstənilən istifadəçinin profilinə stiker-hədiyyə göndərə bilərsən."
-        )
-
-    elif any(w in q for w in ['vidyo', 'video', 'shorts', 'yüklə']):
-        ans = (
-            "📹 <b>Vidyolar (Shorts) Bölməsi:</b><br>"
-            "• Sağ yuxarıdakı <i>'➕ Video Yüklə'</i> düyməsi ilə maksimum <b>15 MB</b> həcmində (30 saniyəlik) videolar paylaşa bilərsən.<br>"
-            "• Videolara bəyəni atmaq, şərh yazmaq və başqa istifadəçiyə göndərmək mümkündür."
-        )
-
-    elif any(w in q for w in ['çat', 'mesaj', 'şəxsi', 'yazış']):
-        ans = (
-            "💬 <b>Çat və Mesajlaşma:</b><br>"
-            "• <b>Ümumi Çat:</b> Bütün istifadəçilərlə eyni anda danışmaq, mesajlara reaksiya (emoji) vermək və cavab (reply) yazmaq olar.<br>"
-            "• <b>Şəxsi Çat:</b> <i>İstifadəçilər (👥)</i> bölməsinə daxil olub istədiyin adamın profilinə baxa, ona özəl mesaj yaza, bloklaya və ya şikayət edə bilərsən."
-        )
-
-    elif any(w in q for w in ['profil', 'ad', 'şəkil', 'sil', 'çıxış']):
-        ans = (
-            "👤 <b>Profil Bölməsi:</b><br>"
-            "• Profilindən nik adını dəyişə (maksimum 7 hərf), profil şəkli yükləyə, sənə göndərilən hədiyyələrə baxa və ya hesabını silə/çıxış edə bilərsən."
-        )
-
-    elif any(w in q for w in ['şikayət', 'problem', 'admin', 'rəhbər']):
-        ans = (
-            "📢 <b>Şikayət və İdarəetmə:</b><br>"
-            "• Saytın baş admini və yaradıcısı <b>WİN_WİD</b>-dir.<br>"
-            "• Hər hansı texniki problem və ya istifadəçi şikayəti olduqda <code>/sikayet</code> bölməsindən və ya istifadəçinin profilindəki <i>'Şikayət Et'</i> düyməsindən rəhbərliyə birbaşa bildiriş göndərə bilərsən."
-        )
-
+        ans = "🛍️ <b>Market:</b> Giriş effekti (400-500 bal), Rəngli nik (25 bal), Rəngli mesaj (25 bal) ala və digər istifadəçilərə 10 bala hədiyyə göndərə bilərsən."
     else:
-        ans = (
-            "Sualını tam anlamadım, amma mən — <b>KUKULİ 🐻</b> sənə bu mövzularda dəqiq məlumat verə bilərəm:<br>"
-            "• <b>Təhlükəsizlik, Polis və Məhkəmə sistemi</b><br>"
-            "• <b>Bal (WON) qazanmaq və Oyunlar</b><br>"
-            "• <b>Canlı yayım açmaq qaydaları</b><br>"
-            "• <b>Market (Rəngli nik, Giriş effekti, Hədiyyələr)</b><br>"
-            "• <b>Vidyolar (Shorts), Profil və Şikayət sistemi</b><br>"
-            "Zəhmət olmasa bunlardan biri ilə bağlı yaz."
-        )
+        ans = "Mən <b>KUKULİ 🐻</b>! Sənə <b>Təhlükəsizlik/Polis</b>, <b>Bal (WON) qazanmaq</b>, <b>Canlı yayım</b> və <b>Market</b> haqqında məlumat verə bilərəm. Bunlardan birini soruş!"
 
     return jsonify({'answer': ans})
