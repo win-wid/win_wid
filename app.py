@@ -2464,17 +2464,18 @@ PROFIL_TEMPLATE = '''
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             overflow-y: auto;
             padding: 20px;
             box-sizing: border-box;
+            position: relative;
         }
         .profile-container {
-            background: rgba(24, 24, 27, 0.85);
+            background: rgba(24, 24, 27, 0.92);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 28px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             gap: 18px;
@@ -2482,217 +2483,247 @@ PROFIL_TEMPLATE = '''
             max-width: 580px;
             box-sizing: border-box;
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            position: relative;
         }
-        .profile-title {
-            font-size: 18px;
-            font-weight: 700;
+        
+        /* Sağ yuxarı küncdə ☰ üç düz xətt düyməsi */
+        .menu-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 20;
+            transition: background 0.2s;
+        }
+        .menu-toggle-btn:hover {
+            background: rgba(249, 115, 22, 0.2);
+            border-color: #f97316;
+        }
+        .menu-toggle-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        /* Sağ küncdən açılan kiçik panel */
+        .side-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: rgba(18, 18, 22, 0.98);
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            border-radius: 16px;
+            padding: 10px;
+            width: 200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 50;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .side-dropdown-menu.active {
+            display: flex;
+        }
+        .dropdown-item {
+            background: transparent;
+            border: none;
             color: #f8fafc;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 14px;
-            margin: 0;
-            text-align: center;
-        }
-        .profile-header {
+            padding: 12px 14px;
+            text-align: left;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 20px;
-            background: rgba(39, 39, 42, 0.6);
-            padding: 18px 22px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 10px;
+            text-decoration: none;
+            transition: background 0.2s;
         }
-        .avatar-wrapper {
-            position: relative;
-            width: 72px;
-            height: 72px;
+        .dropdown-item:hover {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+        }
+        .dropdown-item.danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        /* TikTok Stil Profil Başlığı */
+        .profile-header-tk {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .avatar-wrapper-tk {
+            width: 96px;
+            height: 96px;
             border-radius: 50%;
-            border: 2px solid #ef4444;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-            overflow: visible;
+            border: 2px solid #f97316;
+            overflow: hidden;
             background: #111;
-            flex-shrink: 0;
+            margin-bottom: 12px;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
         }
-        .avatar-wrapper img {
+        .avatar-wrapper-tk img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%;
         }
-        .crown-icon {
-            position: absolute;
-            bottom: -4px;
-            right: -4px;
-            font-size: 14px;
-            background: #18181b;
-            border-radius: 50%;
-            padding: 4px;
-            border: 1px solid #f97316;
-        }
-        .profile-info h3 {
-            margin: 0 0 6px 0;
+        .username-tk {
             font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-        }
-        .profile-info .status {
-            color: #4ade80;
-            font-size: 14px;
-            font-weight: 600;
-            margin: 0;
-        }
-        .gifts-box {
-            background: rgba(39, 39, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 14px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            min-height: 50px;
-            align-items: center;
-        }
-        .gift-item {
-            font-size: 24px;
-            background: rgba(24, 24, 27, 0.9);
-            padding: 8px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(249, 115, 22, 0.4);
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 0;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 14px 18px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            background: rgba(9, 9, 11, 0.7);
+            font-weight: 800;
             color: #f8fafc;
-            font-size: 15px;
-            box-sizing: border-box;
-            text-align: center;
         }
-        input[type="text"]:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); }
-        input[type="text"]::placeholder { color: #a1a1aa; }
-        input[type="file"] {
-            display: none;
+        .handle-tk {
+            color: #a1a1aa;
+            font-size: 13px;
+            margin-top: 2px;
+            margin-bottom: 10px;
         }
-        .btn-blue {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
-            transition: transform 0.2s;
-        }
-        .btn-blue:hover { transform: translateY(-1px); }
-        .btn-admin {
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            text-decoration: none;
-            box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
-        }
-        .btn-gray {
-            background: rgba(39, 39, 42, 0.9);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 14px;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            transition: background 0.2s;
-        }
-        .btn-gray:hover { background: rgba(39, 39, 42, 1); }
-        .btn-red {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
-            transition: transform 0.2s;
-        }
-        .btn-red:hover { transform: translateY(-1px); }
-        .msg-alert {
+        .bio-tk {
             font-size: 14px;
-            text-align: center;
-            margin: 0;
-            font-weight: 600;
+            color: #d4d4d8;
+            margin-bottom: 20px;
+            max-width: 420px;
+            word-break: break-word;
+            line-height: 1.4;
         }
-                /* Reklam lenti dizaynı */
-        .ad-banner-container {
-            width: 100%;
-            height: 44px;
-            border: 2px solid #ef4444;
-            border-radius: 12px;
-            background-color: #09090b;
-            overflow: hidden;
-            position: relative;
+
+        /* Tab Düymələri (TikTok Stili) */
+        .tabs-tk {
             display: flex;
-            align-items: center;
-            box-sizing: border-box;
-            margin-bottom: 5px;
+            justify-content: space-around;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
         }
-        .ad-banner-track {
-            display: flex;
-            width: 100%;
-            height: 100%;
+        .tab-btn-tk {
+            background: none;
+            border: none;
+            color: #71717a;
+            font-size: 15px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: color 0.2s;
             position: relative;
         }
-        .ad-slide {
+        .tab-btn-tk.active {
+            color: #fff;
+        }
+        .tab-btn-tk.active::after {
+            content: '';
             position: absolute;
-            top: 0;
+            bottom: -1px;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 2px;
+            background: #f97316;
+        }
+
+        /* Video Grid Bölməsi */
+        .tab-content-tk {
+            display: none;
+        }
+        .tab-content-tk.active {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .video-card-tk {
+            background-color: #27272a;
+            aspect-ratio: 9/16;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-card-tk video, .video-card-tk img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-placeholder-text {
+            font-size: 13px;
+            color: #a1a1aa;
+            text-align: center;
+            padding: 20px;
+            grid-column: span 3;
+        }
+
+        /* Redaktə Modalı (Popup) */
+        .modal-overlay {
+            display: {% if show_edit %}flex{% else %}none{% endif %};
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            text-decoration: none;
-            color: #f8fafc;
-            font-size: 13px;
-            font-weight: 600;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.6s ease-in-out;
-            padding: 0 10px;
+        }
+        .modal-panel {
+            background: #18181b;
+            border: 2px solid #f97316;
+            border-radius: 20px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .modal-panel h3 { margin: 0; color: #f97316; font-size: 18px; text-align: center; }
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #09090b;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
             box-sizing: border-box;
         }
-        .ad-slide.active {
-            opacity: 1;
-            transform: translateX(0);
+        .modal-input:focus { border-color: #f97316; outline: none; }
+        .btn-modal-save {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
         }
-        .ad-slide.exit {
-            opacity: 0;
-            transform: translateX(-100%);
+        .btn-modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            width: 100%;
         }
     </style>
 </head>
@@ -2701,95 +2732,141 @@ PROFIL_TEMPLATE = '''
 
     <div class="profile-wrapper">
         <div class="profile-container">
-                    <!-- Qırmızı reklam lenti -->
-            <div class="ad-banner-container">
-                <div class="ad-banner-track">
-                    <a href="#" class="ad-slide active">🚀 Tərəfdaş Saytı: WİN_WİD Dostları</a>
-                    <a href="#" class="ad-slide">🔥 Yeni Elanlar və Xidmətlər Burda!</a>
-                    <a href="#" class="ad-slide">📢 Reklam yerləşdirmək üçün bizə yazın!</a>
-                    <a href="#" class="ad-slide">💎 Reklam Qiyməti və Vaxtı: 1 Ay (2 AZN) / 2 Ay (4 AZN) / 3 Ay (6 AZN)</a>
-                </div>
-            </div>
-            <p class="profile-title">Mənim Profilim</p>
             
+            <!-- Sağ yuxarı küncdə ☰ üç düz xətt düyməsi -->
+            <div class="menu-toggle-btn" onclick="toggleSideMenu(event)">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <!-- Sağ küncdən açılan panel -->
+            <div class="side-dropdown-menu" id="sideDropdownMenu">
+                <button class="dropdown-item" onclick="openEditModal()">✏️ Hesabı Redaktə Et</button>
+                <a href="/logout" class="dropdown-item">🚪 Hesabdan Çıx</a>
+                <form method="POST" onsubmit="return confirm('DİQQƏT: Hesabınızı silmək istədiyinizə əminsinizmi? Bütün məlumatlarınız, videolarınız və balansınız 1 dəfəlik silinəcək!');" style="margin:0;">
+                    <input type="hidden" name="action" value="delete_account">
+                    <button type="submit" class="dropdown-item danger" style="width:100%;">🗑️ Hesabı Sil</button>
+                </form>
+            </div>
+
             {% if message %}
-                <p class="msg-alert" style="color: {% if error %}#f87171{% else %}#4ade80{% endif %};">{{ message }}</p>
+                <p style="font-size: 13px; text-align: center; margin: 0; font-weight: 700; color: {% if error %}#f87171{% else %}#4ade80{% endif %};">{{ message }}</p>
             {% endif %}
 
-            <div class="profile-header">
-                <div class="avatar-wrapper">
+            <!-- TikTok Profil Başlığı (Şəkil, Ad, Bio) -->
+            <div class="profile-header-tk">
+                <div class="avatar-wrapper-tk">
                     <img src="{{ pic if pic else 'https://i.imgur.com/6VBx3io.png' }}" alt="Profil Şəkli">
-                    <div class="crown-icon">👤</div>
                 </div>
-                <div class="profile-info">
-                    <h3 style="color: {{ name_color if name_color and name_color != 'inherit' and name_color != '#eab308' else '#f8fafc' }};">@{{ user }} {{ profile_sticker }} 👤</h3>
-                    <p class="status">● Aktivdir</p>
+                <div class="username-tk" style="color: {{ name_color if name_color and name_color != 'inherit' else '#f8fafc' }};">
+                    @{{ user }} {{ profile_sticker }}
                 </div>
+                <div class="handle-tk">Bal: {{ points }} 💰</div>
+                <div class="bio-tk">{{ bio if bio else 'HEY, I LOVE YOU, EUROPE 🌍' }}</div>
             </div>
 
-            {% if is_admin %}
-                <a href="/admin/sikayetler" class="btn-admin">⚙ Şikayət İdarəetmə Paneli (Admin)</a>
-            {% endif %}
-
-            <div>
-                <p style="font-size: 14px; margin: 0 0 8px 0; color: #d4d4d8; font-weight: 600;">Hədiyyələr / Stikerlər:</p>
-                <div class="gifts-box">
-                    {% if gifts %}
-                        {% for g in gifts %}
-                            <span class="gift-item" title="Göndərən: {{ g[1] }}">{{ g[0] }}</span>
-                        {% endfor %}
-                    {% else %}
-                        <span style="font-size: 14px; color: #a1a1aa;">Hələ ki hədiyyə yoxdur.</span>
-                    {% endif %}
-                </div>
+            <!-- Tab Düymələri (Videolar, Bəyənilən, Yadda Saxlanılan) -->
+            <div class="tabs-tk">
+                <button class="tab-btn-tk active" onclick="switchTab(event, 'my-videos')">🎬 Videolar</button>
+                <button class="tab-btn-tk" onclick="switchTab(event, 'liked-videos')">❤️ Bəyənilən</button>
+                <button class="tab-btn-tk" onclick="switchTab(event, 'saved-videos')">📌 Yaddaşda</button>
             </div>
 
-            <form method="POST">
-                <input type="hidden" name="action" value="change_name">
-                <input type="text" name="new_nickname" placeholder="Yeni nik adı (max 7 hərf)" maxlength="7" required>
-                <button type="submit" class="btn-blue">Adı Dəyiş</button>
-            </form>
+            <!-- 1. Şəxsi Paylaşılan Videolar -->
+            <div id="my-videos" class="tab-content-tk active">
+                {% if user_videos %}
+                    {% for v in user_videos %}
+                        <div class="video-card-tk">
+                            <video src="{{ v[2] }}" muted playsinline></video>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="video-placeholder-text">Hələ ki şəxsi video paylaşılmayıb.</p>
+                {% endif %}
+            </div>
 
-            <form method="POST" enctype="multipart/form-data" id="picForm">
-                <input type="hidden" name="action" value="change_pic">
-                <input type="file" name="pic_file" id="picInput" accept="image/*" onchange="document.getElementById('picForm').submit();">
-                <button type="button" class="btn-gray" onclick="document.getElementById('picInput').click();">Profil Şəklini Dəyiş</button>
-            </form>
+            <!-- 2. Bəyənilən Videolar -->
+            <div id="liked-videos" class="tab-content-tk">
+                {% if liked_videos %}
+                    {% for v in liked_videos %}
+                        <div class="video-card-tk">
+                            <video src="{{ v[2] }}" muted playsinline></video>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="video-placeholder-text">Bəyənilən video yoxdur.</p>
+                {% endif %}
+            </div>
 
-            <button type="button" class="btn-blue" onclick="alert('Şəkil yadda saxlanıldı!');">Şəkli Yadda Saxla</button>
+            <!-- 3. Yadda Saxlanılan Videolar -->
+            <div id="saved-videos" class="tab-content-tk">
+                {% if saved_videos %}
+                    {% for v in saved_videos %}
+                        <div class="video-card-tk">
+                            <video src="{{ v[2] }}" muted playsinline></video>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="video-placeholder-text">Yadda saxlanılan video yoxdur.</p>
+                {% endif %}
+            </div>
 
-            <form method="POST" onsubmit="return confirm('Hesabınızı silmək istədiyinizə əminsinizmi?');">
-                <input type="hidden" name="action" value="delete_account">
-                <button type="submit" class="btn-red">Hesabımı Sil</button>
-            </form>
-
-            <a href="/logout" class="btn-red" style="text-decoration: none; box-sizing: border-box; display: block; text-align: center;">Hesabdan Çıxış</a>
         </div>
     </div>
-</body>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let slides = document.querySelectorAll('.ad-slide');
-            if (slides.length === 0) return;
 
-            let currentIndex = 0;
-            setInterval(() => {
-                let currentSlide = slides[currentIndex];
-                currentSlide.classList.remove('active');
-                currentSlide.classList.add('exit');
-
-                currentIndex = (currentIndex + 1) % slides.length;
-                let nextSlide = slides[currentIndex];
+    <!-- HESABI REDAKTƏ ET MODALI -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-panel">
+            <h3>✏️ Hesabı Redaktə Et</h3>
+            <form method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:12px;">
+                <input type="hidden" name="action" value="edit_profile">
                 
-                nextSlide.classList.remove('exit');
-                nextSlide.classList.add('active');
+                <label style="font-size:13px; color:#d4d4d8;">Nik Adı (Max 7 hərf):</label>
+                <input type="text" name="new_nickname" value="{{ user }}" class="modal-input" maxlength="7" required>
 
-                setTimeout(() => {
-                    currentSlide.classList.remove('exit');
-                }, 600);
-            }, 3500);
+                <label style="font-size:13px; color:#d4d4d8;">Öz Haqqında (Bioqrafiya):</label>
+                <input type="text" name="new_bio" value="{{ bio }}" class="modal-input" maxlength="120" placeholder="Məs: HEY, I LOVE YOU, EUROPE 🌍">
+
+                <label style="font-size:13px; color:#d4d4d8;">Profil Şəkli Seç:</label>
+                <input type="file" name="pic_file" accept="image/*" class="modal-input" style="padding:8px;">
+
+                <button type="submit" class="btn-modal-save">Yadda Saxla</button>
+            </form>
+            <button type="button" class="btn-modal-close" onclick="closeEditModal()">Bağla</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSideMenu(e) {
+            e.stopPropagation();
+            let menu = document.getElementById('sideDropdownMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Səhifənin hər hansı yerinə kliklədikdə paneli bağla
+        window.addEventListener('click', function() {
+            let menu = document.getElementById('sideDropdownMenu');
+            if (menu) menu.classList.remove('active');
         });
+
+        function openEditModal() {
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content-tk').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn-tk').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
     </script>
+</body>
 </html>
 '''
 
