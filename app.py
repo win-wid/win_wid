@@ -4349,9 +4349,43 @@ def profil():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Bio sütununun mövcudluğunu yoxlayırıq
+    # Lazımi sütun və cədvəllərin mövcudluğunu təmin edirik
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ''")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS video_bookmarks (
+                id SERIAL PRIMARY KEY,
+                video_id INTEGER,
+                username TEXT
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS video_likes (
+                id SERIAL PRIMARY KEY,
+                video_id INTEGER,
+                username TEXT
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS gifts (
+                id SERIAL PRIMARY KEY,
+                receiver TEXT,
+                sender TEXT,
+                gift TEXT
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS notifications (
+                id SERIAL PRIMARY KEY,
+                username TEXT,
+                is_read INTEGER DEFAULT 0
+            )
+        """)
         conn.commit()
     except Exception:
         conn.rollback()
@@ -4399,40 +4433,65 @@ def profil():
             session.pop('user', None)
             return redirect(url_for('index'))
 
-    cursor.execute("SELECT points, profile_pic, name_color, profile_sticker, bio FROM users WHERE nickname = %s", (current_user,))
-    user_data = cursor.fetchone()
+    try:
+        cursor.execute("SELECT points, profile_pic, name_color, profile_sticker, bio FROM users WHERE nickname = %s", (current_user,))
+        user_data = cursor.fetchone()
+    except Exception:
+        user_data = None
+        conn.rollback()
+
     points = user_data[0] if user_data else 0
     pic = user_data[1] if user_data else None
     name_color = user_data[2] if user_data else 'inherit'
     profile_sticker = user_data[3] if user_data else ''
     bio = user_data[4] if user_data and len(user_data) > 4 else ''
     
-    cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = %s", (current_user,))
-    gifts = cursor.fetchall()
+    try:
+        cursor.execute("SELECT gift, sender FROM gifts WHERE receiver = %s", (current_user,))
+        gifts = cursor.fetchall()
+    except Exception:
+        gifts = []
+        conn.rollback()
     
-    cursor.execute("SELECT id, uploader, video_data FROM videos WHERE uploader = %s ORDER BY id DESC", (current_user,))
-    user_videos = cursor.fetchall()
+    try:
+        cursor.execute("SELECT id, uploader, video_data FROM videos WHERE uploader = %s ORDER BY id DESC", (current_user,))
+        user_videos = cursor.fetchall()
+    except Exception:
+        user_videos = []
+        conn.rollback()
     
-    cursor.execute('''
-        SELECT v.id, v.uploader, v.video_data 
-        FROM videos v 
-        JOIN video_likes l ON v.id = l.video_id 
-        WHERE l.username = %s 
-        ORDER BY v.id DESC
-    ''', (current_user,))
-    liked_videos = cursor.fetchall()
+    try:
+        cursor.execute('''
+            SELECT v.id, v.uploader, v.video_data 
+            FROM videos v 
+            JOIN video_likes l ON v.id = l.video_id 
+            WHERE l.username = %s 
+            ORDER BY v.id DESC
+        ''', (current_user,))
+        liked_videos = cursor.fetchall()
+    except Exception:
+        liked_videos = []
+        conn.rollback()
     
-    cursor.execute('''
-        SELECT v.id, v.uploader, v.video_data 
-        FROM videos v 
-        JOIN video_bookmarks b ON v.id = b.video_id 
-        WHERE b.username = %s 
-        ORDER BY v.id DESC
-    ''', (current_user,))
-    saved_videos = cursor.fetchall()
+    try:
+        cursor.execute('''
+            SELECT v.id, v.uploader, v.video_data 
+            FROM videos v 
+            JOIN video_bookmarks b ON v.id = b.video_id 
+            WHERE b.username = %s 
+            ORDER BY v.id DESC
+        ''', (current_user,))
+        saved_videos = cursor.fetchall()
+    except Exception:
+        saved_videos = []
+        conn.rollback()
     
-    cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
-    has_unread_notifs = cursor.fetchone() is not None
+    try:
+        cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
+        has_unread_notifs = cursor.fetchone() is not None
+    except Exception:
+        has_unread_notifs = False
+        conn.rollback()
     
     is_admin = (current_user.lower() == 'win_wid')
     
@@ -4456,7 +4515,7 @@ def profil():
         message=message, 
         error=error, 
         header=header_html
-    )
+        )
 
 @app.route('/canli')
 def canli():
