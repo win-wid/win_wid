@@ -122,13 +122,6 @@ def init_db():
                 PRIMARY KEY (video_id, username)
             )
         ''')
-                cursor.execute('''
-            CREATE TABLE IF NOT EXISTS video_bookmarks (
-                video_id INTEGER,
-                username TEXT,
-                PRIMARY KEY (video_id, username)
-            )
-        ''')
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS video_comments (
                 id SERIAL PRIMARY KEY,
@@ -2308,13 +2301,6 @@ VIDYO_TEMPLATE = '''
                             </button>
                             <span class="action-count">Paylaş</span>
                         </div>
-                        
-                         <div style="display:flex; flex-direction:column; align-items:center;">
-                            <button class="action-item" onclick="toggleBookmark('{{ v[0] }}')">
-                                <span id="bookmark-icon-{{ v[0] }}">{{ '📌' if v[7] else '📍' }}</span>
-                            </button>
-                            <span class="action-count">Yaddaş</span>
-                        </div>
                     </div>
 
                     <div class="comments-drawer" id="drawer-{{ v[0] }}">
@@ -2362,15 +2348,6 @@ VIDYO_TEMPLATE = '''
                 if(data.success) {
                     document.getElementById('like-count-' + videoId).innerText = data.count;
                     document.getElementById('like-icon-' + videoId).innerText = data.liked ? '❤️' : '🤍';
-                }
-            });
-        }
-                function toggleBookmark(videoId) {
-            fetch('/vidyo/bookmark/' + videoId, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('bookmark-icon-' + videoId).innerText = data.bookmarked ? '📌' : '📍';
                 }
             });
         }
@@ -3563,7 +3540,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openEntryEffectModal()">
                     <span style="font-size:32px;">⚡</span>
                     <span style="font-weight:700;">GİRİŞ EFEKTİ AL</span>
-                    <span class="shop-item-price">400 Won</span>
+                    <span class="shop-item-price">500 BAL</span>
                 </div>
             </div>
         </div>
@@ -3574,7 +3551,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openNickModal()">
                     <span style="font-size:32px;">🏷️</span>
                     <span style="font-weight:700;">RƏNGLİ NİK AL</span>
-                    <span class="shop-item-price">25 Won</span>
+                    <span class="shop-item-price">25 BAL</span>
                 </div>
             </div>
         </div>
@@ -3585,7 +3562,7 @@ MAGAZA_TEMPLATE = '''
                 <div class="shop-item-btn" onclick="openMsgModal()">
                     <span style="font-size:32px;">✉️</span>
                     <span style="font-weight:700;">RƏNGLİ MESAJ AL</span>
-                    <span class="shop-item-price">25 Won</span>
+                    <span class="shop-item-price">25 BAL</span>
                 </div>
             </div>
         </div>
@@ -3604,7 +3581,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="entryEffectModal">
         <div class="modal-panel" style="text-align: center;">
-            <h3>⚡ GİRİŞ EFEKTİ (400 Won)</h3>
+            <h3>⚡ GİRİŞ EFEKTİ (500 Bal)</h3>
             <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5;">
                 Hər dəfə çata daxil olduğunuzda bütün istifadəçilərə xüsusi bildiriş mesajı görünəcək:<br>
                 <code style="color: #f97316; font-weight: bold;">⚡ @nik çat otağına daxil oldu!</code>
@@ -3618,7 +3595,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="nickModal">
         <div class="modal-panel">
-            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Won)</h3>
+            <h3>🏷️ NİK RƏNGİNİ SEÇİN (25 Bal)</h3>
             <form method="POST" action="/magaza/al_nik">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -3634,7 +3611,7 @@ MAGAZA_TEMPLATE = '''
 
     <div class="modal-overlay" id="msgModal">
         <div class="modal-panel">
-            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Won)</h3>
+            <h3>💬 MESAJ RƏNGİNİ SEÇİN (25 Bal)</h3>
             <form method="POST" action="/magaza/al_mesaj">
                 <div class="color-options">
                     <button type="submit" name="color" value="#eab308" class="color-btn" style="background:#eab308;">SARI</button>
@@ -4265,10 +4242,7 @@ def vidyo():
         cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = %s ORDER BY id ASC", (v_id,))
         comments = cursor.fetchall()
         
-        cursor.execute("SELECT * FROM video_bookmarks WHERE video_id = %s AND username = %s", (v_id, current_user))
-        bookmarked = cursor.fetchone() is not None
-        
-        videos.append((v[0], v[1], v[2], liked, like_count, comments, v[3], bookmarked))
+        videos.append((v[0], v[1], v[2], liked, like_count, comments, v[3]))
         
     cursor.close()
     conn.close()
@@ -4362,25 +4336,6 @@ def vidyo_share(video_id):
     cursor.close()
     conn.close()
     return jsonify({'success': True})
-
-@app.route('/vidyo/bookmark/<int:video_id>', methods=['POST'])
-def vidyo_bookmark(video_id):
-    if 'user' not in session:
-        return jsonify({'success': False})
-    user = session['user']
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM video_bookmarks WHERE video_id = %s AND username = %s", (video_id, user))
-    if cursor.fetchone():
-        cursor.execute("DELETE FROM video_bookmarks WHERE video_id = %s AND username = %s", (video_id, user))
-        bookmarked = False
-    else:
-        cursor.execute("INSERT INTO video_bookmarks (video_id, username) VALUES (%s, %s)", (video_id, user))
-        bookmarked = True
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return jsonify({'success': True, 'bookmarked': bookmarked})
 
 @app.route('/vidyo/delete/<int:video_id>', methods=['POST'])
 def vidyo_delete(video_id):
@@ -4760,6 +4715,43 @@ def sikayet():
                 <textarea name="content" placeholder="Şikayət və ya təklifinizi ətraflı yazın..." rows="5" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px; resize:none;"></textarea>
                 <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer;">Göndər</button>
             </form>
+        </div>
+    </body>
+    </html>
+    '''
+    return render_template_string(page)
+
+@app.route('/admin/sikayetler')
+def admin_sikayetler():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    current_user = session['user']
+    
+    if current_user.lower() != 'win_wid':
+        return redirect(url_for('chat'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, category, content FROM complaints ORDER BY id DESC")
+    comps = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    rows = "".join([f"<div style='background:rgba(39,39,42,0.8); padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);'><b>@{c[1]}</b> ({c[2]}):<p style='margin:8px 0 0 0; color:#d4d4d8;'>{c[3]}</p></div>" for c in comps]) or "<p style='text-align:center; color:#a1a1aa;'>Şikayət yoxdur.</p>"
+    
+    page = f'''
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <title>WİN_WİD - Admin Şikayətlər</title>
+        {COMMON_STYLE}
+    </head>
+    <body>
+        {get_header_template(False)}
+        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:24px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1);">
+            <h2 style="color:#f97316; margin-top:0; text-align:center;">⚙ GƏLƏN ŞİKAYƏTLƏR (ADMİN)</h2>
+            {rows}
         </div>
     </body>
     </html>
