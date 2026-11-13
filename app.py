@@ -652,6 +652,10 @@ def get_header_template(has_unread_notifs=False):
             <span>Profil</span>
             {dot_html}
         </a>
+             <a href="/kukuli" class="nav-item">
+            <span class="icon">🐻</span>
+            <span>KUKULİ</span>
+        </a>
     </div>
 '''
 
