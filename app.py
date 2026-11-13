@@ -2035,7 +2035,7 @@ VIDYO_TEMPLATE = '''
             align-items: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
-        .short-card {
+                .short-card {
             width: 100%;
             height: 100%;
             min-height: 100%;
@@ -2045,6 +2045,7 @@ VIDYO_TEMPLATE = '''
             justify-content: center;
             align-items: center;
             background: #09090b;
+            overflow: hidden;
         }
         .short-card video {
             width: 100%;
@@ -2163,7 +2164,7 @@ VIDYO_TEMPLATE = '''
             box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
         }
 
-        .comments-drawer {
+                .comments-drawer {
             position: absolute;
             bottom: -100%;
             left: 0;
@@ -2181,9 +2182,11 @@ VIDYO_TEMPLATE = '''
             padding: 20px;
             box-sizing: border-box;
             box-shadow: 0 -15px 35px rgba(0,0,0,0.6);
+            pointer-events: none;
         }
         .comments-drawer.active {
             bottom: 0;
+            pointer-events: auto;
         }
         .drawer-header {
             display: flex;
@@ -2424,16 +2427,20 @@ VIDYO_TEMPLATE = '''
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+                document.addEventListener("DOMContentLoaded", function() {
             let cards = document.querySelectorAll('.short-card');
             let observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     let vid = entry.target.querySelector('video');
+                    let drawer = entry.target.querySelector('.comments-drawer');
                     if (entry.isIntersecting) {
                         vid.play().catch(e => {});
                     } else {
                         vid.pause();
                         vid.currentTime = 0;
+                        if (drawer) {
+                            drawer.classList.remove('active');
+                        }
                     }
                 });
             }, { threshold: 0.6 });
