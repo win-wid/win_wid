@@ -2365,6 +2365,15 @@ VIDYO_TEMPLATE = '''
                 }
             });
         }
+                function toggleBookmark(videoId) {
+            fetch('/vidyo/bookmark/' + videoId, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById('bookmark-icon-' + videoId).innerText = data.bookmarked ? '📌' : '📍';
+                }
+            });
+        }
 
                 function openComments(videoId) {
             // Eyni anda yalnız bir şərh panelinin açıq olması üçün digərlərini bağlayırıq
