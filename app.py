@@ -4351,6 +4351,25 @@ def vidyo_share(video_id):
     conn.close()
     return jsonify({'success': True})
 
+@app.route('/vidyo/bookmark/<int:video_id>', methods=['POST'])
+def vidyo_bookmark(video_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM video_bookmarks WHERE video_id = %s AND username = %s", (video_id, user))
+    if cursor.fetchone():
+        cursor.execute("DELETE FROM video_bookmarks WHERE video_id = %s AND username = %s", (video_id, user))
+        bookmarked = False
+    else:
+        cursor.execute("INSERT INTO video_bookmarks (video_id, username) VALUES (%s, %s)", (video_id, user))
+        bookmarked = True
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'success': True, 'bookmarked': bookmarked})
+
 @app.route('/vidyo/delete/<int:video_id>', methods=['POST'])
 def vidyo_delete(video_id):
     if 'user' not in session:
