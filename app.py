@@ -2763,7 +2763,7 @@ PROFIL_TEMPLATE = '''
                     @{{ user }} {{ profile_sticker }}
                 </div>
                 <div class="handle-tk">Bal: {{ points }} 💰</div>
-                <div class="bio-tk">{{ bio if bio else 'HEY, I LOVE YOU, EUROPE 🌍' }}</div>
+                <div class="bio-tk">{{ bio if bio else 'Mətin Daxil Edin...' }}</div>
             </div>
 
             <!-- Tab Düymələri (Videolar, Bəyənilən, Yadda Saxlanılan) -->
