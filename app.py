@@ -122,6 +122,13 @@ def init_db():
                 PRIMARY KEY (video_id, username)
             )
         ''')
+                cursor.execute('''
+            CREATE TABLE IF NOT EXISTS video_bookmarks (
+                video_id INTEGER,
+                username TEXT,
+                PRIMARY KEY (video_id, username)
+            )
+        ''')
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS video_comments (
                 id SERIAL PRIMARY KEY,
@@ -2300,6 +2307,13 @@ VIDYO_TEMPLATE = '''
                                 <span>↗️</span>
                             </button>
                             <span class="action-count">Paylaş</span>
+                        </div>
+                        
+                         <div style="display:flex; flex-direction:column; align-items:center;">
+                            <button class="action-item" onclick="toggleBookmark('{{ v[0] }}')">
+                                <span id="bookmark-icon-{{ v[0] }}">{{ '📌' if v[7] else '📍' }}</span>
+                            </button>
+                            <span class="action-count">Yaddaş</span>
                         </div>
                     </div>
 
