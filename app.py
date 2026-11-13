@@ -4265,7 +4265,10 @@ def vidyo():
         cursor.execute("SELECT id, username, comment FROM video_comments WHERE video_id = %s ORDER BY id ASC", (v_id,))
         comments = cursor.fetchall()
         
-        videos.append((v[0], v[1], v[2], liked, like_count, comments, v[3]))
+        cursor.execute("SELECT * FROM video_bookmarks WHERE video_id = %s AND username = %s", (v_id, current_user))
+        bookmarked = cursor.fetchone() is not None
+        
+        videos.append((v[0], v[1], v[2], liked, like_count, comments, v[3], bookmarked))
         
     cursor.close()
     conn.close()
@@ -4757,43 +4760,6 @@ def sikayet():
                 <textarea name="content" placeholder="Şikayət və ya təklifinizi ətraflı yazın..." rows="5" required style="padding:14px; border-radius:12px; background:#111; color:#fff; border:1px solid #f97316; font-size:15px; resize:none;"></textarea>
                 <button type="submit" style="background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer;">Göndər</button>
             </form>
-        </div>
-    </body>
-    </html>
-    '''
-    return render_template_string(page)
-
-@app.route('/admin/sikayetler')
-def admin_sikayetler():
-    if 'user' not in session:
-        return redirect(url_for('index'))
-    current_user = session['user']
-    
-    if current_user.lower() != 'win_wid':
-        return redirect(url_for('chat'))
-        
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, username, category, content FROM complaints ORDER BY id DESC")
-    comps = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    
-    rows = "".join([f"<div style='background:rgba(39,39,42,0.8); padding:16px; border-radius:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);'><b>@{c[1]}</b> ({c[2]}):<p style='margin:8px 0 0 0; color:#d4d4d8;'>{c[3]}</p></div>" for c in comps]) or "<p style='text-align:center; color:#a1a1aa;'>Şikayət yoxdur.</p>"
-    
-    page = f'''
-    <!DOCTYPE html>
-    <html lang="az">
-    <head>
-        <meta charset="UTF-8">
-        <title>WİN_WİD - Admin Şikayətlər</title>
-        {COMMON_STYLE}
-    </head>
-    <body>
-        {get_header_template(False)}
-        <div style="background:rgba(24,24,27,0.85); flex:1; border-radius:22px; padding:24px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1);">
-            <h2 style="color:#f97316; margin-top:0; text-align:center;">⚙ GƏLƏN ŞİKAYƏTLƏR (ADMİN)</h2>
-            {rows}
         </div>
     </body>
     </html>
