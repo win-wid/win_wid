@@ -5016,23 +5016,26 @@ def canli_ac():
     current_user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
     res = cursor.fetchone()
     points = res[0] if res else 0
-    
+
     if points < 60:
         cursor.execute('''
-            SELECT l.id, l.host, u.profile_pic 
-            FROM lives l 
-            LEFT JOIN users u ON l.host = u.nickname 
+            SELECT l.id, l.host, u.profile_pic
+            FROM lives l
+            LEFT JOIN users u ON l.host = u.nickname
             WHERE l.is_active = 1
+            ORDER BY l.id DESC
         ''')
         lives = cursor.fetchall()
         cursor.close()
         conn.close()
-        return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, user_points=points, error="Canlı açmaq üçün balansınızda ən azı 60 Won olmalıdır!", header=get_header_template(False))
-        
+        return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, user_points=points, error="Balansınızda 60 Won yoxdur!")
+
+    # Balansdan 60 Won çıxılması və canlının açılması
+    cursor.execute("UPDATE users SET points = points - 60 WHERE nickname = %s", (current_user,))
     cursor.execute("UPDATE lives SET is_active = 0 WHERE host = %s", (current_user,))
     cursor.execute("INSERT INTO lives (host, is_active) VALUES (%s, 1) RETURNING id", (current_user,))
     live_id = cursor.fetchone()[0]
