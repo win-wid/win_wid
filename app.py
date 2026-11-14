@@ -3369,6 +3369,7 @@ CANLI_ROOM_TEMPLATE = '''
             </div>
 
             {% if current_user == host %}
+            <button onclick="startCamera(currentFacingMode); this.style.display='none';" style="position:absolute; z-index:50; top:40%; left:50%; transform:translate(-50%,-50%); padding:14px 28px; background:#ff4500; color:#fff; border:none; border-radius:10px; font-weight:bold; font-size:16px; cursor:pointer;">Kameranı Qoş</button>
                 <video id="webcamVideo" autoplay playsinline muted></video>
                 <canvas id="captureCanvas" style="display:none;"></canvas>
             {% else %}
