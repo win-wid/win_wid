@@ -223,7 +223,7 @@ def init_db():
             )
         ''')
 
-                cursor.execute('''
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS live_stream_chunks (
                 live_id INTEGER PRIMARY KEY,
                 frame_data TEXT,
