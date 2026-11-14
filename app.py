@@ -2853,7 +2853,8 @@ CANLI_TEMPLATE = '''
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Canlı Yayım</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WİN_WİD - Canlı Yayımlar</title>
     ''' + COMMON_STYLE + '''
     <style>
         .live-wrapper {
@@ -2866,37 +2867,42 @@ CANLI_TEMPLATE = '''
         }
         .live-top-bar {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            background: rgba(24, 24, 27, 0.85);
-            padding: 16px 24px;
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            gap: 14px;
+            background: rgba(24, 24, 27, 0.9);
+            padding: 24px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(249, 115, 22, 0.3);
         }
         .btn-start-live {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 15px;
+            width: 100%;
+            max-width: 320px;
+            padding: 16px 28px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 17px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
             transition: transform 0.2s;
+            letter-spacing: 0.5px;
         }
-        .btn-start-live:hover { transform: translateY(-1px); }
+        .btn-start-live:hover { transform: translateY(-2px); }
         
         .active-lives-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
         }
         .live-card {
-            background: rgba(24, 24, 27, 0.85);
+            background: rgba(24, 24, 27, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -2911,13 +2917,13 @@ CANLI_TEMPLATE = '''
             color: #fff;
             padding: 4px 10px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.4; }
             100% { opacity: 1; }
         }
         .btn-join-live {
@@ -2939,38 +2945,38 @@ CANLI_TEMPLATE = '''
 
     <div class="live-wrapper">
         <div class="live-top-bar">
-            <div>
-                <h2 style="margin: 0; color: #f97316; font-size: 20px;">🔴 CANLI YAYIMLAR</h2>
-                <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 14px;">Canlı açmaq üçün balansınızda ən azı 60 bal olmalıdır.</p>
-            </div>
-            <form method="POST" action="/canli/ac" style="margin:0;">
-                <button type="submit" class="btn-start-live">🎥 CANLI AÇ (60 Bal)</button>
+            <h2 style="margin: 0; color: #f97316; font-size: 22px;">🔴 CANLI YAYIM MƏRKƏZİ</h2>
+            <form method="POST" action="/canli/ac" style="width:100%; display:flex; justify-content:center; margin:0;">
+                <button type="submit" class="btn-start-live">🎥 CANLI AÇ</button>
             </form>
+            <p style="margin: 0; color: #a1a1aa; font-size: 13px;">Canlı açmaq üçün balansınızda ən azı 60 Won olmalıdır (Balansınız: <b style="color:#4ade80;">{{ user_points }} Won</b>)</p>
         </div>
 
         {% if error %}
-            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 14px 20px; border-radius: 14px; font-weight: 600; text-align: center;">
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 14px 20px; border-radius: 14px; font-weight: 700; text-align: center;">
                 {{ error }}
             </div>
         {% endif %}
+
+        <h3 style="margin: 5px 0 0 5px; color: #f8fafc; font-size: 16px;">📺 Aktiv Canlı Yayımlar</h3>
 
         <div class="active-lives-grid">
             {% if lives %}
                 {% for l in lives %}
                     <div class="live-card">
-                        <span class="live-badge">CANLI</span>
+                        <span class="live-badge">● CANLI</span>
                         <div style="display: flex; align-items: center; gap: 14px;">
-                            <img src="{{ l[2] if l[2] else 'https://i.imgur.com/6VBx3io.png' }}" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #f97316; object-fit: cover;">
+                            <img src="{{ l[2] if l[2] else 'https://i.imgur.com/6VBx3io.png' }}" style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid #f97316; object-fit: cover;">
                             <div>
                                 <h3 style="margin: 0; font-size: 18px; color: #f8fafc;">@{{ l[1] }}</h3>
-                                <p style="margin: 4px 0 0 0; color: #4ade80; font-size: 13px; font-weight: 600;">Canlı yayım davam edir...</p>
+                                <p style="margin: 4px 0 0 0; color: #4ade80; font-size: 13px; font-weight: 600;">Yayım gedir...</p>
                             </div>
                         </div>
-                        <a href="/canli/izle/{{ l[0] }}" class="btn-join-live">Canlıya Bax 📺</a>
+                        <a href="/canli/izle/{{ l[0] }}" class="btn-join-live">Canlıya Gir və Bax 👁️</a>
                     </div>
                 {% endfor %}
             {% else %}
-                <div style="grid-column: 1 / -1; text-align: center; color: #a1a1aa; padding: 40px; font-size: 16px;">
+                <div style="grid-column: 1 / -1; text-align: center; color: #a1a1aa; padding: 40px 20px; background: rgba(24, 24, 27, 0.6); border-radius: 18px; font-size: 15px;">
                     Hazırda aktiv canlı yayım yoxdur. İlk canlıyı sən aç!
                 </div>
             {% endif %}
@@ -2985,113 +2991,196 @@ CANLI_ROOM_TEMPLATE = '''
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WİN_WİD - Canlı Yayım Otağı</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WİN_WİD - @{{ host }} Canlı Yayımı</title>
     ''' + COMMON_STYLE + '''
     <style>
+        body { padding: 10px; padding-bottom: 85px; }
         .room-container {
             flex: 1;
-            background: rgba(24, 24, 27, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 22px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
-        .room-header {
-            background: rgba(9, 9, 11, 0.9);
-            padding: 14px 20px;
+        .room-top-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            z-index: 20;
+            box-sizing: border-box;
         }
+        .host-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .stats-pills {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .stat-pill {
+            background: rgba(0, 0, 0, 0.65);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .three-lines-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(15, 15, 18, 0.85);
+            border: 1px solid rgba(249, 115, 22, 0.6);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 30;
+        }
+        .three-lines-btn span {
+            display: block;
+            width: 22px;
+            height: 2.5px;
+            background: #fff;
+            border-radius: 2px;
+        }
+        .right-control-drawer {
+            position: absolute;
+            top: 65px;
+            right: -280px;
+            width: 230px;
+            background: rgba(18, 18, 22, 0.96);
+            backdrop-filter: blur(16px);
+            border: 1px solid #f97316;
+            border-radius: 18px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 40;
+            transition: right 0.25s ease;
+            box-shadow: -10px 15px 30px rgba(0,0,0,0.9);
+        }
+        .right-control-drawer.open {
+            right: 14px;
+        }
+        .drawer-ctrl-btn {
+            background: rgba(39, 39, 42, 0.9);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 11px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .drawer-ctrl-btn:hover { background: rgba(249, 115, 22, 0.25); }
+        .drawer-ctrl-btn.danger { background: #dc2626; color: #fff; border: none; text-align: center; }
+        .drawer-ctrl-btn.active-state { background: #f97316; color: #000; }
+
         .stream-viewport {
             flex: 1;
             position: relative;
-            background: #000;
+            background: #09090b;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
         }
-        #webcamVideo {
+        #webcamVideo, #viewerStreamImg {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1);
         }
-        .viewer-placeholder {
-            font-size: 22px;
-            color: #fff;
-            text-align: center;
-            font-weight: 700;
-            background: rgba(0,0,0,0.6);
-            padding: 20px;
-            border-radius: 16px;
-        }
-        .live-likes-counter {
+        #webcamVideo { transform: scaleX(-1); }
+        
+        .status-overlay-box {
+            display: none;
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 800;
-            color: #ef4444;
-            z-index: 5;
-            display: flex;
+            inset: 0;
+            background: rgba(9, 9, 11, 0.92);
+            z-index: 15;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 6px;
+            text-align: center;
+            padding: 20px;
+            color: #f97316;
+            font-size: 18px;
+            font-weight: 800;
         }
+
         .live-chat-overlay {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 320px;
-            height: 200px;
+            bottom: 14px;
+            left: 14px;
+            right: 85px;
+            max-height: 230px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            z-index: 5;
-            pointer-events: none;
+            z-index: 20;
         }
         .live-messages-list {
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            max-height: 160px;
-            padding-right: 10px;
-            pointer-events: auto;
+            gap: 6px;
+            max-height: 175px;
+            padding-right: 6px;
+            margin-bottom: 8px;
         }
         .live-msg-bubble {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 8px 12px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            padding: 7px 12px;
+            border-radius: 12px;
             font-size: 13px;
             color: #fff;
-            word-break: break-all;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            word-break: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            user-select: none;
+            cursor: pointer;
+            align-self: flex-start;
+            max-width: 95%;
+        }
+        .live-msg-bubble:active {
+            background: rgba(249, 115, 22, 0.4);
         }
         .live-chat-form {
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
-            pointer-events: auto;
+            gap: 6px;
         }
         .live-chat-input {
             flex: 1;
-            padding: 8px 12px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(249, 115, 22, 0.6);
+            border-radius: 12px;
             color: #fff;
             font-size: 13px;
         }
@@ -3100,75 +3189,111 @@ CANLI_ROOM_TEMPLATE = '''
             color: #fff;
             border: none;
             padding: 0 14px;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
             font-size: 13px;
         }
+
         .floating-like-btn {
             position: absolute;
-            bottom: 25px;
-            right: 25px;
-            background: rgba(239, 68, 68, 0.9);
+            bottom: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             border: 2px solid #fff;
-            width: 65px;
-            height: 65px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 30px;
+            font-size: 26px;
             cursor: pointer;
-            z-index: 10;
+            z-index: 25;
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
             transition: transform 0.1s;
         }
-        .floating-like-btn:active {
-            transform: scale(0.85);
-        }
+        .floating-like-btn:active { transform: scale(0.85); }
+
         .gifts-bar {
-            background: rgba(9, 9, 11, 0.9);
-            padding: 14px 20px;
+            background: rgba(15, 15, 18, 0.96);
+            padding: 10px 12px;
             display: flex;
-            justify-content: center;
-            gap: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            flex-wrap: wrap;
-            z-index: 10;
+            align-items: center;
+            gap: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+            z-index: 25;
         }
         .gift-btn {
             background: rgba(39, 39, 42, 0.9);
-            border: 1px solid rgba(249, 115, 22, 0.4);
-            font-size: 24px;
-            padding: 8px 12px;
+            border: 1px solid rgba(249, 115, 22, 0.45);
             border-radius: 12px;
+            padding: 6px 10px;
             cursor: pointer;
-            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 52px;
+            flex-shrink: 0;
         }
-        .gift-btn:hover { transform: scale(1.15); }
-        .btn-end-stream {
-            background: #ef4444;
-            color: white;
+        .gift-btn span.emoji { font-size: 22px; }
+        .gift-btn span.price { font-size: 10px; color: #f97316; font-weight: 800; margin-top: 2px; }
+
+        .bottom-action-sheet-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 100000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .bottom-action-sheet {
+            background: #18181b;
+            border-top: 2px solid #f97316;
+            border-top-left-radius: 22px;
+            border-top-right-radius: 22px;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+        .sheet-btn {
+            padding: 14px;
+            border-radius: 14px;
             border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 800;
             cursor: pointer;
-            font-size: 13px;
+            text-align: center;
+            width: 100%;
         }
-        .btn-flip-screen {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.2s;
+        .sheet-block { background: #dc2626; color: #fff; }
+        .sheet-report { background: #f59e0b; color: #000; }
+        .sheet-copy { background: #27272a; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+        .sheet-cancel { background: transparent; color: #a1a1aa; margin-top: 4px; }
+
+        .sticker-toast {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            border: 2px solid #f97316;
+            padding: 16px 24px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 50;
+            display: none;
+            animation: popIn 0.3s ease;
         }
-        .btn-flip-screen:hover {
-            background: rgba(255, 255, 255, 0.25);
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -3176,93 +3301,265 @@ CANLI_ROOM_TEMPLATE = '''
     {{ header|safe }}
 
     <div class="room-container">
-        <div class="room-header">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="{{ host_pic if host_pic else 'https://i.imgur.com/6VBx3io.png' }}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ef4444; object-fit: cover;">
-                <div>
-                    <h3 style="margin: 0; color: #f8fafc; font-size: 15px;">@{{ host }} - Canlı Yayımdadır 🔴</h3>
-                    <p style="margin: 2px 0 0 0; color: #f97316; font-size: 12px; font-weight: 700;">Hədiyyələr: <span id="giftCount">{{ gifts|length }}</span></p>
+        <div class="room-top-overlay">
+            <div>
+                <div class="host-badge">
+                    <img src="{{ host_pic if host_pic else 'https://i.imgur.com/6VBx3io.png' }}" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid #ef4444; object-fit: cover;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 800; color: #fff;">@{{ host }}</div>
+                        <div style="font-size: 11px; color: #4ade80; font-weight: 700;">● CANLI YAYIM</div>
+                    </div>
+                </div>
+                <div class="stats-pills">
+                    <div class="stat-pill">❤️ <span id="likeCountDisplay">{{ likes_count }}</span></div>
+                    <div class="stat-pill">🎁 <span id="giftCount">{{ gifts|length }}</span></div>
                 </div>
             </div>
-            
+
             {% if current_user == host %}
-                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
-                    <form method="POST" action="/canli/bitir/{{ live_id }}" style="margin:0;">
-                        <button type="submit" class="btn-end-stream">Canlıyı Bitir ⏹️</button>
-                    </form>
-                    <button type="button" class="btn-flip-screen" onclick="flipCamera()">Ekranı Çevir 🔄</button>
-                </div>
+                <button type="button" class="three-lines-btn" onclick="toggleRightMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             {% else %}
-                <a href="/canli" style="color: #a1a1aa; text-decoration: none; font-weight: 600; font-size: 14px;">Çıxış ✕</a>
+                <a href="/canli" style="background: rgba(0,0,0,0.7); color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid rgba(255,255,255,0.2);">Çıxış ✕</a>
             {% endif %}
         </div>
 
+        {% if current_user == host %}
+        <div class="right-control-drawer" id="rightControlDrawer">
+            <form method="POST" action="/canli/bitir/{{ live_id }}" style="margin:0;">
+                <button type="submit" class="drawer-ctrl-btn danger">🛑 Canlını bağla</button>
+            </form>
+            <button type="button" class="drawer-ctrl-btn" id="btnToggleVideo" onclick="toggleVideoState()">📷 Görüntünü bağla</button>
+            <button type="button" class="drawer-ctrl-btn" id="btnToggleAudio" onclick="toggleAudioState()">🔇 SƏSİ bağla</button>
+            <button type="button" class="drawer-ctrl-btn" id="btnToggleChat" onclick="toggleChatArea()">💬 MESAJ YERİN bağla</button>
+            <button type="button" class="drawer-ctrl-btn" id="btnTogglePause" onclick="togglePauseState()">⏸️ Canlını MÜVƏQQƏTİ dondur</button>
+            <button type="button" class="drawer-ctrl-btn" onclick="flipCamera()">🔄 KAMERANI ÇEVİR</button>
+        </div>
+        {% endif %}
+
+        <div class="sticker-toast" id="stickerToast"></div>
+
         <div class="stream-viewport">
-            <div class="live-likes-counter">
-                ❤️ <span id="likeCountDisplay">0</span>
+            <div class="status-overlay-box" id="statusOverlayBox">
+                <span id="statusOverlayText">📷 Görüntü bağlıdır</span>
             </div>
 
             {% if current_user == host %}
                 <video id="webcamVideo" autoplay playsinline muted></video>
+                <canvas id="captureCanvas" style="display:none;"></canvas>
             {% else %}
-                <div class="viewer-placeholder">
-                    🎥 @{{ host }} canlı yayım edir<br>
-                    <span style="font-size: 14px; color: #a1a1aa; font-weight: normal;">Söhbətə qoşulun və bəyəni atın!</span>
-                </div>
+                <img id="viewerStreamImg" src="" alt="Canlı Yayım Yüklənir...">
+                <audio id="viewerAudioPlayer" autoplay></audio>
             {% endif %}
 
-            <div class="live-chat-overlay">
-                <div class="live-messages-list" id="liveMessagesList">
-                </div>
+            <div class="live-chat-overlay" id="liveChatOverlay">
+                <div class="live-messages-list" id="liveMessagesList"></div>
                 <form class="live-chat-form" id="liveChatForm" onsubmit="sendLiveMessage(event)">
-                    <input type="text" id="liveMsgInput" class="live-chat-input" placeholder="Şərh yaz..." required autocomplete="off">
+                    <input type="text" id="liveMsgInput" class="live-chat-input" placeholder="Mesaj yaz..." required autocomplete="off">
                     <button type="submit" class="live-chat-submit">Yaz</button>
                 </form>
             </div>
 
-            <button class="floating-like-btn" onclick="sendLike()">❤️</button>
+            <button type="button" class="floating-like-btn" onclick="sendLike()">❤️</button>
         </div>
 
         <div class="gifts-bar">
-            {% set gift_list = ['👑', '🤯', '❤️‍🔥', '🤠', '💋', '🫶', '🔥', '🧨', '🎀', '👑' '🌹',] %}
+            {% set gift_list = ['👑', '🤯', '❤️‍🔥', '🤠', '💋', '🫶', '🔥', '🧨', '🎀', '🌹', '🚀', '💎'] %}
             {% for gift in gift_list %}
-                <button class="gift-btn" onclick="sendGift('{{ gift }}')">{{ gift }}</button>
+                <button type="button" class="gift-btn" onclick="sendGift('{{ gift }}')">
+                    <span class="emoji">{{ gift }}</span>
+                    <span class="price">10 Won</span>
+                </button>
             {% endfor %}
+        </div>
+    </div>
+
+    <div class="bottom-action-sheet-overlay" id="msgActionOverlay" onclick="closeMsgActionSheet()">
+        <div class="bottom-action-sheet" onclick="event.stopPropagation()">
+            <div style="text-align:center; color:#f97316; font-weight:800; font-size:15px; margin-bottom:4px;" id="selectedMsgUserTitle">@istifadəçi</div>
+            <button type="button" class="sheet-btn sheet-block" onclick="blockLiveUser()">🚫 İSDİFADƏÇİNİ BLOKLA</button>
+            <button type="button" class="sheet-btn sheet-report" onclick="reportLiveUser()">⚠️ İSDİFADƏÇİNİ ŞİKAYƏT ET</button>
+            <button type="button" class="sheet-btn sheet-copy" onclick="copyLiveMessage()">📋 +1 MESAJI KOPYALA</button>
+            <button type="button" class="sheet-btn sheet-cancel" onclick="closeMsgActionSheet()">Ləğv et</button>
         </div>
     </div>
 
     <script>
         const isHost = {{ 'true' if current_user == host else 'false' }};
         const liveId = '{{ live_id }}';
-        
+        const currentUser = '{{ current_user }}';
+
         let currentFacingMode = 'user';
         let currentStream = null;
+        let isVideoOff = false;
+        let isAudioOff = false;
+        let isPaused = false;
+        let isChatHidden = false;
+
+        function toggleRightMenu() {
+            document.getElementById('rightControlDrawer').classList.toggle('open');
+        }
+
+        function toggleVideoState() {
+            isVideoOff = !isVideoOff;
+            let btn = document.getElementById('btnToggleVideo');
+            if (currentStream) {
+                currentStream.getVideoTracks().forEach(t => t.enabled = !isVideoOff);
+            }
+            btn.innerText = isVideoOff ? '📷 Görüntünü aç' : '📷 Görüntünü bağla';
+            btn.classList.toggle('active-state', isVideoOff);
+            updateLocalOverlay();
+            sendHostControls();
+        }
+
+        function toggleAudioState() {
+            isAudioOff = !isAudioOff;
+            let btn = document.getElementById('btnToggleAudio');
+            if (currentStream) {
+                currentStream.getAudioTracks().forEach(t => t.enabled = !isAudioOff);
+            }
+            btn.innerText = isAudioOff ? '🔊 SƏSİ aç' : '🔇 SƏSİ bağla';
+            btn.classList.toggle('active-state', isAudioOff);
+            sendHostControls();
+        }
+
+        function toggleChatArea() {
+            isChatHidden = !isChatHidden;
+            let chatBox = document.getElementById('liveChatOverlay');
+            let btn = document.getElementById('btnToggleChat');
+            chatBox.style.display = isChatHidden ? 'none' : 'flex';
+            btn.innerText = isChatHidden ? '💬 MESAJ YERİN aç' : '💬 MESAJ YERİN bağla';
+            btn.classList.toggle('active-state', isChatHidden);
+        }
+
+        function togglePauseState() {
+            isPaused = !isPaused;
+            let btn = document.getElementById('btnTogglePause');
+            let videoEl = document.getElementById('webcamVideo');
+            if (videoEl) {
+                if (isPaused) videoEl.pause();
+                else videoEl.play();
+            }
+            btn.innerText = isPaused ? '▶️ Canlını DAVAM ET' : '⏸️ Canlını MÜVƏQQƏTİ dondur';
+            btn.classList.toggle('active-state', isPaused);
+            updateLocalOverlay();
+            sendHostControls();
+        }
+
+        function updateLocalOverlay() {
+            let box = document.getElementById('statusOverlayBox');
+            let txt = document.getElementById('statusOverlayText');
+            if (isPaused) {
+                box.style.display = 'flex';
+                txt.innerText = '⏸️ Canlı yayım müvəqqəti dondurulub';
+            } else if (isVideoOff) {
+                box.style.display = 'flex';
+                txt.innerText = '📷 Kamera görüntüsü bağlıdır';
+            } else {
+                box.style.display = 'none';
+            }
+        }
+
+        function sendHostControls() {
+            fetch('/canli/kontrol/' + liveId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    is_video_off: isVideoOff ? 1 : 0,
+                    is_audio_off: isAudioOff ? 1 : 0,
+                    is_paused: isPaused ? 1 : 0
+                })
+            });
+        }
 
         function startCamera(facingMode) {
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
             }
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: true })
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode, width: 480, height: 640 }, audio: true })
                 .then(stream => {
                     currentStream = stream;
+                    stream.getVideoTracks().forEach(t => t.enabled = !isVideoOff);
+                    stream.getAudioTracks().forEach(t => t.enabled = !isAudioOff);
+
                     const videoEl = document.getElementById('webcamVideo');
                     if (videoEl) {
                         videoEl.srcObject = stream;
-                        if (facingMode === 'user') {
-                            videoEl.style.transform = 'scaleX(-1)';
-                        } else {
-                            videoEl.style.transform = 'scaleX(1)';
-                        }
+                        videoEl.style.transform = (facingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
                     }
+                    startBroadcastingLoops(stream);
                 })
                 .catch(err => {
-                    alert("Kameraya girişə icazə verilmədi və ya kamera tapılmadı!");
+                    alert("Kamera və ya mikrofona icazə verilmədi!");
                 });
         }
 
         function flipCamera() {
             currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
             startCamera(currentFacingMode);
+        }
+
+        let broadcastInterval = null;
+
+        function startBroadcastingLoops(stream) {
+            if (broadcastInterval) clearInterval(broadcastInterval);
+
+            const videoEl = document.getElementById('webcamVideo');
+            const canvas = document.getElementById('captureCanvas');
+            const ctx = canvas.getContext('2d');
+
+            broadcastInterval = setInterval(() => {
+                if (isPaused || isVideoOff || !videoEl.videoWidth) return;
+                canvas.width = 360;
+                canvas.height = 480;
+                ctx.save();
+                if (currentFacingMode === 'user') {
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(videoEl, -canvas.width, 0, canvas.width, canvas.height);
+                } else {
+                    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+                }
+                ctx.restore();
+                const frameData = canvas.toDataURL('image/jpeg', 0.55);
+
+                fetch('/canli/yayim_gonder/' + liveId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ frame_data: frameData })
+                });
+            }, 600);
+
+            function recordAudioChunk() {
+                if (isPaused || isAudioOff) {
+                    setTimeout(recordAudioChunk, 1000);
+                    return;
+                }
+                try {
+                    const audioStream = new MediaStream(stream.getAudioTracks());
+                    const recorder = new MediaRecorder(audioStream);
+                    let chunks = [];
+                    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+                    recorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            fetch('/canli/ses_gonder/' + liveId, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ audio_data: reader.result })
+                            });
+                        };
+                        reader.readAsDataURL(blob);
+                        recordAudioChunk();
+                    };
+                    recorder.start();
+                    setTimeout(() => { if (recorder.state !== 'inactive') recorder.stop(); }, 1500);
+                } catch (e) {}
+            }
+            recordAudioChunk();
         }
 
         if (isHost) {
@@ -3273,7 +3570,7 @@ CANLI_ROOM_TEMPLATE = '''
             fetch('/canli/like/' + liveId, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
-                if(data.success) {
+                if (data.success) {
                     document.getElementById('likeCountDisplay').innerText = data.likes_count;
                 }
             });
@@ -3283,7 +3580,7 @@ CANLI_ROOM_TEMPLATE = '''
             e.preventDefault();
             let input = document.getElementById('liveMsgInput');
             let text = input.value.trim();
-            if(!text) return;
+            if (!text) return;
 
             fetch('/canli/mesaj/' + liveId, {
                 method: 'POST',
@@ -3292,9 +3589,11 @@ CANLI_ROOM_TEMPLATE = '''
             })
             .then(res => res.json())
             .then(data => {
-                if(data.success) {
+                if (data.success) {
                     input.value = '';
                     fetchLiveUpdates();
+                } else if (data.error) {
+                    alert(data.error);
                 }
             });
         }
@@ -3307,38 +3606,155 @@ CANLI_ROOM_TEMPLATE = '''
             })
             .then(res => res.json())
             .then(data => {
-                if(data.success) {
+                if (data.success) {
                     document.getElementById('giftCount').innerText = data.gifts_count;
+                    showStickerToast(currentUser, giftSymbol);
                 } else {
                     alert(data.error || "Xəta baş verdi!");
                 }
             });
         }
 
+        function showStickerToast(sender, gift) {
+            let toast = document.getElementById('stickerToast');
+            toast.innerHTML = `<div style="font-size:44px;">${gift}</div><div style="color:#fff; font-weight:800; font-size:14px; margin-top:6px;">@${sender} stiker göndərdi! (10 Won)</div>`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+
+        let pressTimer = null;
+        let selectedTargetUser = '';
+        let selectedTargetMsg = '';
+
+        function handlePressStart(sender, content) {
+            pressTimer = setTimeout(() => {
+                selectedTargetUser = sender;
+                selectedTargetMsg = content;
+                document.getElementById('selectedMsgUserTitle').innerText = '@' + sender;
+                document.getElementById('msgActionOverlay').style.display = 'flex';
+            }, 550);
+        }
+
+        function handlePressEnd() {
+            clearTimeout(pressTimer);
+        }
+
+        function closeMsgActionSheet() {
+            document.getElementById('msgActionOverlay').style.display = 'none';
+        }
+
+        function blockLiveUser() {
+            if (!selectedTargetUser) return;
+            fetch('/canli/blokla/' + liveId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_user: selectedTargetUser })
+            })
+            .then(res => res.json())
+            .then(data => {
+                closeMsgActionSheet();
+                alert(data.message || data.error);
+            });
+        }
+
+        function reportLiveUser() {
+            if (!selectedTargetUser) return;
+            fetch('/canli/sikayet/' + liveId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_user: selectedTargetUser, msg_content: selectedTargetMsg })
+            })
+            .then(res => res.json())
+            .then(data => {
+                closeMsgActionSheet();
+                alert(data.message || "Şikayət göndərildi!");
+            });
+        }
+
+        function copyLiveMessage() {
+            if (selectedTargetMsg) {
+                navigator.clipboard.writeText(selectedTargetMsg).then(() => {
+                    closeMsgActionSheet();
+                    alert("Mesaj kopyalandı: " + selectedTargetMsg);
+                });
+            }
+        }
+
+        let lastAudioHash = '';
+
         function fetchLiveUpdates() {
             fetch('/canli/yenile/' + liveId)
             .then(res => res.json())
             .then(data => {
-                if(data.success) {
-                    document.getElementById('likeCountDisplay').innerText = data.likes_count;
+                if (!data.is_active) {
+                    alert("Canlı yayım başa çatdı!");
+                    window.location.href = '/canli';
+                    return;
+                }
+                if (data.is_blocked) {
+                    alert("Yayım sahibi tərəfindən bu canlıdan bloklandınız!");
+                    window.location.href = '/canli';
+                    return;
+                }
+
+                document.getElementById('likeCountDisplay').innerText = data.likes_count;
+                document.getElementById('giftCount').innerText = data.gifts_count;
+
+                if (!isHost) {
+                    let overlay = document.getElementById('statusOverlayBox');
+                    let overlayTxt = document.getElementById('statusOverlayText');
+                    let imgEl = document.getElementById('viewerStreamImg');
+
+                    if (data.is_paused == 1) {
+                        overlay.style.display = 'flex';
+                        overlayTxt.innerText = '⏸️ Yayımçı canlını müvəqqəti dondurdu';
+                    } else if (data.is_video_off == 1) {
+                        overlay.style.display = 'flex';
+                        overlayTxt.innerText = '📷 Yayımçı görüntünü bağladı';
+                    } else {
+                        overlay.style.display = 'none';
+                        if (data.frame_data) {
+                            imgEl.src = data.frame_data;
+                        }
+                    }
+
+                    if (data.is_audio_off == 0 && data.audio_data && data.audio_data !== lastAudioHash) {
+                        lastAudioHash = data.audio_data;
+                        let audioEl = document.getElementById('viewerAudioPlayer');
+                        audioEl.src = data.audio_data;
+                        audioEl.play().catch(() => {});
+                    }
+                }
+
+                let list = document.getElementById('liveMessagesList');
+                let shouldScroll = (list.scrollTop + list.clientHeight >= list.scrollHeight - 40);
+                list.innerHTML = '';
+                data.messages.forEach(m => {
+                    let div = document.createElement('div');
+                    div.className = 'live-msg-bubble';
+                    div.innerHTML = `<b style="color:#fb923c;">@${m.sender}</b>: ${m.content}`;
                     
-                    let list = document.getElementById('liveMessagesList');
-                    list.innerHTML = '';
-                    data.messages.forEach(m => {
-                        list.innerHTML += `<div class="live-msg-bubble"><b>@${m.sender}</b>: ${m.content}</div>`;
-                    });
+                    div.addEventListener('touchstart', () => handlePressStart(m.sender, m.content));
+                    div.addEventListener('touchend', handlePressEnd);
+                    div.addEventListener('mousedown', () => handlePressStart(m.sender, m.content));
+                    div.addEventListener('mouseup', handlePressEnd);
+                    div.addEventListener('mouseleave', handlePressEnd);
+                    
+                    list.appendChild(div);
+                });
+                if (shouldScroll) {
                     list.scrollTop = list.scrollHeight;
                 }
             });
         }
 
-        setInterval(fetchLiveUpdates, 2000);
+        setInterval(fetchLiveUpdates, 900);
         fetchLiveUpdates();
     </script>
 </body>
 </html>
 '''
-        
+
 MAGAZA_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="az">
@@ -4541,7 +4957,7 @@ def profil():
         message=message, 
         error=error, 
         header=header_html
-        )
+    )
 
 @app.route('/canli')
 def canli():
@@ -4550,6 +4966,11 @@ def canli():
     current_user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    cursor.execute("SELECT points FROM users WHERE nickname = %s", (current_user,))
+    p_row = cursor.fetchone()
+    user_points = p_row[0] if p_row else 0
+
     cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
     
@@ -4558,13 +4979,14 @@ def canli():
         FROM lives l 
         LEFT JOIN users u ON l.host = u.nickname 
         WHERE l.is_active = 1
+        ORDER BY l.id DESC
     ''')
     lives = cursor.fetchall()
     cursor.close()
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, header=header_html)
+    return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, user_points=user_points, header=header_html)
 
 @app.route('/canli/ac', methods=['POST'])
 def canli_ac():
@@ -4588,10 +5010,12 @@ def canli_ac():
         lives = cursor.fetchall()
         cursor.close()
         conn.close()
-        return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, error="Canlı açmaq üçün balansınızda ən azı 60 bal olmalıdır!", header=get_header_template(False))
+        return render_template_string(CANLI_TEMPLATE, lives=lives, current_user=current_user, user_points=points, error="Canlı açmaq üçün balansınızda ən azı 60 Won olmalıdır!", header=get_header_template(False))
         
+    cursor.execute("UPDATE lives SET is_active = 0 WHERE host = %s", (current_user,))
     cursor.execute("INSERT INTO lives (host, is_active) VALUES (%s, 1) RETURNING id", (current_user,))
     live_id = cursor.fetchone()[0]
+    cursor.execute("INSERT INTO live_stream_chunks (live_id) VALUES (%s) ON CONFLICT (live_id) DO NOTHING", (live_id,))
     conn.commit()
     cursor.close()
     conn.close()
@@ -4605,6 +5029,12 @@ def canli_izle(live_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    cursor.execute("SELECT id FROM live_blocks WHERE live_id = %s AND blocked_user = %s", (live_id, current_user))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return redirect(url_for('canli'))
+
     cursor.execute("SELECT host FROM lives WHERE id = %s AND is_active = 1", (live_id,))
     live = cursor.fetchone()
     if not live:
@@ -4619,6 +5049,9 @@ def canli_izle(live_id):
     
     cursor.execute("SELECT id, sender, gift FROM live_gifts WHERE live_id = %s", (live_id,))
     gifts = cursor.fetchall()
+
+    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
+    likes_count = cursor.fetchone()[0]
     
     cursor.execute("SELECT id FROM notifications WHERE username = %s AND is_read = 0", (current_user,))
     has_unread_notifs = cursor.fetchone() is not None
@@ -4626,7 +5059,62 @@ def canli_izle(live_id):
     conn.close()
     
     header_html = get_header_template(has_unread_notifs)
-    return render_template_string(CANLI_ROOM_TEMPLATE, live_id=live_id, host=host, host_pic=host_pic, gifts=gifts, current_user=current_user, header=header_html)
+    return render_template_string(CANLI_ROOM_TEMPLATE, live_id=live_id, host=host, host_pic=host_pic, gifts=gifts, likes_count=likes_count, current_user=current_user, header=header_html)
+
+@app.route('/canli/yayim_gonder/<int:live_id>', methods=['POST'])
+def canli_yayim_gonder(live_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    data = request.get_json(silent=True) or {}
+    frame_data = data.get('frame_data')
+    if frame_data:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO live_stream_chunks (live_id, frame_data, updated_at)
+            VALUES (%s, %s, NOW())
+            ON CONFLICT (live_id) DO UPDATE SET frame_data = EXCLUDED.frame_data, updated_at = NOW()
+        ''', (live_id, frame_data))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    return jsonify({'success': True})
+
+@app.route('/canli/ses_gonder/<int:live_id>', methods=['POST'])
+def canli_ses_gonder(live_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    data = request.get_json(silent=True) or {}
+    audio_data = data.get('audio_data')
+    if audio_data:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO live_stream_chunks (live_id, audio_data, updated_at)
+            VALUES (%s, %s, NOW())
+            ON CONFLICT (live_id) DO UPDATE SET audio_data = EXCLUDED.audio_data, updated_at = NOW()
+        ''', (live_id, audio_data))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    return jsonify({'success': True})
+
+@app.route('/canli/kontrol/<int:live_id>', methods=['POST'])
+def canli_kontrol(live_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    data = request.get_json(silent=True) or {}
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE live_stream_chunks 
+        SET is_video_off = %s, is_audio_off = %s, is_paused = %s 
+        WHERE live_id = %s
+    ''', (data.get('is_video_off', 0), data.get('is_audio_off', 0), data.get('is_paused', 0), live_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'success': True})
 
 @app.route('/canli/like/<int:live_id>', methods=['POST'])
 def canli_like(live_id):
@@ -4637,10 +5125,16 @@ def canli_like(live_id):
     cursor = conn.cursor()
     
     cursor.execute("INSERT INTO live_likes (live_id, username) VALUES (%s, %s)", (live_id, current_user))
-    conn.commit()
-    
     cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
     likes_count = cursor.fetchone()[0]
+
+    if likes_count > 0 and likes_count % 50 == 0:
+        cursor.execute("SELECT host FROM lives WHERE id = %s", (live_id,))
+        live_row = cursor.fetchone()
+        if live_row:
+            cursor.execute("UPDATE users SET points = points + 10 WHERE nickname = %s", (live_row[0],))
+
+    conn.commit()
     cursor.close()
     conn.close()
     return jsonify({'success': True, 'likes_count': likes_count})
@@ -4649,42 +5143,33 @@ def canli_like(live_id):
 def canli_mesaj(live_id):
     if 'user' not in session:
         return jsonify({'success': False})
-    data = request.get_json()
+    current_user = session['user']
+    data = request.get_json(silent=True) or {}
     content = data.get('content', '').strip()
     if not content:
         return jsonify({'success': False})
         
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO live_messages (live_id, sender, content) VALUES (%s, %s, %s)", (live_id, session['user'], content))
+    
+    cursor.execute("SELECT id FROM live_blocks WHERE live_id = %s AND blocked_user = %s", (live_id, current_user))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return jsonify({'success': False, 'error': 'Bloklandığınız üçün mesaj yaza bilməzsiniz!'})
+
+    cursor.execute("INSERT INTO live_messages (live_id, sender, content) VALUES (%s, %s, %s)", (live_id, current_user, content))
     conn.commit()
     cursor.close()
     conn.close()
     return jsonify({'success': True})
-
-@app.route('/canli/yenile/<int:live_id>')
-def canli_yenile(live_id):
-    if 'user' not in session:
-        return jsonify({'success': False})
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
-    likes_count = cursor.fetchone()[0]
-    
-    cursor.execute("SELECT sender, content FROM live_messages WHERE live_id = %s ORDER BY id ASC", (live_id,))
-    messages = [{'sender': r[0], 'content': r[1]} for r in cursor.fetchall()]
-    cursor.close()
-    conn.close()
-    
-    return jsonify({'success': True, 'likes_count': likes_count, 'messages': messages})
 
 @app.route('/canli/hediyye/<int:live_id>', methods=['POST'])
 def canli_hediyye(live_id):
     if 'user' not in session:
         return jsonify({'success': False, 'error': 'Giriş edilməyib'})
     current_user = session['user']
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     gift = data.get('gift')
     
     conn = get_db_connection()
@@ -4697,14 +5182,14 @@ def canli_hediyye(live_id):
     if user_points < 10:
         cursor.close()
         conn.close()
-        return jsonify({'success': False, 'error': 'Balınız kifayət etmir (Hədiyyə 10 baldır)'})
+        return jsonify({'success': False, 'error': 'Balansınızda kifayət qədər Won yoxdur (10 Won lazımdır)'})
         
     cursor.execute("SELECT host FROM lives WHERE id = %s", (live_id,))
     live = cursor.fetchone()
     if not live:
         cursor.close()
         conn.close()
-        return jsonify({'success': False, 'error': 'Canlı tapılmadı'})
+        return jsonify({'success': False, 'error': 'Canlı yayım tapılmadı'})
     host = live[0]
     
     cursor.execute("UPDATE users SET points = points - 10 WHERE nickname = %s", (current_user,))
@@ -4719,6 +5204,102 @@ def canli_hediyye(live_id):
     
     return jsonify({'success': True, 'gifts_count': gifts_count})
 
+@app.route('/canli/blokla/<int:live_id>', methods=['POST'])
+def canli_blokla(live_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    current_user = session['user']
+    data = request.get_json(silent=True) or {}
+    target_user = data.get('target_user', '').strip()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT host FROM lives WHERE id = %s", (live_id,))
+    live = cursor.fetchone()
+
+    if not live or live[0] != current_user:
+        cursor.close()
+        conn.close()
+        return jsonify({'success': False, 'error': 'Yalnız canlı sahibi istifadəçini bloklaya bilər!'})
+
+    if target_user == current_user:
+        cursor.close()
+        conn.close()
+        return jsonify({'success': False, 'error': 'Özünüzü bloklaya bilməzsiniz!'})
+
+    cursor.execute("INSERT INTO live_blocks (live_id, blocked_user) VALUES (%s, %s) ON CONFLICT DO NOTHING", (live_id, target_user))
+    cursor.execute("DELETE FROM live_messages WHERE live_id = %s AND sender = %s", (live_id, target_user))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'success': True, 'message': f'@{target_user} canlı yayımdan bloklandı!'})
+
+@app.route('/canli/sikayet/<int:live_id>', methods=['POST'])
+def canli_sikayet(live_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    current_user = session['user']
+    data = request.get_json(silent=True) or {}
+    target_user = data.get('target_user', '').strip()
+    msg_content = data.get('msg_content', '').strip()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    notif_text = f"⚠️ Canlı Yayım Şikayəti: @{current_user} istifadəçisi @{target_user} haqqında şikayət etdi. Mesaj: '{msg_content}'"
+    cursor.execute("INSERT INTO notifications (username, content) VALUES ('win_wid', %s)", (notif_text,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'success': True, 'message': f'@{target_user} haqqında şikayət rəhbərliyə göndərildi!'})
+
+@app.route('/canli/yenile/<int:live_id>')
+def canli_yenile(live_id):
+    if 'user' not in session:
+        return jsonify({'success': False})
+    current_user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT is_active FROM lives WHERE id = %s", (live_id,))
+    l_row = cursor.fetchone()
+    if not l_row or l_row[0] == 0:
+        cursor.close()
+        conn.close()
+        return jsonify({'is_active': False})
+
+    cursor.execute("SELECT id FROM live_blocks WHERE live_id = %s AND blocked_user = %s", (live_id, current_user))
+    is_blocked = cursor.fetchone() is not None
+    
+    cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
+    likes_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM live_gifts WHERE live_id = %s", (live_id,))
+    gifts_count = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT sender, content FROM live_messages WHERE live_id = %s ORDER BY id ASC LIMIT 50", (live_id,))
+    messages = [{'sender': r[0], 'content': r[1]} for r in cursor.fetchall()]
+
+    cursor.execute('''
+        SELECT frame_data, audio_data, is_video_off, is_audio_off, is_paused 
+        FROM live_stream_chunks WHERE live_id = %s
+    ''', (live_id,))
+    stream_row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    return jsonify({
+        'is_active': True,
+        'is_blocked': is_blocked,
+        'likes_count': likes_count,
+        'gifts_count': gifts_count,
+        'messages': messages,
+        'frame_data': stream_row[0] if stream_row else None,
+        'audio_data': stream_row[1] if stream_row else None,
+        'is_video_off': stream_row[2] if stream_row else 0,
+        'is_audio_off': stream_row[3] if stream_row else 0,
+        'is_paused': stream_row[4] if stream_row else 0
+    })
+
 @app.route('/canli/bitir/<int:live_id>', methods=['POST'])
 def canli_bitir(live_id):
     if 'user' not in session:
@@ -4731,14 +5312,7 @@ def canli_bitir(live_id):
     live = cursor.fetchone()
     if live and live[0] == current_user:
         cursor.execute("UPDATE lives SET is_active = 0 WHERE id = %s", (live_id,))
-        
-        cursor.execute("SELECT COUNT(*) FROM live_likes WHERE live_id = %s", (live_id,))
-        likes_count = cursor.fetchone()[0]
-        
-        bonus_points = (likes_count // 50) * 10
-        if bonus_points > 0:
-            cursor.execute("UPDATE users SET points = points + %s WHERE nickname = %s", (bonus_points, current_user))
-            
+        cursor.execute("DELETE FROM live_stream_chunks WHERE live_id = %s", (live_id,))
         conn.commit()
     cursor.close()
     conn.close()
