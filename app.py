@@ -223,6 +223,27 @@ def init_db():
             )
         ''')
 
+                cursor.execute('''
+            CREATE TABLE IF NOT EXISTS live_stream_chunks (
+                live_id INTEGER PRIMARY KEY,
+                frame_data TEXT,
+                audio_data TEXT,
+                is_video_off INTEGER DEFAULT 0,
+                is_audio_off INTEGER DEFAULT 0,
+                is_paused INTEGER DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS live_blocks (
+                id SERIAL PRIMARY KEY,
+                live_id INTEGER NOT NULL,
+                blocked_user TEXT NOT NULL,
+                UNIQUE(live_id, blocked_user)
+            )
+        ''')
+
         conn.commit()
         cursor.close()
         conn.close()
